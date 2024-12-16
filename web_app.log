@@ -72,3 +72,50 @@
 {"level":"DEBUG","time":"2024-12-16T17:53:43.889+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
 {"level":"ERROR","time":"2024-12-16T17:53:49.711+0800","caller":"contorller/user.go:22","msg":"SignUpHandler with invalid param","error":"Key: 'ParamSignUp.confirm_password' Error:Field validation for 'confirm_password' failed on the 'eqfield' tag"}
 {"level":"INFO","time":"2024-12-16T17:53:49.711+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0}
+{"level":"DEBUG","time":"2024-12-16T18:35:21.245+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:35:25.411+0800","caller":"contorller/user.go:22","msg":"SignUpHandler with invalid param","error":"Key: 'ParamSignUp.confirm_password' Error:Field validation for 'confirm_password' failed on the 'eqfield' tag\nKey: 'ParamSignUp.confirm_password' Error:Field validation for 'confirm_password' failed on the 'eqfield' tag"}
+{"level":"INFO","time":"2024-12-16T18:35:25.411+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0}
+{"level":"INFO","time":"2024-12-16T18:35:29.627+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0105553}
+{"level":"INFO","time":"2024-12-16T18:36:39.319+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0005057}
+{"level":"DEBUG","time":"2024-12-16T18:37:21.291+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-16T18:37:26.677+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0005133}
+{"level":"INFO","time":"2024-12-16T18:37:28.163+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0003697}
+{"level":"DEBUG","time":"2024-12-16T18:38:59.604+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-16T18:39:04.192+0800","caller":"logger/logger.go:70","msg":"/version","status":200,"method":"GET","path":"/version","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0}
+{"level":"INFO","time":"2024-12-16T18:39:08.319+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0006796}
+{"level":"DEBUG","time":"2024-12-16T18:39:59.871+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:40:00.687+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"用户已存在"}
+{"level":"INFO","time":"2024-12-16T18:40:00.687+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0008782}
+{"level":"ERROR","time":"2024-12-16T18:41:09.618+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"用户已存在"}
+{"level":"INFO","time":"2024-12-16T18:41:09.618+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0010368}
+{"level":"DEBUG","time":"2024-12-16T18:43:07.769+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:43:09.761+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"用户已存在"}
+{"level":"INFO","time":"2024-12-16T18:43:09.761+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0006489}
+{"level":"ERROR","time":"2024-12-16T18:43:13.419+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"用户已存在"}
+{"level":"INFO","time":"2024-12-16T18:43:13.419+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0002549}
+{"level":"DEBUG","time":"2024-12-16T18:45:27.375+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:45:30.079+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"Error 1046 (3D000): No database selected"}
+{"level":"INFO","time":"2024-12-16T18:45:30.079+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0104907}
+{"level":"DEBUG","time":"2024-12-16T18:46:56.569+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:46:59.851+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"Error 1046 (3D000): No database selected"}
+{"level":"INFO","time":"2024-12-16T18:46:59.851+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0005019}
+{"level":"DEBUG","time":"2024-12-16T18:50:53.794+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:50:55.807+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"Error 1046 (3D000): No database selected"}
+{"level":"INFO","time":"2024-12-16T18:50:55.807+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0001561}
+{"level":"DEBUG","time":"2024-12-16T18:52:17.615+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-16T18:52:21.313+0800","caller":"logger/logger.go:70","msg":"/version","status":200,"method":"GET","path":"/version","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0}
+{"level":"ERROR","time":"2024-12-16T18:52:23.759+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"Error 1046 (3D000): No database selected"}
+{"level":"INFO","time":"2024-12-16T18:52:23.759+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0008515}
+{"level":"DEBUG","time":"2024-12-16T18:52:46.734+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:52:48.644+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"Error 1046 (3D000): No database selected"}
+{"level":"INFO","time":"2024-12-16T18:52:48.644+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0015395}
+{"level":"DEBUG","time":"2024-12-16T18:53:19.617+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-16T18:55:04.712+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"Error 1046 (3D000): No database selected"}
+{"level":"INFO","time":"2024-12-16T18:55:04.712+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":97.9792637}
+{"level":"DEBUG","time":"2024-12-16T18:55:12.038+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-16T18:55:15.592+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0128843}
+{"level":"ERROR","time":"2024-12-16T18:55:28.180+0800","caller":"contorller/user.go:49","msg":"logic.SignUp failed","error":"用户已存在"}
+{"level":"INFO","time":"2024-12-16T18:55:28.180+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0011904}
+{"level":"ERROR","time":"2024-12-16T18:55:45.906+0800","caller":"contorller/user.go:22","msg":"SignUpHandler with invalid param","error":"Key: 'ParamSignUp.confirm_password' Error:Field validation for 'confirm_password' failed on the 'eqfield' tag\nKey: 'ParamSignUp.confirm_password' Error:Field validation for 'confirm_password' failed on the 'eqfield' tag"}
+{"level":"INFO","time":"2024-12-16T18:55:45.907+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0006894}
+{"level":"INFO","time":"2024-12-16T18:55:50.265+0800","caller":"logger/logger.go:70","msg":"/signup","status":200,"method":"POST","path":"/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0057033}
