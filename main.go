@@ -5,6 +5,7 @@ import (
 	"go-community/dao/mysql"
 	"go-community/dao/redis"
 	"go-community/logger"
+	"go-community/pkg/snowflake"
 	"go-community/routes"
 	"go-community/settings"
 
@@ -41,10 +42,10 @@ func main() {
 	}
 	defer redis.Close()
 	// 雪花算法生成 ID
-	//if err := snowflake.Init(settings.Conf.StartTime, settings.Conf.MachineID); err != nil {
-	//	fmt.Printf("init snowflake failed, err:%v\n", err)
-	//	return
-	//}
+	if err := snowflake.Init(settings.Conf.StartTime, settings.Conf.MachineID); err != nil {
+		fmt.Printf("init snowflake failed, err:%v\n", err)
+		return
+	}
 	// 5. 注册路由
 	r := routes.Setup(settings.Conf.Mode)
 	err := r.Run(fmt.Sprintf(":%d", settings.Conf.Port))
@@ -52,4 +53,5 @@ func main() {
 		fmt.Printf("run server failed, err:%v\n", err)
 		return
 	}
+
 }
