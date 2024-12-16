@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	controller "go-community/contorller"
 	"go-community/dao/mysql"
 	"go-community/dao/redis"
 	"go-community/logger"
@@ -44,6 +45,11 @@ func main() {
 	// 雪花算法生成 ID
 	if err := snowflake.Init(settings.Conf.StartTime, settings.Conf.MachineID); err != nil {
 		fmt.Printf("init snowflake failed, err:%v\n", err)
+		return
+	}
+	// 初始化gin框架内置的校验器使用的翻译器
+	if err := controller.InitTrans("zh"); err != nil {
+		fmt.Printf("init validator trans failed, err:%v\n", err)
 		return
 	}
 	// 5. 注册路由
