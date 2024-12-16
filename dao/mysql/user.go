@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"crypto/md5"
+	"database/sql"
 	"encoding/hex"
 	"errors"
 	"go-community/models"
@@ -35,9 +36,29 @@ func InsertUser(user *models.User) (err error) {
 	return
 }
 
+// encryptPassword 密码加密
 func encryptPassword(data []byte) (result string) {
 	h := md5.New()
 	h.Write([]byte(secret))
 	h.Write(data)
 	return hex.EncodeToString(h.Sum(nil))
+}
+
+func Login(user *models.User) (err error) {
+	originPassword := user.Password // 用户登录的原始密码
+	sqlStr := `select user_id, username, password from user where username = ?`
+	err = db.Get(user, sqlStr, user.UserName)
+	if err == sql.ErrNoRows {
+		return errors.New("用户不存在")
+	}
+	if err != nil {
+		// 查询数据库出错
+		return err
+	}
+	// 判断密码是否正确
+	password := encryptPassword([]byte(originPassword))
+	if user.Password != password {
+		return errors.New("用户密码错误")
+	}
+	return
 }

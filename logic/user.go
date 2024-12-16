@@ -25,3 +25,12 @@ func SignUp(p *models.ParamSignUp) (err error) {
 	return mysql.InsertUser(user)
 	// redis.xxx
 }
+
+func Login(p *models.ParamLogin) (err error) {
+	user := &models.User{
+		UserName: p.UserName,
+		Password: p.Password,
+	}
+	// 用户登录
+	return mysql.Login(user)
+}
