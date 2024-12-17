@@ -3,6 +3,7 @@ package logic
 import (
 	"go-community/dao/mysql"
 	"go-community/models"
+	"go-community/pkg/jwt"
 	"go-community/pkg/snowflake"
 )
 
@@ -26,11 +27,15 @@ func SignUp(p *models.ParamSignUp) (err error) {
 	// redis.xxx
 }
 
-func Login(p *models.ParamLogin) (err error) {
+func Login(p *models.ParamLogin) (token string, err error) {
 	user := &models.User{
 		UserName: p.UserName,
 		Password: p.Password,
 	}
-	// 用户登录
-	return mysql.Login(user)
+	// 用户登录，传递的是指针
+	if err := mysql.Login(user); err != nil {
+		return "", err
+	}
+	// 生成 JWT token
+	return jwt.GenToken(user.UserID)
 }
