@@ -15,12 +15,14 @@ func Setup(mode string) *gin.Engine {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.New()
+	// 设置中间件
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
+	v1 := r.Group("/api/v1")
 	// 注册业务路由
-	r.POST("/signup", controller.SignUpHandler)
-	r.POST("/login", controller.LoginHandler)
-	r.GET("/refresh_token", controller.RefreshTokenHandler)
+	v1.POST("/signup", controller.SignUpHandler)
+	v1.POST("/login", controller.LoginHandler)
+	v1.GET("/refresh_token", controller.RefreshTokenHandler)
 
 	r.GET("/version", middlewares.JWTAuthMiddleware(), func(c *gin.Context) {
 		// 如果是已登录的用户，判断请求头中是否包括有效的 JWT token

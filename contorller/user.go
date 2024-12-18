@@ -33,15 +33,6 @@ func SignUpHandler(c *gin.Context) {
 		ResponseErrorWithMsg(c, CodeInvalidParams, removeTopStruct(errs.Translate(trans)))
 		return
 	}
-	// 手动对请求参数进行详细的业务规则校验
-	//if len(p.UserName) == 0 || len(p.Password) == 0 || len(p.ConfirmPassword) == 0 || p.ConfirmPassword != p.Password {
-	//	// 请求参数错误，直接返回响应
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"msg": "请求参数错误",
-	//	})
-	//	return
-	//}
-	//fmt.Println(p)
 	// 2.业务逻辑处理
 	if err := logic.SignUp(p); err != nil {
 		zap.L().Error("logic.SignUp failed", zap.Error(err))
