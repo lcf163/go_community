@@ -20,6 +20,7 @@ func Setup(mode string) *gin.Engine {
 	// 注册业务路由
 	r.POST("/signup", controller.SignUpHandler)
 	r.POST("/login", controller.LoginHandler)
+	r.GET("/refresh_token", controller.RefreshTokenHandler)
 
 	r.GET("/version", middlewares.JWTAuthMiddleware(), func(c *gin.Context) {
 		// 如果是已登录的用户，判断请求头中是否包括有效的 JWT token

@@ -5,6 +5,9 @@ import (
 	"go-community/dao/mysql"
 	"go-community/logic"
 	"go-community/models"
+	"go-community/pkg/jwt"
+	"net/http"
+	"strings"
 
 	"github.com/go-playground/validator/v10"
 
@@ -86,5 +89,31 @@ func LoginHandler(c *gin.Context) {
 		"accessToken":  aToken,
 		"refreshToken": rToken,
 		"username":     p.UserName,
+	})
+}
+
+func RefreshTokenHandler(c *gin.Context) {
+	rt := c.Query("refresh_token")
+	// 客户端携带 Token 有三种方式 1.放在请求头 2.放在请求体 3.放在 URI
+	// 这里假设 Token 放在 Header 的 Authorization 中，并使用 Bearer 开头
+	// 这里的具体实现方式要依据你的实际业务情况决定
+	authHeader := c.Request.Header.Get("Authorization")
+	if authHeader == "" {
+		ResponseErrorWithMsg(c, CodeInvalidToken, "请求头缺少Auth Token")
+		c.Abort()
+		return
+	}
+	// 按空格分割
+	parts := strings.SplitN(authHeader, " ", 2)
+	if !(len(parts) == 2 && parts[0] == "Bearer") {
+		ResponseErrorWithMsg(c, CodeInvalidToken, "Token格式不对")
+		c.Abort()
+		return
+	}
+	aToken, rToken, err := jwt.RefreshToken(parts[1], rt)
+	zap.L().Error("jwt.RefreshToken failed", zap.Error(err))
+	c.JSON(http.StatusOK, gin.H{
+		"access_token":  aToken,
+		"refresh_token": rToken,
 	})
 }
