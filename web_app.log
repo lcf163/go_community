@@ -240,3 +240,16 @@
 {"level":"INFO","time":"2024-12-19T18:24:23.797+0800","caller":"logger/logger.go:81","msg":"/login","status":200,"method":"POST","path":"/login","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0010205}
 {"level":"INFO","time":"2024-12-19T18:24:30.666+0800","caller":"logger/logger.go:81","msg":"/api/v1/login","status":200,"method":"POST","path":"/api/v1/login","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0027599}
 {"level":"DEBUG","time":"2024-12-19T18:25:16.533+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-19T23:21:11.674+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-19T23:21:17.067+0800","caller":"logger/logger.go:81","msg":"/version","status":200,"method":"GET","path":"/version","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0}
+{"level":"ERROR","time":"2024-12-19T23:21:21.353+0800","caller":"contorller/user.go:38","msg":"logic.SignUp failed","error":"用户已存在"}
+{"level":"INFO","time":"2024-12-19T23:21:21.353+0800","caller":"logger/logger.go:81","msg":"/api/v1/signup","status":200,"method":"POST","path":"/api/v1/signup","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0160526}
+{"level":"ERROR","time":"2024-12-19T23:21:24.312+0800","caller":"contorller/user.go:105","msg":"jwt.RefreshToken failed","error":"token contains an invalid number of segments"}
+{"level":"INFO","time":"2024-12-19T23:21:24.312+0800","caller":"logger/logger.go:81","msg":"/api/v1/refresh_token","status":200,"method":"GET","path":"/api/v1/refresh_token","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0005035}
+{"level":"INFO","time":"2024-12-19T23:21:26.324+0800","caller":"logger/logger.go:81","msg":"/api/v1/login","status":200,"method":"POST","path":"/api/v1/login","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0006686}
+{"level":"DEBUG","time":"2024-12-19T23:29:11.948+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-19T23:30:09.528+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-19T23:31:19.649+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-19T23:31:21.532+0800","caller":"logger/logger.go:81","msg":"/version","status":200,"method":"GET","path":"/version","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0005795}
+{"level":"DEBUG","time":"2024-12-19T23:31:29.083+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-19T23:31:31.258+0800","caller":"logger/logger.go:81","msg":"/version","status":200,"method":"GET","path":"/version","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0}

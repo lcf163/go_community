@@ -27,6 +27,7 @@ func Setup(mode string) *gin.Engine {
 	r.GET("/version", middlewares.JWTAuthMiddleware(), func(c *gin.Context) {
 		// 如果是已登录的用户，判断请求头中是否包括有效的 JWT token
 		c.String(http.StatusOK, settings.Conf.Version)
+		//c.String(http.StatusOK, "xxx")
 	})
 
 	r.NoRoute(func(c *gin.Context) {
