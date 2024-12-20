@@ -1,7 +1,6 @@
 package snowflake
 
 import (
-	"fmt"
 	"time"
 
 	sf "github.com/bwmarrin/snowflake"
@@ -25,13 +24,4 @@ func Init(startTime string, machineId int64) (err error) {
 // GetID 返回生成的id值
 func GetID() int64 {
 	return node.Generate().Int64()
-}
-
-func main() {
-	if err := Init("2024-12-15", 1); err != nil {
-		fmt.Printf("init failed, err: %v\n", err)
-		return
-	}
-	id := GetID()
-	fmt.Println(id)
 }

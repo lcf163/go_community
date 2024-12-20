@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"encoding/hex"
-	"errors"
 	"go-community/models"
 )
 
@@ -13,11 +12,13 @@ import (
 
 const secret = "liwenzhou.com"
 
-var (
-	ErrorUserExist       = errors.New("用户已存在")
-	ErrorUserNotExist    = errors.New("用户不存在")
-	ErrorInvalidPassword = errors.New("用户名或密码错误")
-)
+// encryptPassword 对密码进行加密
+func encryptPassword(data []byte) (result string) {
+	h := md5.New()
+	h.Write([]byte(secret))
+	h.Write(data)
+	return hex.EncodeToString(h.Sum(nil))
+}
 
 // CheckUserExist 检查指定用户名的用户是否存在
 func CheckUserExist(username string) (err error) {
@@ -42,29 +43,23 @@ func InsertUser(user *models.User) (err error) {
 	return
 }
 
-// encryptPassword 密码加密
-func encryptPassword(data []byte) (result string) {
-	h := md5.New()
-	h.Write([]byte(secret))
-	h.Write(data)
-	return hex.EncodeToString(h.Sum(nil))
-}
-
+// Login 用户登录
 func Login(user *models.User) (err error) {
 	originPassword := user.Password // 用户登录的原始密码
 	sqlStr := `select user_id, username, password from user where username = ?`
 	err = db.Get(user, sqlStr, user.UserName)
+	// 用户不存在
 	if err == sql.ErrNoRows {
 		return ErrorUserNotExist
 	}
+	// 查询数据库出错
 	if err != nil {
-		// 查询数据库出错
 		return err
 	}
 	// 判断密码是否正确
 	password := encryptPassword([]byte(originPassword))
 	if user.Password != password {
-		return ErrorInvalidPassword
+		return ErrorPasswordWrong
 	}
 	return
 }

@@ -1,5 +1,7 @@
 package controller
 
+// 定义业务状态码
+
 type MyCode int64
 
 const (

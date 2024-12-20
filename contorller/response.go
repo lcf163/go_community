@@ -6,6 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 封装响应
+
 type ResponseData struct {
 	Code    MyCode      `json:"code"`
 	Message interface{} `json:"message"`

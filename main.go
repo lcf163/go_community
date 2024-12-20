@@ -53,7 +53,7 @@ func main() {
 		return
 	}
 	// 5. 注册路由
-	r := routes.Setup(settings.Conf.Mode)
+	r := routes.SetupRouter(settings.Conf.Mode)
 	err := r.Run(fmt.Sprintf(":%d", settings.Conf.Port))
 	if err != nil {
 		fmt.Printf("run server failed, err:%v\n", err)

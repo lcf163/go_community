@@ -7,22 +7,27 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-// MyClaims 自定义声明结构体并内嵌jwt.StandardClaims
-// jwt包自带的jwt.StandardClaims只包含了官方字段
-// 我们这里需要额外记录一个UserID字段，所以要自定义结构体
+// MyClaims 自定义声明结构体并内嵌 jwt.StandardClaims
+// jwt 包自带的 jwt.StandardClaims 只包含了官方字段
+// 我们这里需要额外记录一个 UserID 字段，所以要自定义结构体
 // 如果想要保存更多信息，都可以添加到这个结构体中
 type MyClaims struct {
 	UserID int64 `json:"user_id"`
 	jwt.StandardClaims
 }
 
+// mySecret 用于加密的字符串
 var mySecret = []byte("夏天夏天悄悄过去")
 
 func keyFunc(_ *jwt.Token) (i interface{}, err error) {
 	return mySecret, nil
 }
 
-const TokenExpireDuration = time.Hour * 24 * 365
+// AccessTokenExpireDuration JWT access_token 过期时间
+const AccessTokenExpireDuration = time.Second * 24
+
+// RefreshTokenExpireDuration JWT refresh_token 过期时间
+const RefreshTokenExpireDuration = time.Hour * 24 * 7
 
 // GenToken 生成JWT
 func GenToken(userID int64) (aToken, rToken string, err error) {
@@ -30,8 +35,8 @@ func GenToken(userID int64) (aToken, rToken string, err error) {
 	c := MyClaims{
 		userID, // 自定义字段
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(), // 过期时间
-			Issuer:    "go-community",                             // 签发人
+			ExpiresAt: time.Now().Add(AccessTokenExpireDuration).Unix(), // 过期时间
+			Issuer:    "go-community",                                   // 签发人
 		},
 	}
 	// 加密并获得完整的编码后的字符串token
@@ -39,8 +44,8 @@ func GenToken(userID int64) (aToken, rToken string, err error) {
 
 	// refresh token 不需要存任何自定义数据
 	rToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(time.Second * 30).Unix(), // 过期时间
-		Issuer:    "go-community",                          // 签发人
+		ExpiresAt: time.Now().Add(RefreshTokenExpireDuration).Unix(), // 过期时间
+		Issuer:    "go-community",                                    // 签发人
 	}).SignedString(mySecret)
 
 	// 使用指定的secret签名并获得完整的编码后的字符串token

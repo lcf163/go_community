@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	"go-community/dao/mysql"
 	"go-community/logic"
 	"go-community/models"
@@ -16,7 +17,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// SignUpHandler 处理注册请求的函数
+// SignUpHandler 处理注册请求
 func SignUpHandler(c *gin.Context) {
 	// 1.获取请求参数和参数校验
 	//var p models.ParamSignUp
@@ -33,6 +34,7 @@ func SignUpHandler(c *gin.Context) {
 		ResponseErrorWithMsg(c, CodeInvalidParams, removeTopStruct(errs.Translate(trans)))
 		return
 	}
+
 	// 2.业务逻辑处理
 	if err := logic.SignUp(p); err != nil {
 		zap.L().Error("logic.SignUp failed", zap.Error(err))
@@ -63,9 +65,9 @@ func LoginHandler(c *gin.Context) {
 		ResponseErrorWithMsg(c, CodeInvalidParams, removeTopStruct(errs.Translate(trans)))
 		return
 	}
-	//fmt.Println(p)
+
 	// 2.业务逻辑处理
-	aToken, rToken, err := logic.Login(p)
+	user, err := logic.Login(p)
 	if err != nil {
 		zap.L().Error("logic.Login failed", zap.String("username", p.UserName), zap.Error(err))
 		if errors.Is(err, mysql.ErrorUserNotExist) {
@@ -77,12 +79,14 @@ func LoginHandler(c *gin.Context) {
 	}
 	// 3.返回响应
 	ResponseSuccess(c, gin.H{
-		"accessToken":  aToken,
-		"refreshToken": rToken,
-		"username":     p.UserName,
+		"userID":       fmt.Sprintf("%d", user.UserID), //js识别的最大值：id值大于1<<53-1  int64: i<<63-1
+		"userName":     user.UserName,
+		"accessToken":  user.AccessToken,
+		"refreshToken": user.RefreshToken,
 	})
 }
 
+// RefreshTokenHandler 刷新accessToken
 func RefreshTokenHandler(c *gin.Context) {
 	rt := c.Query("refresh_token")
 	// 客户端携带 Token 有三种方式 1.放在请求头 2.放在请求体 3.放在 URI

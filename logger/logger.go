@@ -18,12 +18,7 @@ import (
 
 // Init 初始化Logger
 func Init(cfg *settings.LogConfig, mode string) (err error) {
-	writeSyncer := getLogWriter(
-		cfg.Filename,
-		cfg.MaxSize,
-		cfg.MaxBackups,
-		cfg.MaxAge,
-	)
+	writeSyncer := getLogWriter(cfg.Filename, cfg.MaxSize, cfg.MaxBackups, cfg.MaxAge)
 	encoder := getEncoder()
 	var l = new(zapcore.Level)
 	err = l.UnmarshalText([]byte(cfg.Level))

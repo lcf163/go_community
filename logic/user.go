@@ -9,6 +9,7 @@ import (
 
 // 存放业务逻辑的代码
 
+// SignUp 注册业务逻辑
 func SignUp(p *models.ParamSignUp) (err error) {
 	// 判断用户是否存在
 	if err := mysql.CheckUserExist(p.UserName); err != nil {
@@ -27,15 +28,23 @@ func SignUp(p *models.ParamSignUp) (err error) {
 	// redis.xxx
 }
 
-func Login(p *models.ParamLogin) (aToken, rToken string, err error) {
-	user := &models.User{
+// Login 登录业务逻辑
+func Login(p *models.ParamLogin) (user *models.User, err error) {
+	user = &models.User{
 		UserName: p.UserName,
 		Password: p.Password,
 	}
 	// 用户登录，传递的是指针
 	if err := mysql.Login(user); err != nil {
-		return "", "", err
+		return nil, err
 	}
 	// 生成 JWT token
-	return jwt.GenToken(user.UserID)
+	//return jwt.GenToken(user.UserID)
+	accessToken, refreshToken, err := jwt.GenToken(user.UserID)
+	if err != nil {
+		return
+	}
+	user.AccessToken = accessToken
+	user.RefreshToken = refreshToken
+	return
 }
