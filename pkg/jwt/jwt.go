@@ -24,7 +24,7 @@ func keyFunc(_ *jwt.Token) (i interface{}, err error) {
 }
 
 // AccessTokenExpireDuration JWT access_token 过期时间
-const AccessTokenExpireDuration = time.Second * 24
+const AccessTokenExpireDuration = time.Hour * 24
 
 // RefreshTokenExpireDuration JWT refresh_token 过期时间
 const RefreshTokenExpireDuration = time.Hour * 24 * 7
