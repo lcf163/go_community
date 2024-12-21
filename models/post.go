@@ -17,6 +17,13 @@ type Post struct {
 	CreateTime  time.Time `json:"-" db:"create_time"`
 }
 
+// ApiPostDetail 帖子返回的详情model
+type ApiPostDetail struct {
+	AuthorName       string             `json:"author_name"`
+	*Post                               // 嵌入帖子结构体
+	*CommunityDetail `json:"community"` // 嵌入社区结构体
+}
+
 // UnmarshalJSON 帖子类型实现自定义的 UnmarshalJSON 方法
 func (p *Post) UnmarshalJSON(data []byte) (err error) {
 	required := struct {
@@ -39,10 +46,4 @@ func (p *Post) UnmarshalJSON(data []byte) (err error) {
 		p.CommunityID = required.CommunityID
 	}
 	return
-}
-
-type ApiPostDetail struct {
-	*Post
-	AuthorName    string `json:"author_name"`
-	CommunityName string `json:"community_name"`
 }
