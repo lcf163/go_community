@@ -472,3 +472,51 @@
 {"level":"INFO","time":"2024-12-22T00:35:13.123+0800","caller":"logger/logger.go:76","msg":"/api/v1/community/2","status":200,"method":"GET","path":"/api/v1/community/2","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0010455}
 {"level":"INFO","time":"2024-12-22T00:35:16.362+0800","caller":"logger/logger.go:76","msg":"/api/v1/community/1","status":200,"method":"GET","path":"/api/v1/community/1","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0013817}
 {"level":"INFO","time":"2024-12-22T00:35:25.143+0800","caller":"logger/logger.go:76","msg":"/api/v1/post/2405781790003200","status":200,"method":"GET","path":"/api/v1/post/2405781790003200","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0028497}
+{"level":"DEBUG","time":"2024-12-22T00:51:18.791+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-22T01:01:51.989+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"POST","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0044601}
+{"level":"INFO","time":"2024-12-22T01:02:21.373+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"POST","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0039748}
+{"level":"ERROR","time":"2024-12-22T01:03:51.187+0800","caller":"mysql/post.go:51","msg":"query post list failed","sql":"select post_id, title, content, author_id, community_id, create_time\n\tfrom post\n\tlimit 2","error":"must pass a pointer, not a value, to StructScan destination"}
+{"level":"ERROR","time":"2024-12-22T01:03:51.187+0800","caller":"logic/post.go:66","msg":"mysql.GetPostList failed","error":"查询数据失败"}
+{"level":"ERROR","time":"2024-12-22T01:03:51.188+0800","caller":"contorller/post.go:65","msg":"logic.GetPost failed","error":"查询数据失败"}
+{"level":"INFO","time":"2024-12-22T01:03:51.188+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"GET","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0016622}
+{"level":"DEBUG","time":"2024-12-22T01:07:03.347+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-22T01:07:06.827+0800","caller":"logger/logger.go:76","msg":"/api/v1/post/2405781790003200","status":200,"method":"GET","path":"/api/v1/post/2405781790003200","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0013759}
+{"level":"ERROR","time":"2024-12-22T01:07:14.881+0800","caller":"mysql/post.go:51","msg":"query post list failed","sql":"select post_id, title, content, author_id, community_id, create_time\n\tfrom post\n\tlimit 2","error":"must pass a pointer, not a value, to StructScan destination"}
+{"level":"ERROR","time":"2024-12-22T01:07:14.882+0800","caller":"logic/post.go:66","msg":"mysql.GetPostList failed","error":"查询数据失败"}
+{"level":"ERROR","time":"2024-12-22T01:07:14.882+0800","caller":"contorller/post.go:65","msg":"logic.GetPost failed","error":"查询数据失败"}
+{"level":"INFO","time":"2024-12-22T01:07:14.883+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"GET","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0023491}
+{"level":"DEBUG","time":"2024-12-22T01:10:09.402+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-22T01:10:19.337+0800","caller":"mysql/post.go:51","msg":"query post list failed","sql":"select post_id, title, content, author_id, community_id, create_time\n\tfrom post\n\tlimit 2","error":"scannable dest type slice with >1 columns (6) in result"}
+{"level":"ERROR","time":"2024-12-22T01:10:19.337+0800","caller":"logic/post.go:66","msg":"mysql.GetPostList failed","error":"查询数据失败"}
+{"level":"ERROR","time":"2024-12-22T01:10:19.337+0800","caller":"contorller/post.go:65","msg":"logic.GetPost failed","error":"查询数据失败"}
+{"level":"INFO","time":"2024-12-22T01:10:19.337+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"GET","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0007146}
+{"level":"DEBUG","time":"2024-12-22T01:10:45.552+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"ERROR","time":"2024-12-22T01:10:48.838+0800","caller":"mysql/post.go:51","msg":"query post list failed","sql":"select post_id, title, content, author_id, community_id, create_time\n\tfrom post\n\tlimit 2","error":"scannable dest type slice with >1 columns (6) in result"}
+{"level":"ERROR","time":"2024-12-22T01:10:48.838+0800","caller":"logic/post.go:66","msg":"mysql.GetPostList failed","error":"查询数据失败"}
+{"level":"ERROR","time":"2024-12-22T01:10:48.839+0800","caller":"contorller/post.go:65","msg":"logic.GetPost failed","error":"查询数据失败"}
+{"level":"INFO","time":"2024-12-22T01:10:48.839+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"GET","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0022066}
+{"level":"DEBUG","time":"2024-12-22T01:11:08.519+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-22T01:11:33.242+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"GET","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0009524}
+{"level":"DEBUG","time":"2024-12-22T01:13:42.931+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-22T01:14:46.040+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-22T01:14:49.178+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"GET","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0043653}
+{"level":"INFO","time":"2024-12-22T01:15:38.625+0800","caller":"logger/logger.go:76","msg":"/api/v1/post","status":200,"method":"GET","path":"/api/v1/post","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0034192}
+{"level":"DEBUG","time":"2024-12-22T01:16:24.809+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-22T01:16:59.783+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0058939}
+{"level":"DEBUG","time":"2024-12-22T01:18:35.919+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-22T01:23:38.267+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-22T01:23:55.516+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-22T01:24:22.034+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-22T01:29:17.497+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-22T01:29:20.168+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0024535}
+{"level":"INFO","time":"2024-12-22T01:30:04.639+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=1","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.001501}
+{"level":"INFO","time":"2024-12-22T01:30:29.975+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=1&page=2","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.001333}
+{"level":"INFO","time":"2024-12-22T01:30:49.505+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=1&page=3","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0016599}
+{"level":"DEBUG","time":"2024-12-22T01:31:38.120+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-22T01:32:13.880+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-22T01:33:25.800+0800","caller":"go-community/main.go:32","msg":"logger init success..."}
+{"level":"INFO","time":"2024-12-22T01:33:50.850+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=1&page=3","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.001111}
+{"level":"INFO","time":"2024-12-22T01:33:53.877+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=1&page=1","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0005904}
+{"level":"INFO","time":"2024-12-22T01:33:57.212+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=1&page=2","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0014269}
+{"level":"INFO","time":"2024-12-22T01:34:01.913+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=2&page=1","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0007473}
+{"level":"INFO","time":"2024-12-22T01:34:06.911+0800","caller":"logger/logger.go:76","msg":"/api/v1/posts","status":200,"method":"GET","path":"/api/v1/posts","query":"size=2&page=2","ip":"127.0.0.1","user-agent":"PostmanRuntime/7.43.0","errors":"","cost":0.0014826}
