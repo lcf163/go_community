@@ -41,7 +41,7 @@ func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
 		return
 	}
 	// 根据社区id查询社区详细信息
-	community, err := mysql.GetCommunityDetailByID(uint64(post.CommunityID))
+	community, err := mysql.GetCommunityDetailById(post.CommunityID)
 	if err != nil {
 		zap.L().Error("mysql.GetCommunityByID(post.CommunityID) failed",
 			zap.Int64("community_id", post.CommunityID),

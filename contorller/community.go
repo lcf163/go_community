@@ -25,15 +25,15 @@ func CommunityHandler(c *gin.Context) {
 // CommunityDetailHandler 社区详情
 func CommunityDetailHandler(c *gin.Context) {
 	// 1.获取社区ID
-	communityIdStr := c.Param("id")                               // 获取URL参数
-	communityId, err := strconv.ParseUint(communityIdStr, 10, 64) // id字符串格式转换
+	communityIdStr := c.Param("id")                              // 获取URL参数
+	communityId, err := strconv.ParseInt(communityIdStr, 10, 64) // id字符串格式转换
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
 
 	// 2.根据ID获取社区详情
-	communityList, err := logic.GetCommunityDetailByID(communityId)
+	communityList, err := logic.GetCommunityDetailById(int64(communityId))
 	if err != nil {
 		zap.L().Error("logic.GetCommunityByID() failed", zap.Error(err))
 		ResponseErrorWithMsg(c, CodeSuccess, err.Error())
