@@ -33,7 +33,7 @@ func CommunityDetailHandler(c *gin.Context) {
 	}
 
 	// 2.根据ID获取社区详情
-	communityList, err := logic.GetCommunityDetailById(int64(communityId))
+	communityList, err := logic.GetCommunityDetailById(communityId)
 	if err != nil {
 		zap.L().Error("logic.GetCommunityByID() failed", zap.Error(err))
 		ResponseErrorWithMsg(c, CodeSuccess, err.Error())

@@ -16,10 +16,10 @@ func SignUp(p *models.ParamSignUp) (err error) {
 		return err
 	}
 	// 生成 UID
-	userID := snowflake.GetID()
+	userId := snowflake.GetID()
 	// 构造一个 User 实例
 	user := &models.User{
-		UserID:   userID,
+		UserId:   userId,
 		UserName: p.UserName,
 		Password: p.Password,
 	}
@@ -40,7 +40,7 @@ func Login(p *models.ParamLogin) (user *models.User, err error) {
 	}
 	// 生成 JWT token
 	//return jwt.GenToken(user.UserID)
-	accessToken, refreshToken, err := jwt.GenToken(user.UserID)
+	accessToken, refreshToken, err := jwt.GenToken(user.UserId)
 	if err != nil {
 		return
 	}
