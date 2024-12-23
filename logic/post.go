@@ -100,3 +100,52 @@ func GetPostList(page, size int64) (data []*models.ApiPostDetail, err error) {
 	}
 	return
 }
+
+// GetPostList2 获取帖子列表（按帖子的创建时间或者分数排序）
+func GetPostList2(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
+	// redis 中查询 Id 列表
+	ids, err := redis.GetPostIdInOrder(p)
+	if err != nil {
+		return
+	}
+	if len(ids) == 0 {
+		zap.L().Warn("redis.GetPostIdInOrder(p), return data is empty")
+		return
+	}
+	zap.L().Debug("GetPostList2", zap.Any("ids: ", ids))
+	// 根据 Id 在数据库 mysql 中查询帖子详细信息
+	// 返回的数据需要按照给定的 id 的顺序，order by FIND_IN_SET(post_id, ?)
+	posts, err := mysql.GetPostListByIds(ids)
+	if err != nil {
+		return
+	}
+	zap.L().Debug("GetPostList2", zap.Any("posts: ", posts))
+	// 组合数据
+	// 将帖子的作者及分区信息查询出来填充到帖子中
+	for _, post := range posts {
+		// 根据作者id查询作者信息
+		user, err := mysql.GetUserById(post.AuthorId)
+		if err != nil {
+			zap.L().Error("mysql.GetUserById(AuthorId) failed",
+				zap.Int64("AuthorId", post.AuthorId),
+				zap.Error(err))
+			continue
+		}
+		// 根据社区id查询社区详细信息
+		community, err := mysql.GetCommunityDetailById(post.CommunityId)
+		if err != nil {
+			zap.L().Error("mysql.GetCommunityByID(post.CommunityId) failed",
+				zap.Int64("community_id", post.CommunityId),
+				zap.Error(err))
+			continue
+		}
+		// 接口数据拼接
+		postDetail := &models.ApiPostDetail{
+			AuthorName:      user.UserName,
+			Post:            post,
+			CommunityDetail: community,
+		}
+		data = append(data, postDetail)
+	}
+	return
+}

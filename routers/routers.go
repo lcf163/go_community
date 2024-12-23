@@ -30,14 +30,15 @@ func SetupRouter(mode string) *gin.Engine {
 	// 使用 JWT 认证中间件
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
-		v1.GET("/community", controller.CommunityHandler)
-		v1.GET("/community/:id", controller.CommunityDetailHandler)
+		v1.GET("/community", controller.CommunityHandler)           // 获取分类社区列表
+		v1.GET("/community/:id", controller.CommunityDetailHandler) // 根据ID查找社区详情
 
-		v1.POST("/post", controller.CreatePostHandler)
-		v1.GET("/post/:id", controller.PostDetailHandler)
-		v1.GET("/posts", controller.GetPostListHandler)
+		v1.POST("/post", controller.CreatePostHandler)    // 创建帖子
+		v1.GET("/post/:id", controller.PostDetailHandler) // 查询帖子详情
+		v1.GET("/posts", controller.GetPostListHandler)   // 分页展示帖子列表
+		v1.GET("/posts2", controller.GetPostListHandler2) // 分页展示帖子列表：帖子的发布时间或分数排序
 
-		v1.POST("/vote", controller.VoteHandler)
+		v1.POST("/vote", controller.VoteHandler) // 投票
 	}
 
 	r.NoRoute(func(c *gin.Context) {

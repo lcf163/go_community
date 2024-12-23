@@ -7,6 +7,11 @@ import (
 
 // 定义请求参数的结构体
 
+const (
+	OrderTime  = "time"
+	OrderScore = "score"
+)
+
 // ParamSignUp 注册请求参数
 type ParamSignUp struct {
 	UserName        string `json:"username" binding:"required"`
@@ -43,4 +48,11 @@ func (v *ParamVoteData) UnmarshalJSON(data []byte) (err error) {
 		v.Direction = required.Direction
 	}
 	return
+}
+
+// ParamPostList 获取帖子列表 query string 参数
+type ParamPostList struct {
+	Page  int64  `json:"page" form:"page"`                   // 页码
+	Size  int64  `json:"size" form:"size"`                   // 每页数量
+	Order string `json:"order" form:"order" example:"score"` // 排序依据
 }

@@ -3,6 +3,9 @@ package mysql
 import (
 	"database/sql"
 	"go-community/models"
+	"strings"
+
+	"github.com/jmoiron/sqlx"
 
 	"go.uber.org/zap"
 )
@@ -41,9 +44,12 @@ func GetPostById(postId int64) (post *models.Post, err error) {
 	return
 }
 
+// GetPostList 查询帖子列表
 func GetPostList(page, size int64) (posts []*models.Post, err error) {
 	sqlStr := `select post_id, title, content, author_id, community_id, create_time
 	from post
+	ORDER BY create_time 
+	DESC 
 	limit ?,?`
 	posts = make([]*models.Post, 0, 2)
 	err = db.Select(&posts, sqlStr, (page-1)*size, size)
@@ -52,5 +58,22 @@ func GetPostList(page, size int64) (posts []*models.Post, err error) {
 		err = ErrorQueryFailed
 		return
 	}
+	return
+}
+
+// GetPostListByIds 根据给定的 id 列表查询帖子数据
+func GetPostListByIds(ids []string) (postList []*models.Post, err error) {
+	sqlStr := `select post_id, title, content, author_id, community_id, create_time
+	from post
+	where post_id in (?)
+	order by FIND_IN_SET(post_id, ?)`
+	// 动态填充 id
+	query, args, err := sqlx.In(sqlStr, ids, strings.Join(ids, ","))
+	if err != nil {
+		return
+	}
+	// sqlx.In 返回带 `?` bindvar 的查询语句, 使用 Rebind() 重新绑定它
+	query = db.Rebind(query)
+	err = db.Select(&postList, query, args...)
 	return
 }
