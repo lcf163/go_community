@@ -11,7 +11,7 @@ import (
 type ResponseData struct {
 	Code    MyCode      `json:"code"`
 	Message interface{} `json:"message"`
-	Data    interface{} `json:"data"`
+	Data    interface{} `json:"data,omitempty"` // 若该字段为空，则不显示
 }
 
 func ResponseError(ctx *gin.Context, c MyCode) {

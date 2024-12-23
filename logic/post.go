@@ -1,7 +1,9 @@
 package logic
 
 import (
+	"fmt"
 	"go-community/dao/mysql"
+	"go-community/dao/redis"
 	"go-community/models"
 	"go-community/pkg/snowflake"
 
@@ -16,6 +18,10 @@ func CreatePost(post *models.Post) (err error) {
 	// 创建帖子，保存到数据库
 	if err := mysql.CreatePost(post); err != nil {
 		zap.L().Error("mysql.CreatePost failed", zap.Error(err))
+		return err
+	}
+	if err := redis.CreatePost(fmt.Sprint(postId)); err != nil {
+		zap.L().Error("redis.CreatePost failed", zap.Error(err))
 		return err
 	}
 	return

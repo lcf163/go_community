@@ -7,7 +7,7 @@ import (
 	"go-community/dao/redis"
 	"go-community/logger"
 	"go-community/pkg/snowflake"
-	"go-community/routes"
+	"go-community/routers"
 	"go-community/settings"
 
 	"go.uber.org/zap"
@@ -53,7 +53,7 @@ func main() {
 		return
 	}
 	// 5. 注册路由
-	r := routes.SetupRouter(settings.Conf.Mode)
+	r := routers.SetupRouter(settings.Conf.Mode)
 	err := r.Run(fmt.Sprintf(":%d", settings.Conf.Port))
 	if err != nil {
 		fmt.Printf("run server failed, err:%v\n", err)

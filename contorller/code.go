@@ -15,6 +15,8 @@ const (
 	CodeInvalidToken      MyCode = 1006
 	CodeInvalidAuthFormat MyCode = 1007
 	CodeNotLogin          MyCode = 1008
+	CodeVoteRepeated      MyCode = 1009
+	CodeVoteTimeExpire    MyCode = 1010
 )
 
 var msgFlags = map[MyCode]string{
