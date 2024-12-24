@@ -2,6 +2,8 @@ package redis
 
 import (
 	"go-community/models"
+	"strconv"
+	"time"
 
 	"github.com/go-redis/redis"
 )
@@ -14,8 +16,8 @@ func getIdsFormKey(key string, page, size int64) ([]string, error) {
 	return client.ZRevRange(key, start, end).Result()
 }
 
-// GetPostIdInOrder 获取帖子列表：按创建时间排序或者分数排序（查询出 ids 根据 order 从大到小排序）
-func GetPostIdInOrder(p *models.ParamPostList) ([]string, error) {
+// GetPostIdsInOrder 获取帖子列表：按创建时间排序或者分数排序（查询出 ids 根据 order 从大到小排序）
+func GetPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
 	// 从 redis 获取 id
 	// 1.根据请求中携带的 order 参数，确定要查询的 redis key
 	key := getRedisKey(KeyPostTimeZSet) // 默认是时间
@@ -52,4 +54,35 @@ func GetPostVoteData(ids []string) (data []int64, err error) {
 		data = append(data, v)
 	}
 	return
+}
+
+// GetCommunityPostIdsInOrder 按社区查询ids(查询出的ids根据order从大到小排序)
+func GetCommunityPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
+	// 从 redis 获取 id
+	// 1.根据请求中携带的 order 参数，确定要查询的 redis key
+	orderKey := getRedisKey(KeyPostTimeZSet) // 默认是时间
+	if p.Order == models.OrderScore {        // 按照分数请求
+		orderKey = getRedisKey(KeyPostScoreZSet)
+	}
+	// 使用 zinterstore: 把分区的帖子 set 与帖子分数 zset 生成一个新的 zset
+	// 针对新的 zset，按之前的逻辑取数据
+	// 利用缓存 key 减少 zinterstore 执行的次数
+	// 社区的 key
+	communityKey := getRedisKey(KeyCommunityPostSetPrefix + strconv.Itoa(int(p.CommunityId)))
+	// 缓存的 key
+	key := orderKey + strconv.Itoa(int(p.CommunityId))
+	if client.Exists(key).Val() < 1 {
+		// 不存在，需要计算
+		pipeline := client.Pipeline()
+		pipeline.ZInterStore(key, redis.ZStore{
+			Aggregate: "MAX", // 将两个 zset 函数聚合时求最大值
+		}, communityKey, orderKey) // zinterstore 计算
+		pipeline.Expire(key, 60*time.Second) // 设置超时时间
+		_, err := pipeline.Exec()
+		if err != nil {
+			return nil, err
+		}
+	}
+	// 2.确定查询的索引起始点
+	return getIdsFormKey(key, p.Page, p.Size)
 }

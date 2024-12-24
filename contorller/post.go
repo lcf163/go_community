@@ -89,7 +89,7 @@ func GetPostListHandler2(c *gin.Context) {
 		return
 	}
 	// 获取数据
-	posts, err := logic.GetPostList2(p)
+	posts, err := logic.GetPostListNew(p) // 更新：合二为一
 	if err != nil {
 		zap.L().Error("logic.GetPostList2 failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)

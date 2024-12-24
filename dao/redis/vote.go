@@ -2,6 +2,7 @@ package redis
 
 import (
 	"math"
+	"strconv"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -57,7 +58,8 @@ func VoteForPost(userId, postId string, v float64) (err error) {
 	// 2和3，需要放到一个事务中操作
 	// 2.更新帖子的分数
 	// 判断是否已经投过票，查当前用户给当前帖子的投票记录
-	ov := client.ZScore(KeyPostVotedZSetPrefix+postId, userId).Val()
+	key := getRedisKey(KeyPostVotedZSetPrefix) + postId
+	ov := client.ZScore(key, userId).Val()
 	// 若这一次投票的值和之前保存的值一致，则提示不允许重复投票
 	if v == ov {
 		return ErrorVoteRepeted
@@ -73,14 +75,11 @@ func VoteForPost(userId, postId string, v float64) (err error) {
 	pipeline := client.TxPipeline()            // 事务操作
 	// ZIncrBy 用于将有序集合中的成员分数增加指定数量
 	pipeline.ZIncrBy(getRedisKey(KeyPostScoreZSet), incrementScore, postId) // 更新分数
-	if err != nil {
-		return err
-	}
 	// 3.记录用户为该帖子投票的数据
 	if v == 0 {
-		pipeline.ZRem(getRedisKey(KeyPostVotedZSetPrefix+postId), userId)
+		pipeline.ZRem(key, userId)
 	} else {
-		pipeline.ZAdd(getRedisKey(KeyPostVotedZSetPrefix+postId), redis.Z{ // 记录已投票
+		pipeline.ZAdd(key, redis.Z{ // 记录已投票
 			Score:  v, // 赞成票还是反对票
 			Member: userId,
 		})
@@ -93,20 +92,24 @@ func VoteForPost(userId, postId string, v float64) (err error) {
 }
 
 // CreatePost redis 存储帖子信息
-func CreatePost(postId string) (err error) {
+func CreatePost(postId, communityId int64) (err error) {
+	now := float64(time.Now().Unix())
 	pipeline := client.TxPipeline() // 事务操作
 	// 文章 hash
 	//pipeline.HMSet(getRedisKey(KeyPostVotedZSetPrefix+postId), postInfo)
 	// 帖子时间 ZSet
 	pipeline.ZAdd(getRedisKey(KeyPostTimeZSet), redis.Z{
-		Score:  float64(time.Now().Unix()),
+		Score:  now,
 		Member: postId,
 	})
 	// 帖子分数 ZSet
 	pipeline.ZAdd(getRedisKey(KeyPostScoreZSet), redis.Z{
-		Score:  float64(time.Now().Unix()),
+		Score:  now + VoteScore,
 		Member: postId,
 	})
+	// 把帖子id添加到社区 set
+	communityKey := getRedisKey(KeyCommunityPostSetPrefix) + strconv.Itoa(int(communityId))
+	pipeline.SAdd(communityKey, postId)
 	_, err = pipeline.Exec() // 事务操作的提交
 	return
 }
