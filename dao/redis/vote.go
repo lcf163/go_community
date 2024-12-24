@@ -60,7 +60,7 @@ func VoteForPost(userId, postId string, v float64) (err error) {
 	ov := client.ZScore(KeyPostVotedZSetPrefix+postId, userId).Val()
 	// 若这一次投票的值和之前保存的值一致，则提示不允许重复投票
 	if v == ov {
-		return ErrorVoted
+		return ErrorVoteRepeted
 	}
 	var op float64
 	if v > ov {

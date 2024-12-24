@@ -37,7 +37,7 @@ func VoteHandler(c *gin.Context) {
 	if err := logic.VoteForPost(userID, vote); err != nil {
 		zap.L().Error("logic.VoteForPost failed", zap.Error(err))
 		switch err {
-		case redis.ErrorVoted: // 重复投票
+		case redis.ErrorVoteRepeted: // 重复投票
 			ResponseError(c, CodeVoteRepeated)
 		case redis.ErrorVoteTimeExpire: // 投票超时
 			ResponseError(c, CodeVoteTimeExpire)
