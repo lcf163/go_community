@@ -15,6 +15,14 @@ import (
 
 // Go Web开发较通用的脚手架模板
 
+// @title go-community backend
+// @version 1.0
+// @description main.go
+// @termsOfService http://swagger.io/terms/
+
+// @host 127.0.0.1:8081
+// @BasePath /api/v1/
+
 func main() {
 	// 1. 加载配置
 	if err := settings.Init(); err != nil {

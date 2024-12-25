@@ -72,7 +72,16 @@ func GetPostListHandler(c *gin.Context) {
 }
 
 // GetPostListHandler2 获取帖子列表（按帖子的创建时间或者分数排序）
-// 根据前端传来的参数动态地获取帖子列表
+// @Summary 升级版帖子列表接口
+// @Description 按社区按时间或分数排序查询帖子列表接口
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string false "Bearer 用户令牌"
+// @Param object query models.ParamPostList false "查询参数"
+// @Security ApiKeyAuth
+// @Success 200 {object} _ResponsePostList
+// @Router /posts2 [get]
 func GetPostListHandler2(c *gin.Context) {
 	// GET 请求参数（query string）: /api/v1/post2?page=1&size=10&order=time
 	p := &models.ParamPostList{

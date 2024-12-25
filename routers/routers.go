@@ -6,7 +6,11 @@ import (
 	"go-community/middlewares"
 	"net/http"
 
+	_ "go-community/docs" // 千万不要忘了导入把你上一步生成的docs
+
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files" // swagger embed files
+	gs "github.com/swaggo/gin-swagger"
 )
 
 // SetupRouter 设置路由
@@ -20,6 +24,8 @@ func SetupRouter(mode string) *gin.Engine {
 	// 设置中间件
 	r.Use(logger.GinLogger(), logger.GinRecovery(true))
 
+	// 注册 swagger api 相关路由
+	r.GET("/swagger/*any", gs.WrapHandler(swaggerFiles.Handler))
 	// 注册路由
 	v1 := r.Group("/api/v1")
 	// 登录业务
