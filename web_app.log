@@ -1150,3 +1150,10 @@
 {"level":"DEBUG","time":"2024-12-25T23:14:55.485+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
 {"level":"INFO","time":"2024-12-25T23:14:57.986+0800","caller":"logger/logger.go:76","msg":"/swagger/index.html","status":200,"method":"GET","path":"/swagger/index.html","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36","errors":"","cost":0}
 {"level":"INFO","time":"2024-12-25T23:14:58.066+0800","caller":"logger/logger.go:76","msg":"/favicon.ico","status":200,"method":"GET","path":"/favicon.ico","query":"","ip":"127.0.0.1","user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36","errors":"","cost":0}
+{"level":"DEBUG","time":"2024-12-25T23:51:00.408+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-25T23:52:25.340+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-25T23:54:48.235+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-25T23:55:14.315+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-25T23:57:22.698+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-26T00:01:39.720+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
+{"level":"DEBUG","time":"2024-12-26T00:09:23.045+0800","caller":"go-community/main.go:40","msg":"logger init success..."}
