@@ -5,6 +5,7 @@ import (
 	"go-community/logger"
 	"go-community/middlewares"
 	"net/http"
+	"time"
 
 	_ "go-community/docs" // 千万不要忘了导入把你上一步生成的docs
 
@@ -22,7 +23,9 @@ func SetupRouter(mode string) *gin.Engine {
 	// 初始化路由（没有默认中间件）
 	r := gin.New()
 	// 设置中间件
-	r.Use(logger.GinLogger(), logger.GinRecovery(true))
+	r.Use(logger.GinLogger(), logger.GinRecovery(true), // Recovery 中间件会 recover 项目可能出现的 panic，并使用 zap 记录相关日志
+		middlewares.RateLimitMiddleware(2*time.Second, 1), // 限流中间件（全局限流）：每两秒钟添加1个令牌
+	)
 
 	// 注册 swagger api 相关路由
 	r.GET("/swagger/*any", gs.WrapHandler(swaggerFiles.Handler))
