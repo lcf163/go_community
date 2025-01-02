@@ -54,14 +54,15 @@ func Init() (err error) {
 	// 方式1：直接指定配置文件路径（相对路径或者绝对路径）
 	// 相对路径：执行的可执行文件的相对路径
 	// 绝对路径：系统中实际的文件路径
-	//viper.SetConfigFile("config.yaml")
+	viper.SetConfigFile("./conf/config.yaml")
 
 	// 方式2：指定配置文件名和位置，viper自行查找可用的配置文件
 	// 配置文件名不需要带后缀
 	// 配置文件位置可以配置多个
-	viper.SetConfigName("config") // 指定配置文件名称（不需要带后缀）
+	//viper.SetConfigName("config") // 指定配置文件名称（不需要带后缀）
 	//viper.SetConfigType("yaml")   // 指定配置文件类型(专用于从远程获取配置信息时指定配置文件类型的)
-	viper.AddConfigPath(".") // 指定查找配置文件的路径（这里使用相对路径）
+	//viper.AddConfigPath(".") // 指定查找配置文件的路径（这里使用相对路径）
+	//viper.AddConfigPath(".conf") // 指定查找配置文件的路径（这里使用相对路径）
 
 	// 读取配置信息
 	err = viper.ReadInConfig()

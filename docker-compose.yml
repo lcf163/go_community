@@ -1,0 +1,46 @@
+# yaml 配置
+version: "3.7"
+services:
+  # MySQL 8.0 服务配置
+  mysql8:
+    image: "mysql:8.0"
+    ports:
+      - "13306:3306"
+    command: "--default-authentication-plugin=mysql_native_password --init-file /data/application/init.sql"
+    environment:
+      MYSQL_DATABASE: "go_community"
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_PASSWORD: "root"
+    volumes:
+      - ./init.sql:/data/application/init.sql
+    # 健康检查配置
+    healthcheck:
+      # 使用 mysqladmin 命令检查 MySQL 是否响应
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      # 每隔 10 秒执行一次健康检查
+      interval: 10s
+      # 健康检查的超时时间设置为 5 秒
+      timeout: 5s
+      # 如果健康检查失败，重试 5 次
+      retries: 5
+  # Redis 5.0.7 服务配置
+  redis507:
+    image: "redis:5.0.7"
+    ports:
+      - "26379:6379"
+    healthcheck:
+      # 使用 redis-cli 命令检查 Redis 是否响应
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  # Go 社区应用程序服务配置
+  go_community_app:
+    build: .
+    # 等待 30 秒，然后使用 wait-for.sh 脚本检查 mysql8 和 redis507 服务是否准备就绪
+    command: sh -c "sleep 30 && ./wait-for.sh mysql8:3306 redis507:6379 -- ./go_community_app ./conf/config.yaml"
+    depends_on:
+      - mysql8
+      - redis507
+    ports:
+      - "8088:8082"
