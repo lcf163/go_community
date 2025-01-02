@@ -5,7 +5,6 @@ import (
 	"go-community/logger"
 	"go-community/middlewares"
 	"net/http"
-	"time"
 
 	_ "go-community/docs" // 千万不要忘了导入把你上一步生成的docs
 
@@ -24,9 +23,17 @@ func SetupRouter(mode string) *gin.Engine {
 	// 初始化路由（没有默认中间件）
 	r := gin.New()
 	// 设置中间件
-	r.Use(logger.GinLogger(), logger.GinRecovery(true), // Recovery 中间件会 recover 项目可能出现的 panic，并使用 zap 记录相关日志
-		middlewares.RateLimitMiddleware(2*time.Second, 1), // 限流中间件（全局限流）：每两秒钟添加1个令牌
-	)
+	// r.Use(logger.GinLogger(), logger.GinRecovery(true), // Recovery 中间件：recover 项目可能出现的 panic，并使用 zap 记录相关日志
+	// 	middlewares.RateLimitMiddleware(2*time.Second, 1), // 限流中间件（全局限流）：每两秒钟添加1个令牌
+	// )
+	r.Use(logger.GinLogger(), logger.GinRecovery(true)) // Recovery 中间件：recover 项目可能出现的 panic，并使用 zap 记录相关日志
+
+	// 前端相关
+	r.LoadHTMLFiles("./templates/index.html")
+	r.Static("/static", "./static")
+	r.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
 
 	// 注册 swagger api 相关路由
 	r.GET("/swagger/*any", gs.WrapHandler(swaggerFiles.Handler))
@@ -37,6 +44,8 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.POST("/login", controller.LoginHandler)
 	v1.GET("/refresh_token", controller.RefreshTokenHandler)
 
+	v1.GET("/posts", controller.GetPostListHandler)   // 分页展示帖子列表
+	v1.GET("/posts2", controller.GetPostListHandler2) // 分页展示帖子列表：帖子的发布时间或分数排序
 	// 使用 JWT 认证中间件
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
@@ -45,10 +54,7 @@ func SetupRouter(mode string) *gin.Engine {
 
 		v1.POST("/post", controller.CreatePostHandler)    // 创建帖子
 		v1.GET("/post/:id", controller.PostDetailHandler) // 查询帖子详情
-		v1.GET("/posts", controller.GetPostListHandler)   // 分页展示帖子列表
-		v1.GET("/posts2", controller.GetPostListHandler2) // 分页展示帖子列表：帖子的发布时间或分数排序
-
-		v1.POST("/vote", controller.VoteHandler) // 投票
+		v1.POST("/vote", controller.VoteHandler)          // 投票
 	}
 
 	pprof.Register(r) // 注册 pprof 相关路由
