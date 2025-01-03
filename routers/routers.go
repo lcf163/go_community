@@ -2,12 +2,12 @@ package routers
 
 import (
 	controller "go-community/contorller"
+	_ "go-community/docs" // 千万不要忘了导入把你上一步生成的docs
 	"go-community/logger"
 	"go-community/middlewares"
 	"net/http"
 
-	_ "go-community/docs" // 千万不要忘了导入把你上一步生成的docs
-
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files" // swagger embed files
@@ -27,6 +27,19 @@ func SetupRouter(mode string) *gin.Engine {
 	// 	middlewares.RateLimitMiddleware(2*time.Second, 1), // 限流中间件（全局限流）：每两秒钟添加1个令牌
 	// )
 	r.Use(logger.GinLogger(), logger.GinRecovery(true)) // Recovery 中间件：recover 项目可能出现的 panic，并使用 zap 记录相关日志
+	r.Use(cors.Default())                               // 默认允许所有跨域请求
+	// 自定义跨域请求 CORS 相关配置项
+	//r.Use(cors.New(cors.Config{
+	//	AllowOrigins:     []string{"https://foo.com"},
+	//	AllowMethods:     []string{"PUT", "PATCH"},
+	//	AllowHeaders:     []string{"Origin"},
+	//	ExposeHeaders:    []string{"Content-Length"},
+	//	AllowCredentials: true,
+	//	AllowOriginFunc: func(origin string) bool {
+	//		return origin == "https://github.com"
+	//	},
+	//	MaxAge: 12 * time.Hour,
+	//}))
 
 	// 前端相关
 	r.LoadHTMLFiles("./templates/index.html")
