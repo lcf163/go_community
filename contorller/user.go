@@ -79,10 +79,10 @@ func LoginHandler(c *gin.Context) {
 	}
 	// 3.返回响应
 	ResponseSuccess(c, gin.H{
-		"userID":       fmt.Sprintf("%d", user.UserId), // JS 的数字小于 1<<53 -1，int64: 1<<63 -1
-		"userName":     user.UserName,
-		"accessToken":  user.AccessToken,
-		"refreshToken": user.RefreshToken,
+		"user_id":       fmt.Sprintf("%d", user.UserId), // JS 的数字小于 1<<53 -1，int64: 1<<63 -1
+		"user_name":     user.UserName,
+		"access_token":  user.AccessToken,
+		"refresh_token": user.RefreshToken,
 	})
 }
 
