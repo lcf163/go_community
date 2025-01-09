@@ -17,15 +17,7 @@ type Post struct {
 	CreateTime  time.Time `json:"-" db:"create_time"`
 }
 
-// ApiPostDetail 帖子返回的详情model
-type ApiPostDetail struct {
-	AuthorName       string             `json:"author_name"` // 作者名
-	VoteNum          int64              `json:"vote_num"`    // 投票数量
-	*Post                               // 嵌入帖子结构体
-	*CommunityDetail `json:"community"` // 嵌入社区结构体
-}
-
-// UnmarshalJSON 帖子类型实现自定义的 UnmarshalJSON 方法
+// UnmarshalJSON 为POST类型实现自定义的 UnmarshalJSON 方法
 func (p *Post) UnmarshalJSON(data []byte) (err error) {
 	required := struct {
 		Title       string `json:"title" db:"title"`
@@ -47,4 +39,25 @@ func (p *Post) UnmarshalJSON(data []byte) (err error) {
 		p.CommunityId = required.CommunityId
 	}
 	return
+}
+
+// ApiPostDetail 帖子返回的详情model
+type ApiPostDetail struct {
+	AuthorName       string             `json:"author_name"` // 作者名
+	VoteNum          int64              `json:"vote_num"`    // 投票数量
+	*Post                               // 嵌入帖子结构体
+	*CommunityDetail `json:"community"` // 嵌入社区结构体
+}
+
+// Page 分页结构体
+type Page struct {
+	Total int64 `json:"total"`
+	Page  int64 `json:"page"`
+	Size  int64 `json:"size"`
+}
+
+// ApiPostDetailRes 搜索帖子返回的model
+type ApiPostDetailRes struct {
+	Page Page             `json:"page"`
+	List []*ApiPostDetail `json:"list"`
 }

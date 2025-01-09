@@ -57,7 +57,7 @@ func PostDetailHandler(c *gin.Context) {
 	ResponseSuccess(c, post)
 }
 
-// GetPostListHandler 获取帖子列表
+// GetPostListHandler 分页获取帖子列表
 func GetPostListHandler(c *gin.Context) {
 	// 获取分页参数
 	page, size := getPageInfo(c)
@@ -71,7 +71,7 @@ func GetPostListHandler(c *gin.Context) {
 	ResponseSuccess(c, posts)
 }
 
-// GetPostListHandler2 获取帖子列表（按帖子的创建时间或者分数排序）
+// GetPostListHandler2 分页获取帖子列表（按帖子的创建时间或者分数排序）
 // @Summary 升级版帖子列表接口
 // @Description 按社区按时间或分数排序查询帖子列表接口
 // @Tags 帖子相关接口
@@ -85,9 +85,9 @@ func GetPostListHandler(c *gin.Context) {
 func GetPostListHandler2(c *gin.Context) {
 	// GET 请求参数（query string）: /api/v1/post2?page=1&size=10&order=time
 	p := &models.ParamPostList{
-		Page:  1,
-		Size:  10,
-		Order: models.OrderTime,
+		Page:  1,                // 默认第1页
+		Size:  10,               // 默认每页10条
+		Order: models.OrderTime, // 默认按时间排序
 	}
 	// 获取分页参数
 	// c.ShouldBind() 根据请求的数据类型，选择相应的方法去获取数据
@@ -97,12 +97,40 @@ func GetPostListHandler2(c *gin.Context) {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
+
 	// 获取数据
 	posts, err := logic.GetPostListNew(p) // 更新：合二为一
 	if err != nil {
 		zap.L().Error("logic.GetPostList2 failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
+		return // 添加return，避免错误情况下继续执行
 	}
+
 	// 返回响应
 	ResponseSuccess(c, posts)
+}
+
+// PostSearchHandler 搜索帖子
+func PostSearchHandler(c *gin.Context) {
+	p := &models.ParamPostList{}
+	if err := c.ShouldBindQuery(p); err != nil {
+		zap.L().Error("PostSearchHandler with invalid params", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+	// 添加更详细的日志
+	zap.L().Debug("Search Params",
+		zap.String("Search", p.Search),
+		zap.String("Order", p.Order),
+		zap.Int64("Page", p.Page),
+		zap.Int64("Size", p.Size))
+
+	// 获取数据
+	data, err := logic.PostSearch(p)
+	if err != nil {
+		zap.L().Error("logic.PostSearch failed", zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	ResponseSuccess(c, data)
 }

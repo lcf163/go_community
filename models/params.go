@@ -52,6 +52,7 @@ func (v *ParamVoteData) UnmarshalJSON(data []byte) (err error) {
 
 // ParamPostList 获取帖子列表 query string 参数
 type ParamPostList struct {
+	Search      string `json:"search" form:"search"`               // 关键字搜索
 	CommunityId int64  `json:"community_id" form:"community_id"`   // 可以为空
 	Page        int64  `json:"page" form:"page"`                   // 页码
 	Size        int64  `json:"size" form:"size"`                   // 每页数量
