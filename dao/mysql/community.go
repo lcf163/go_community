@@ -18,6 +18,37 @@ func GetCommunityList() (communityList []*models.Community, err error) {
 	return
 }
 
+// GetCommunityList2 获取社区列表
+func GetCommunityList2(p *models.ParamPage) ([]*models.CommunityDetail, error) {
+	sqlStr := `select community_id, community_name, introduction
+	from community
+	ORDER BY create_time
+	DESC
+	limit ?,?`
+
+	communities := make([]*models.CommunityDetail, 0, 2)
+	err := db.Select(&communities, sqlStr, (p.Page-1)*p.Size, p.Size)
+
+	// 添加日志
+	zap.L().Debug("GetCommunityList SQL",
+		zap.String("sql", sqlStr),
+		zap.Int64("page", p.Page),
+		zap.Int64("size", p.Size))
+
+	return communities, err
+}
+
+// GetCommunityTotalCount 查询分类社区总数
+func GetCommunityTotalCount() (count int64, err error) {
+	sqlStr := `select count(community_id) from community`
+	err = db.Get(&count, sqlStr)
+	if err != nil {
+		zap.L().Error("db.Get(&count, sqlStr) failed", zap.Error(err))
+		return 0, err
+	}
+	return
+}
+
 // GetCommunityDetailById 根据ID查询社区详情
 func GetCommunityDetailById(id int64) (community *models.CommunityDetail, err error) {
 	community = new(models.CommunityDetail)

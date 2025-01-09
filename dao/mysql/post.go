@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// GetPostTotalCount 查询数据库帖子总数
+// GetPostTotalCount 查询帖子总数
 func GetPostTotalCount() (count int64, err error) {
 	sqlStr := `select count(post_id) from post`
 	err = db.Get(&count, sqlStr)

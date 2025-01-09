@@ -15,3 +15,9 @@ type CommunityDetail struct {
 	Introduction  string    `json:"introduction,omitempty" db:"introduction"`
 	CreateTime    time.Time `json:"create_time" db:"create_time"`
 }
+
+// ApiCommunityDetailRes 社区列表接口响应数据
+type ApiCommunityDetailRes struct {
+	Page *Page              `json:"page"` // 分页信息
+	List []*CommunityDetail `json:"list"` // 社区列表
+}

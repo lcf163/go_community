@@ -58,3 +58,9 @@ type ParamPostList struct {
 	Size        int64  `json:"size" form:"size"`                   // 每页数量
 	Order       string `json:"order" form:"order" example:"score"` // 排序依据
 }
+
+// ParamPage 分页参数
+type ParamPage struct {
+	Page int64 `json:"page" form:"page"` // 页码
+	Size int64 `json:"size" form:"size"` // 每页数量
+}

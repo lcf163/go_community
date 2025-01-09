@@ -57,12 +57,13 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.POST("/login", controller.LoginHandler)
 	v1.GET("/refresh_token", controller.RefreshTokenHandler)
 	// 帖子业务
-	v1.GET("/posts", controller.GetPostListHandler)             // 分页展示帖子列表
-	v1.GET("/posts2", controller.GetPostListHandler2)           // 分页展示帖子列表：帖子的发布时间或分数排序
-	v1.GET("/post/:id", controller.PostDetailHandler)           // 查询帖子详情
-	v1.GET("/search", controller.PostSearchHandler)             // 搜索帖子
+	v1.GET("/posts", controller.GetPostListHandler)   // 分页展示帖子列表
+	v1.GET("/posts2", controller.GetPostListHandler2) // 分页展示帖子列表：帖子的发布时间或分数排序
+	v1.GET("/post/:id", controller.PostDetailHandler) // 查询帖子详情
+	v1.GET("/search", controller.PostSearchHandler)   // 搜索帖子
 	// 社区业务
 	v1.GET("/community", controller.CommunityHandler)           // 获取分类社区列表
+	v1.GET("/community2", controller.CommunityHandler2)         // 获取分类社区列表
 	v1.GET("/community/:id", controller.CommunityDetailHandler) // 根据ID查找社区详情
 
 	// 使用 JWT 认证中间件
