@@ -202,7 +202,7 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "127.0.0.1:8081",
 	BasePath:         "/api/v1/",
 	Schemes:          []string{},
-	Title:            "go-community backend",
+	Title:            "go_community backend",
 	Description:      "main.go",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

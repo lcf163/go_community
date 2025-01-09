@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"database/sql"
-	"go-community/models"
+	"go_community/models"
 	"strings"
 
 	"github.com/jmoiron/sqlx"

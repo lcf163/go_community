@@ -2,7 +2,7 @@ package redis
 
 import (
 	"fmt"
-	"go-community/settings"
+	"go_community/settings"
 
 	"github.com/go-redis/redis"
 )

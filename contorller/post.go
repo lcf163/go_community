@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"go-community/logic"
-	"go-community/models"
+	"go_community/logic"
+	"go_community/models"
 	"strconv"
 
 	"go.uber.org/zap"

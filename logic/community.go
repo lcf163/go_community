@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"go-community/dao/mysql"
-	"go-community/models"
+	"go_community/dao/mysql"
+	"go_community/models"
 )
 
 // GetCommunityList 查询分类社区列表

@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"go-community/dao/redis"
-	"go-community/models"
+	"go_community/dao/redis"
+	"go_community/models"
 	"strconv"
 
 	"go.uber.org/zap"

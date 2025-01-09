@@ -1,4 +1,4 @@
-module go-community
+module go_community
 
 go 1.23.4
 

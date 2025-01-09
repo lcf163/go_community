@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"go-community/logic"
+	"go_community/logic"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

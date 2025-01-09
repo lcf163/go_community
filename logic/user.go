@@ -1,10 +1,10 @@
 package logic
 
 import (
-	"go-community/dao/mysql"
-	"go-community/models"
-	"go-community/pkg/jwt"
-	"go-community/pkg/snowflake"
+	"go_community/dao/mysql"
+	"go_community/models"
+	"go_community/pkg/jwt"
+	"go_community/pkg/snowflake"
 )
 
 // 存放业务逻辑的代码

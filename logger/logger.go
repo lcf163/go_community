@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"go-community/settings"
+	"go_community/settings"
 	"net"
 	"net/http"
 	"net/http/httputil"

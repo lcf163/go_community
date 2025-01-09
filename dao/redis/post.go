@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"go-community/models"
+	"go_community/models"
 	"strconv"
 	"time"
 

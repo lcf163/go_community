@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"go-community/dao/redis"
-	"go-community/logic"
-	"go-community/models"
+	"go_community/dao/redis"
+	"go_community/logic"
+	"go_community/models"
 
 	"github.com/go-playground/validator/v10"
 

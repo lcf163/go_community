@@ -3,8 +3,8 @@
 package mysql
 
 import (
-	"go-community/models"
-	"go-community/settings"
+	"go_community/models"
+	"go_community/settings"
 	"testing"
 	"time"
 )

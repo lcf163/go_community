@@ -3,10 +3,10 @@ package controller
 import (
 	"errors"
 	"fmt"
-	"go-community/dao/mysql"
-	"go-community/logic"
-	"go-community/models"
-	"go-community/pkg/jwt"
+	"go_community/dao/mysql"
+	"go_community/logic"
+	"go_community/models"
+	"go_community/pkg/jwt"
 	"net/http"
 	"strings"
 

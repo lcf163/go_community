@@ -4,7 +4,7 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"encoding/hex"
-	"go-community/models"
+	"go_community/models"
 )
 
 // 把每一步数据库操作封装成函数

@@ -2,20 +2,20 @@ package main
 
 import (
 	"fmt"
-	controller "go-community/contorller"
-	"go-community/dao/mysql"
-	"go-community/dao/redis"
-	"go-community/logger"
-	"go-community/pkg/snowflake"
-	"go-community/routers"
-	"go-community/settings"
+	controller "go_community/contorller"
+	"go_community/dao/mysql"
+	"go_community/dao/redis"
+	"go_community/logger"
+	"go_community/pkg/snowflake"
+	"go_community/routers"
+	"go_community/settings"
 
 	"go.uber.org/zap"
 )
 
 // Go Web开发较通用的脚手架模板
 
-// @title go-community backend
+// @title go_community backend
 // @version 1.0
 // @description main.go
 // @termsOfService http://swagger.io/terms/

@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	"go-community/models"
+	"go_community/models"
 	"reflect"
 	"strings"
 

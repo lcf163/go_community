@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	controller "go-community/contorller"
-	"go-community/pkg/jwt"
+	controller "go_community/contorller"
+	"go_community/pkg/jwt"
 	"strings"
 
 	"github.com/gin-gonic/gin"

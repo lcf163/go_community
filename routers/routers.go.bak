@@ -1,12 +1,12 @@
 package routers
 
 import (
-	controller "go-community/contorller"
-	"go-community/logger"
-	"go-community/middlewares"
+	controller "go_community/contorller"
+	"go_community/logger"
+	"go_community/middlewares"
 	"net/http"
 
-	_ "go-community/docs" // 千万不要忘了导入把你上一步生成的docs
+	_ "go_community/docs" // 千万不要忘了导入把你上一步生成的docs
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"

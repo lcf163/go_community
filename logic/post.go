@@ -1,10 +1,10 @@
 package logic
 
 import (
-	"go-community/dao/mysql"
-	"go-community/dao/redis"
-	"go-community/models"
-	"go-community/pkg/snowflake"
+	"go_community/dao/mysql"
+	"go_community/dao/redis"
+	"go_community/models"
+	"go_community/pkg/snowflake"
 
 	"go.uber.org/zap"
 )

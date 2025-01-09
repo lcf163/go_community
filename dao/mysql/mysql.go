@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"fmt"
-	"go-community/settings"
+	"go_community/settings"
 
 	"go.uber.org/zap"
 
