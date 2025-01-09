@@ -1,10 +1,35 @@
 # Go Community
 
-一个基于 Go 语言开发的社区系统，提供用户注册、登录、发帖、评论等功能。
+一个基于 Go 语言开发的社区系统，提供用户注册、登录、发帖、评论、投票等功能。
 
-## 功能特性
+## 系统架构
 
-- 用户系统
+### 整体架构
+- 采用前后端分离架构
+- RESTful API 设计
+- 分层架构：controller -> logic -> dao
+- 缓存设计：Redis + MySQL 双写一致性
+
+### 目录结构
+```bash
+go_community/
+├── config/ # 配置文件
+├── controller/ # 控制器层
+├── dao/ # 数据访问层
+│ ├── mysql/ # MySQL操作
+│ └── redis/ # Redis操作
+├── logger/ # 日志模块
+├── logic/ # 业务逻辑层
+├── models/ # 数据模型
+├── pkg/ # 公共工具包
+├── routers/ # 路由配置
+├── static/ # 静态资源
+└── templates/ # 模板文件
+```
+
+## 功能
+
+### 用户管理
   - 用户注册/登录
   - JWT 认证
   - 参数校验
@@ -21,18 +46,16 @@
   - 管理员权限
   - 用户权限
 
-### 内容系统
+### 内容管理
 - 帖子管理
   - 发布帖子
-  - 编辑帖子
   - 删除帖子
+  - 编辑帖子（待开发）
 - 帖子列表
   - 分页展示
-  - 时间排序
-  - 分数排序
-- 投票系统
-  - 帖子投票
-  - 按时间/分数排序
+  - 主页展示（按时间/分数排序）
+- 投票管理
+  - 帖子投票（按时间/分数排序）
 
 ### 性能优化
 - 缓存设计
@@ -83,46 +106,22 @@
   - Prometheus: 指标收集
 
 ### 部署
+- 反向代理: Nginx
+  - 负载均衡
 - 容器化: Docker
   - 多阶段构建
   - 镜像优化
 - 编排: Docker Compose
   - 服务编排
   - 环境隔离
-- 反向代理: Nginx
-  - 负载均衡
 
 ## 项目亮点
 
-### 部署
-- Web服务器: Nginx
-- 容器编排: Docker Compose
-
 ## 项目结构
-```bash
-go_community/
-├── config/ # 配置文件
-├── controller/ # 控制器层
-├── dao/ # 数据访问层
-│ ├── mysql/ # MySQL操作
-│ └── redis/ # Redis操作
-├── logger/ # 日志模块
-├── logic/ # 业务逻辑层
-├── models/ # 数据模型
-├── pkg/ # 公共工具包
-├── routers/ # 路由配置
-├── static/ # 静态资源
-└── templates/ # 模板文件
-```
-3. **测试规范**
-- 单元测试
-- 集成测试
-- 性能测试
 
 ## 快速开始
 
 ### 环境要求
-
 - Go 1.23+
 - MySQL 8.0+
 - Redis 6.0+
@@ -165,7 +164,22 @@ air -c .air.conf
 
 2. 生产模式
 ```bash
-# 使用 Docker Compose
+# 使用 Docker
+```
+
+### 部署
+
+1. 使用 Docker
+```bash
+# 构建镜像
+docker build -t go_community .
+
+# 运行容器
+docker run -p 8081:8081 go_community
+```
+
+2. 使用 Docker Compose
+```bash
 docker-compose up -d
 ```
 
@@ -197,35 +211,9 @@ docker-compose up -d
 - 使用语义化的提交信息
 - 每次提交保持功能单一
 
-## 部署
-
-1. 使用 Docker
-```bash
-# 构建镜像
-docker build -t go_community .
-
-# 运行容器
-docker run -p 8081:8081 go_community
-```
-
-2. 使用 Docker Compose
-```bash
-docker-compose up -d
-```
-
 ## 贡献指南
 
 1. Fork 项目
 2. 创建功能分支
 3. 提交代码
 4. 发起 Pull Request
-
-## 许可证
-
-[MIT License](LICENSE)
-
-## 联系方式
-
-- 作者: Your Name
-- 邮箱: your.email@example.com
-- 项目地址: https://github.com/yourusername/go_community
