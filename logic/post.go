@@ -14,7 +14,7 @@ import (
 func CreatePost(p *models.Post) (err error) {
 	// 生成帖子ID
 	p.PostId = snowflake.GetID()
-	
+
 	// 创建帖子，保存到数据库
 	if err := mysql.CreatePost(p); err != nil {
 		zap.L().Error("mysql.CreatePost failed", zap.Error(err))
@@ -46,6 +46,11 @@ func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
 			zap.Error(err))
 		return nil, err
 	}
+	// 提前查询好每篇帖子的投票数
+	voteData, err := redis.GetPostVoteNum(strconv.FormatInt(postId, 10))
+	if err != nil {
+		return nil, err
+	}
 	// 根据社区id查询社区详细信息
 	community, err := mysql.GetCommunityDetailById(post.CommunityId)
 	if err != nil {
@@ -57,6 +62,7 @@ func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
 	// 接口数据拼接
 	data = &models.ApiPostDetail{
 		AuthorName:      user.UserName,
+		VoteNum:         voteData,
 		Post:            post,
 		CommunityDetail: community,
 	}
@@ -321,7 +327,7 @@ func PostSearch(p *models.ParamPostList) (data *models.ApiPostDetailRes, err err
 				zap.Error(err))
 			continue
 		}
-		
+
 		// 根据社区id查询社区详细信息
 		community, err := mysql.GetCommunityDetailById(post.CommunityId)
 		if err != nil {
@@ -330,7 +336,7 @@ func PostSearch(p *models.ParamPostList) (data *models.ApiPostDetailRes, err err
 				zap.Error(err))
 			continue
 		}
-		
+
 		// 接口数据拼接
 		postDetail := &models.ApiPostDetail{
 			AuthorName:      user.UserName,

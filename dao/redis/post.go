@@ -28,6 +28,15 @@ func GetPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
 	return getIdsFormKey(key, p.Page, p.Size)
 }
 
+// GetPostVoteNum 获取单个帖子的点赞数
+func GetPostVoteNum(postId string) (voteNum int64, err error) {
+	// 构造存储投票数据的key
+	key := getRedisKey(KeyPostVotedZSetPrefix + postId)
+
+	// 查找key中分数是1的元素数量，即点赞数量
+	return client.ZCount(key, "1", "1").Result()
+}
+
 // GetPostVoteData 根据ids查询每篇帖子的投赞成票的数据
 func GetPostVoteData(ids []string) (data []int64, err error) {
 	//data = make([]int64, 0, len(ids))
