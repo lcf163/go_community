@@ -31,7 +31,6 @@ docker-compose.yml
 .dockerignore
 ## 部署脚本
 scripts/
-deploy/
 *.sh
 wait-for.sh
 wait-for.sh.bak
@@ -39,8 +38,8 @@ Makefile
 Makefile_linux
 
 # 数据库
-init.sql
 *.sql
+init.sql
 
 # 配置文件
 config.yaml
@@ -49,9 +48,9 @@ config.yaml.bak
 
 # 日志文件
 *.log
-web_app.log
 logs/
 /log/
+web_app.log
 
 # Swagger
 /docs/swagger.*
