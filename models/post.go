@@ -49,13 +49,6 @@ type ApiPostDetail struct {
 	*CommunityDetail `json:"community"` // 嵌入社区结构体
 }
 
-// Page 分页结构体
-type Page struct {
-	Total int64 `json:"total"`
-	Page  int64 `json:"page"`
-	Size  int64 `json:"size"`
-}
-
 // ApiPostDetailRes 搜索帖子返回的model
 type ApiPostDetailRes struct {
 	Page Page             `json:"page"`

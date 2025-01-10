@@ -15,14 +15,6 @@ func GetCommunityList() ([]*models.Community, error) {
 
 // GetCommunityList2 查询分类社区列表（带分页）
 func GetCommunityList2(p *models.ParamPage) (*models.ApiCommunityDetailRes, error) {
-	// 参数校验和默认值设置
-	if p.Page < 1 {
-		p.Page = 1
-	}
-	if p.Size < 1 || p.Size > 100 {
-		p.Size = 10
-	}
-
 	// 获取总数
 	total, err := mysql.GetCommunityTotalCount()
 	if err != nil {

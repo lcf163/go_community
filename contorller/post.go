@@ -118,12 +118,6 @@ func PostSearchHandler(c *gin.Context) {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
-	// 添加更详细的日志
-	zap.L().Debug("Search Params",
-		zap.String("Search", p.Search),
-		zap.String("Order", p.Order),
-		zap.Int64("Page", p.Page),
-		zap.Int64("Size", p.Size))
 
 	// 获取数据
 	data, err := logic.PostSearch(p)

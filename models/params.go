@@ -64,3 +64,10 @@ type ParamPage struct {
 	Page int64 `json:"page" form:"page"` // 页码
 	Size int64 `json:"size" form:"size"` // 每页数量
 }
+
+// Page 分页结构体
+type Page struct {
+	Total int64 `json:"total"` // 总数
+	Page  int64 `json:"page"`  // 页码
+	Size  int64 `json:"size"`  // 每页数量
+}
