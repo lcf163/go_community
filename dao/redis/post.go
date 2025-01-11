@@ -16,7 +16,7 @@ func getIdsFormKey(key string, page, size int64) ([]string, error) {
 	return client.ZRevRange(key, start, end).Result()
 }
 
-// GetPostIdsInOrder 获取帖子列表：按创建时间排序或者分数排序（查询出 ids 根据 order 从大到小排序）
+// GetPostIdsInOrder 获取帖子列表：按创建时间/分数排序（查询出 ids，根据 order 从大到小排序）
 func GetPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
 	// 从 redis 获取 id
 	// 1.根据请求中携带的 order 参数，确定要查询的 redis key
@@ -28,7 +28,7 @@ func GetPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
 	return getIdsFormKey(key, p.Page, p.Size)
 }
 
-// GetPostVoteNum 获取单个帖子的点赞数
+// GetPostVoteNum 查询单个帖子的点赞数
 func GetPostVoteNum(postId string) (voteNum int64, err error) {
 	// 构造存储投票数据的key
 	key := getRedisKey(KeyPostVotedZSetPrefix + postId)
@@ -37,7 +37,7 @@ func GetPostVoteNum(postId string) (voteNum int64, err error) {
 	return client.ZCount(key, "1", "1").Result()
 }
 
-// GetPostVoteData 根据ids查询每篇帖子的投赞成票的数据
+// GetPostVoteData 根据ids查询每篇帖子投票的数量
 func GetPostVoteData(ids []string) (data []int64, err error) {
 	//data = make([]int64, 0, len(ids))
 	//for _, id := range ids {

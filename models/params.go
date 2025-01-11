@@ -27,24 +27,29 @@ type ParamLogin struct {
 
 // ParamVoteData 投票数据
 type ParamVoteData struct {
-	PostId    string `json:"post_id" binding:"required"`              // 帖子Id
-	Direction int8   `json:"direction,string" binding:"oneof=1 0 -1"` // 赞成票1、反对票-1、取消投票0
+	TargetId   string `json:"target_id" binding:"required"`              // 投票目标ID
+	TargetType int8   `json:"target_type" binding:"required,oneof=1 2"`  // 投票目标类型(1:帖子 2:评论)
+	Direction  int8   `json:"direction" binding:"required,oneof=1 0 -1"` // 赞成票(1)、取消投票(0)、反对票(-1)
 }
 
 func (v *ParamVoteData) UnmarshalJSON(data []byte) (err error) {
 	required := struct {
-		PostId    string `json:"post_id"`
-		Direction int8   `json:"direction"`
+		TargetId   string `json:"target_id"`
+		TargetType int8   `json:"target_type"`
+		Direction  int8   `json:"direction"`
 	}{}
 	err = json.Unmarshal(data, &required)
 	if err != nil {
 		return
-	} else if len(required.PostId) == 0 {
-		err = errors.New("缺少必填字段post_id")
+	} else if len(required.TargetId) == 0 {
+		err = errors.New("缺少必填字段target_id")
+	} else if required.TargetType == 0 {
+		err = errors.New("缺少必填字段target_type")
 	} else if required.Direction == 0 {
 		err = errors.New("缺少必填字段direction")
 	} else {
-		v.PostId = required.PostId
+		v.TargetId = required.TargetId
+		v.TargetType = required.TargetType
 		v.Direction = required.Direction
 	}
 	return

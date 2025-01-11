@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// VoteHandler 投票处理
 func VoteHandler(c *gin.Context) {
 	// 1.获取请求参数和参数校验
 	vote := new(models.ParamVoteData)
@@ -27,25 +28,27 @@ func VoteHandler(c *gin.Context) {
 		ResponseErrorWithMsg(c, CodeInvalidParams, errData)
 		return
 	}
-	// 从 c 取到当前发请求的用户 ID
+
+	// 获取当前用户
 	userID, err := getCurrentUserId(c)
 	if err != nil {
 		ResponseError(c, CodeNotLogin)
 		return
 	}
-	// 2.业务逻辑处理
-	if err := logic.VoteForPost(userID, vote); err != nil {
-		zap.L().Error("logic.VoteForPost failed", zap.Error(err))
+
+	// 投票
+	if err := logic.VoteForTarget(userID, vote); err != nil {
+		zap.L().Error("logic.VoteForTarget failed", zap.Error(err))
 		switch err {
-		case redis.ErrorVoteRepeted: // 重复投票
+		case redis.ErrorVoteRepeted:
 			ResponseError(c, CodeVoteRepeated)
-		case redis.ErrorVoteTimeExpire: // 投票超时
+		case redis.ErrorVoteTimeExpire:
 			ResponseError(c, CodeVoteTimeExpire)
 		default:
 			ResponseError(c, CodeServerBusy)
 		}
 		return
 	}
-	// 3.返回响应
+
 	ResponseSuccess(c, nil)
 }

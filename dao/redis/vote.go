@@ -84,8 +84,6 @@ func VoteForPost(userId, postId string, v float64) (err error) {
 			Member: userId,
 		})
 	}
-	// 4、更新帖子的投票数
-	//pipeline.HIncrBy(getRedisKey(KeyPostVotedZSetPrefix+postId), "votes", int64(op))
 
 	_, err = pipeline.Exec() // 事务操作的提交
 	return err
@@ -112,4 +110,42 @@ func CreatePost(postId, communityId int64) (err error) {
 	pipeline.SAdd(communityKey, postId)
 	_, err = pipeline.Exec() // 事务操作的提交
 	return
+}
+
+// VoteForComment 为评论投票
+func VoteForComment(userId, commentId string, v float64) (err error) {
+	// 1.判断投票限制
+	commentTime := client.ZScore(getRedisKey(KeyCommentTimeZSet), commentId).Val()
+	if float64(time.Now().Unix())-commentTime > OneWeekInSeconds {
+		return ErrorVoteTimeExpire
+	}
+
+	// 2.判断是否已投票
+	key := getRedisKey(KeyCommentVotedZSetPrefix + commentId)
+	ov := client.ZScore(key, userId).Val()
+	
+	// 不允许重复投票
+	if v == ov {
+		return ErrorVoteRepeted
+	}
+
+	// 3.记录投票数据
+	pipeline := client.TxPipeline()
+	if v == 0 {
+		pipeline.ZRem(key, userId)
+	} else {
+		pipeline.ZAdd(key, redis.Z{
+			Score:  v,
+				Member: userId,
+		})
+	}
+
+	_, err = pipeline.Exec()
+	return
+}
+
+// GetCommentVoteNum 获取评论的投票数
+func GetCommentVoteNum(commentId string) (voteNum int64, err error) {
+	key := getRedisKey(KeyCommentVotedZSetPrefix + commentId)
+	return client.ZCount(key, "1", "1").Result()
 }

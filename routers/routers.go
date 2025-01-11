@@ -71,6 +71,10 @@ func SetupRouter(mode string) *gin.Engine {
 	{
 		v1.POST("/post", controller.CreatePostHandler) // 创建帖子
 		v1.POST("/vote", controller.VoteHandler)       // 投票
+
+		// 评论业务
+		v1.POST("/comment", controller.CreateCommentHandler)         // 创建评论
+		v1.GET("/comment/:postId", controller.GetCommentListHandler) // 获取评论列表
 	}
 
 	pprof.Register(r) // 注册 pprof 相关路由

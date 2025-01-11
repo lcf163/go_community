@@ -30,6 +30,8 @@ var msgFlags = map[MyCode]string{
 	CodeInvalidToken:      "无效的Token",
 	CodeInvalidAuthFormat: "认证格式有误",
 	CodeNotLogin:          "未登录",
+	CodeVoteRepeated:      "不允许重复投票",
+	CodeVoteTimeExpire:    "投票时间已过",
 }
 
 func (c MyCode) Msg() string {
