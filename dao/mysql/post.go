@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"go_community/models"
 	"strings"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 
@@ -140,4 +141,24 @@ func GetPostListByKeywords(p *models.ParamPostList) (posts []*models.Post, err e
 		zap.Int64("size", p.Size))
 
 	return
+}
+
+// UpdatePost 更新帖子
+func UpdatePost(postId int64, title string, content string) error {
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		return err
+	}
+	
+	sqlStr := `update post 
+	set title = ?, 
+	content = ?, 
+	update_time = ? 
+	where post_id = ?`
+	_, err = db.Exec(sqlStr, title, content, time.Now().In(loc), postId)
+	if err != nil {
+		zap.L().Error("update post failed", zap.Error(err))
+		return err
+	}
+	return nil
 }

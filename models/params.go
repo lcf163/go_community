@@ -76,3 +76,10 @@ type Page struct {
 	Page  int64 `json:"page"`  // 页码
 	Size  int64 `json:"size"`  // 每页数量
 }
+
+// ParamUpdatePost 更新帖子请求参数
+type ParamUpdatePost struct {
+	PostId  string `json:"post_id" binding:"required"` // 帖子id
+	Title   string `json:"title" binding:"required"`   // 标题
+	Content string `json:"content" binding:"required"` // 内容
+}

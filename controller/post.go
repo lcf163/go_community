@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"errors"
+	"go_community/dao/mysql"
 	"go_community/logic"
 	"go_community/models"
 	"strconv"
@@ -127,4 +129,35 @@ func PostSearchHandler(c *gin.Context) {
 		return
 	}
 	ResponseSuccess(c, data)
+}
+
+// UpdatePostHandler 更新帖子
+func UpdatePostHandler(c *gin.Context) {
+	// 1. 参数校验
+	p := new(models.ParamUpdatePost)
+	if err := c.ShouldBindJSON(p); err != nil {
+		zap.L().Error("UpdatePostHandler with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 2. 获取当前用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 3. 更新帖子
+	if err := logic.UpdatePost(userID, p); err != nil {
+		zap.L().Error("logic.UpdatePost failed", zap.Error(err))
+		if errors.Is(err, mysql.ErrorNoPermission) {
+			ResponseError(c, CodeNoPermission)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
 }

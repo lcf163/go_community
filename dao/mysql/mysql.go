@@ -14,7 +14,7 @@ var db *sqlx.DB
 
 // Init 初始化MySQL连接
 func Init(cfg *settings.MySQLConfig) (err error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Asia%%2FShanghai",
 		cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.DbName,
 	)
 	// 也可以使用MustConnect，连接不成功就panic

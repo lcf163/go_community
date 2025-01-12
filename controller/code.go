@@ -17,6 +17,7 @@ const (
 	CodeNotLogin          MyCode = 1008
 	CodeVoteRepeated      MyCode = 1009
 	CodeVoteTimeExpire    MyCode = 1010
+	CodeNoPermission      MyCode = 1011
 )
 
 var msgFlags = map[MyCode]string{
@@ -32,6 +33,7 @@ var msgFlags = map[MyCode]string{
 	CodeNotLogin:          "未登录",
 	CodeVoteRepeated:      "不允许重复投票",
 	CodeVoteTimeExpire:    "投票时间已过",
+	CodeNoPermission:      "无操作权限",
 }
 
 func (c MyCode) Msg() string {

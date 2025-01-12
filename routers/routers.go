@@ -70,6 +70,7 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
 		v1.POST("/post", controller.CreatePostHandler) // 创建帖子
+		v1.PUT("/post", controller.UpdatePostHandler)  // 更新帖子
 		v1.POST("/vote", controller.VoteHandler)       // 投票
 
 		// 评论业务

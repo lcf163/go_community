@@ -348,3 +348,26 @@ func PostSearch(p *models.ParamPostList) (data *models.ApiPostDetailRes, err err
 	}
 	return data, nil
 }
+
+// UpdatePost 编辑帖子
+func UpdatePost(userId int64, p *models.ParamUpdatePost) (err error) {
+	// 把帖子id转换为int64
+	postId, err := strconv.ParseInt(p.PostId, 10, 64)
+	if err != nil {
+		return err
+	}
+
+	// 判断帖子是否存在
+	post, err := mysql.GetPostById(postId)
+	if err != nil {
+		return err
+	}
+
+	// 判断是否是帖子作者
+	if post.AuthorId != userId {
+		return mysql.ErrorNoPermission // 使用自定义错误
+	}
+
+	// 更新帖子
+	return mysql.UpdatePost(postId, p.Title, p.Content)
+}
