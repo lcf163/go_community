@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	controller "go_community/contorller"
+	controller "go_community/controller"
 	"go_community/dao/mysql"
 	"go_community/dao/redis"
 	"go_community/logger"

@@ -1,7 +1,7 @@
 package routers
 
 import (
-	controller "go_community/contorller"
+	controller "go_community/controller"
 	_ "go_community/docs" // 千万不要忘了导入把你上一步生成的docs
 	"go_community/logger"
 	"go_community/middlewares"

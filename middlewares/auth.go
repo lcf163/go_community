@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	controller "go_community/contorller"
+	controller "go_community/controller"
 	"go_community/pkg/jwt"
 	"strings"
 
