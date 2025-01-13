@@ -100,3 +100,57 @@ func GetCommentList(postId int64) ([]*models.ApiCommentDetail, error) {
 	}
 	return data, nil
 }
+
+// GetCommentReplyList 获取评论的回复列表
+func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
+	// 查询回复列表
+	comments, err := mysql.GetCommentReplyList(commentId)
+	if err != nil {
+		return nil, err
+	}
+
+	// 组装评论详情
+	data := make([]*models.ApiCommentDetail, 0, len(comments))
+	for _, comment := range comments {
+		// 查询评论作者信息
+		user, err := mysql.GetUserById(comment.AuthorId)
+		if err != nil {
+			zap.L().Error("mysql.GetUserById failed",
+				zap.Int64("author_id", comment.AuthorId),
+				zap.Error(err))
+			continue
+		}
+
+		// 获取回复数量
+		replyCount, err := mysql.GetCommentReplyCount(comment.CommentId)
+		if err != nil {
+			zap.L().Error("mysql.GetCommentReplyCount failed",
+				zap.Int64("comment_id", comment.CommentId),
+				zap.Error(err))
+			replyCount = 0
+		}
+
+		// 获取点赞数量
+		voteNum, err := redis.GetCommentVoteNum(strconv.FormatInt(comment.CommentId, 10))
+		if err != nil {
+			zap.L().Error("redis.GetCommentVoteNum failed",
+				zap.Int64("comment_id", comment.CommentId),
+				zap.Error(err))
+			voteNum = 0
+		}
+
+		commentDetail := &models.ApiCommentDetail{
+			CommentId:  comment.CommentId,
+			ParentId:   comment.ParentId,
+			PostId:     comment.PostId,
+			AuthorId:   comment.AuthorId,
+			Content:    comment.Content,
+			AuthorName: user.UserName,
+			ReplyCount: replyCount,
+			VoteNum:    voteNum,
+			CreateTime: comment.CreateTime.Format("2006-01-02 15:04:05"),
+		}
+		data = append(data, commentDetail)
+	}
+	return data, nil
+}

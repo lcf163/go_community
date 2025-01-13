@@ -56,3 +56,26 @@ func GetCommentListHandler(c *gin.Context) {
 
 	ResponseSuccess(c, data)
 }
+
+// GetCommentReplyListHandler 获取评论的回复列表
+func GetCommentReplyListHandler(c *gin.Context) {
+	// 获取评论ID
+	commentIdStr := c.Param("commentId")
+	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
+	if err != nil {
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 获取回复列表
+	data, err := logic.GetCommentReplyList(commentId)
+	if err != nil {
+		zap.L().Error("logic.GetCommentReplyList failed",
+			zap.Int64("comment_id", commentId),
+			zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, data)
+}
