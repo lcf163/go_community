@@ -34,3 +34,10 @@ type ApiCommentDetail struct {
 	Content    string `json:"content"`                           // 评论内容
 	CreateTime string `json:"create_time"`                       // 创建时间
 }
+
+// ParamCommentReply 创建评论回复的请求参数
+type ParamCommentReply struct {
+	ParentId string `json:"parent_id" binding:"required"`             // 父评论id
+	PostId   string `json:"post_id" binding:"required"`               // 帖子id
+	Content  string `json:"content" binding:"required,min=1,max=500"` // 回复内容
+}

@@ -51,20 +51,28 @@ func CreatePost(post *models.Post) (err error) {
 // GetPostById 根据ID获取帖子
 func GetPostById(postId int64) (post *models.Post, err error) {
 	post = new(models.Post)
-	sqlStr := `select post_id, title, content, author_id, community_id, create_time
+	sqlStr := `select post_id, title, content, author_id, community_id, status, create_time
 	from post
-	where post_id = ?`
+	where post_id = ? and status = 1`
+
+	// 打印SQL语句
+	zap.L().Debug("GetPostById SQL",
+		zap.String("sql", sqlStr),
+		zap.Int64("post_id", postId))
+
 	err = db.Get(post, sqlStr, postId)
 	if err == sql.ErrNoRows {
-		err = ErrorInvalidID
-		return
+		return nil, ErrorInvalidID
 	}
 	if err != nil {
-		zap.L().Error("query post failed", zap.String("sql", sqlStr), zap.Error(err))
-		err = ErrorQueryFailed
-		return
+		zap.L().Error("query post failed",
+			zap.String("sql", sqlStr),
+			zap.Int64("post_id", postId),
+			zap.Error(err))
+		return nil, err
 	}
-	return
+
+	return post, nil
 }
 
 // GetPostList 查询帖子列表
@@ -149,7 +157,7 @@ func UpdatePost(postId int64, title string, content string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	sqlStr := `update post 
 	set title = ?, 
 	content = ?, 

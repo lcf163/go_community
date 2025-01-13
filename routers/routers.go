@@ -74,8 +74,9 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.POST("/vote", controller.VoteHandler)       // 投票（帖子/评论）
 
 		// 评论业务
-		v1.POST("/comment", controller.CreateCommentHandler)         // 创建评论
-		v1.GET("/comment/:postId", controller.GetCommentListHandler) // 获取评论列表
+		v1.POST("/comment", controller.CreateCommentHandler)                       // 创建评论
+		v1.POST("/comment/reply", controller.CreateCommentReplyHandler)            // 创建评论回复
+		v1.GET("/comment/:postId", controller.GetCommentListHandler)               // 获取评论列表
 		v1.GET("/comment/reply/:commentId", controller.GetCommentReplyListHandler) // 获取评论的回复列表
 	}
 

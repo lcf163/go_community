@@ -27,16 +27,20 @@ func UpdateComment(commentId int64, content string) error {
 
 // GetCommentCount 获取帖子的评论数量
 func GetCommentCount(postId int64) (int64, error) {
-	sqlStr := `select count(*) from comment where post_id = ? and status = 1`
+	sqlStr := `select count(*) 
+	from comment
+	where post_id = ? and parent_id = 0 and status = 1`
 	var count int64
 	err := db.Get(&count, sqlStr, postId)
 	return count, err
 }
 
-// GetCommentListByPostId 获取帖子的评论列表
-func GetCommentListByPostId(postId int64) ([]*models.Comment, error) {
+// GetCommentList 获取帖子的评论列表
+func GetCommentList(postId int64) ([]*models.Comment, error) {
 	sqlStr := `select id, comment_id, parent_id, post_id, author_id, content, create_time
-	from comment where post_id = ? and status = 1 order by create_time desc`
+	from comment 
+	where post_id = ? and parent_id = 0 and status = 1 
+	order by create_time desc`
 	comments := make([]*models.Comment, 0)
 	err := db.Select(&comments, sqlStr, postId)
 	return comments, err
@@ -59,4 +63,14 @@ func GetCommentReplyList(commentId int64) ([]*models.Comment, error) {
 	comments := make([]*models.Comment, 0)
 	err := db.Select(&comments, sqlStr, commentId)
 	return comments, err
+}
+
+// GetCommentById 根据ID获取评论
+func GetCommentById(commentId int64) (*models.Comment, error) {
+	comment := new(models.Comment)
+	sqlStr := `select id, comment_id, parent_id, post_id, author_id, content, status, create_time
+	from comment 
+	where comment_id = ?`
+	err := db.Get(comment, sqlStr, commentId)
+	return comment, err
 }

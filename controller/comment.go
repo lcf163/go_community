@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"go_community/dao/mysql"
 	"go_community/logic"
 	"go_community/models"
 	"strconv"
@@ -78,4 +79,37 @@ func GetCommentReplyListHandler(c *gin.Context) {
 	}
 
 	ResponseSuccess(c, data)
+}
+
+// CreateCommentReplyHandler 创建评论回复
+func CreateCommentReplyHandler(c *gin.Context) {
+	// 参数校验
+	p := new(models.ParamCommentReply)
+	if err := c.ShouldBindJSON(p); err != nil {
+		zap.L().Error("CreateCommentReplyHandler with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 获取当前用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 创建回复
+	if err := logic.CreateCommentReply(userID, p); err != nil {
+		zap.L().Error("logic.CreateCommentReply failed",
+			zap.Error(err),
+			zap.Any("params", p))
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeInvalidParams)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
 }
