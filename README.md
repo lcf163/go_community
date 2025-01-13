@@ -68,7 +68,7 @@ go_community/
 - 评论管理
   - 发表评论
   - 评论列表查询
-  - 评论回复功能
+  - 评论回复功能（待开发）
   - 评论投票
 - 评论展示
   - 按时间排序
@@ -102,7 +102,7 @@ go_community/
   - 路由管理
   - 中间件支持
   - 参数绑定
-- 数据库: 
+- 数据库:
   - MySQL: 持久化存储
   - Redis: 缓存、计数器
 - ORM: [sqlx](https://github.com/jmoiron/sqlx)
@@ -125,7 +125,7 @@ go_community/
 - 热重载: [Air](https://github.com/cosmtrek/air)
   - 代码热更新
   - 自定义配置
-- API测试: 
+- API测试:
   - Postman: 接口调试
   - Swagger: 文档测试
 - 监控调试:

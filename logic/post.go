@@ -29,7 +29,6 @@ func CreatePost(p *models.Post) (err error) {
 
 // GetPostById 根据帖子ID查询帖子详情
 func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
-	// 查询并组合接口需要的数据
 	// 查询帖子信息
 	post, err := mysql.GetPostById(postId)
 	if err != nil {
@@ -38,7 +37,8 @@ func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
 			zap.Error(err))
 		return nil, err
 	}
-	// 根据作者id查询作者信息
+
+	// 查询作者信息
 	user, err := mysql.GetUserById(post.AuthorId)
 	if err != nil {
 		zap.L().Error("mysql.GetUserById(post.AuthorId) failed",
@@ -46,12 +46,14 @@ func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
 			zap.Error(err))
 		return nil, err
 	}
-	// 提前查询好每篇帖子的投票数
+
+	// 查询每篇帖子的投票数
 	voteData, err := redis.GetPostVoteNum(strconv.FormatInt(postId, 10))
 	if err != nil {
 		return nil, err
 	}
-	// 根据社区id查询社区详细信息
+
+	// 查询社区详细信息
 	community, err := mysql.GetCommunityDetailById(post.CommunityId)
 	if err != nil {
 		zap.L().Error("mysql.GetCommunityByID(post.CommunityId) failed",
@@ -59,10 +61,21 @@ func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
 			zap.Error(err))
 		return nil, err
 	}
-	// 接口数据拼接
+
+	// 获取帖子的评论总数
+	commentCount, err := mysql.GetCommentCount(postId)
+	if err != nil {
+		zap.L().Error("mysql.GetCommentCount failed",
+			zap.Int64("post_id", postId),
+			zap.Error(err))
+		commentCount = 0 // 如果查询失败，默认为0
+	}
+
+	// 组装数据
 	data = &models.ApiPostDetail{
 		AuthorName:      user.UserName,
 		VoteNum:         voteData,
+		CommentCount:    commentCount,
 		Post:            post,
 		CommunityDetail: community,
 	}
@@ -171,10 +184,20 @@ func GetPostList2(p *models.ParamPostList) (data *models.ApiPostDetailRes, err e
 			continue
 		}
 
+		// 获取评论数量
+		commentCount, err := mysql.GetCommentCount(post.PostId)
+		if err != nil {
+			zap.L().Error("mysql.GetCommentCount failed",
+				zap.Int64("post_id", post.PostId),
+				zap.Error(err))
+			commentCount = 0
+		}
+
 		// 接口数据拼接
 		postDetail := &models.ApiPostDetail{
 			AuthorName:      user.UserName,
 			VoteNum:         voteData[idx],
+			CommentCount:    commentCount,
 			Post:            post,
 			CommunityDetail: community,
 		}
@@ -251,10 +274,20 @@ func GetCommunityPostList(p *models.ParamPostList) (data *models.ApiPostDetailRe
 			continue
 		}
 
+		// 获取评论数量
+		commentCount, err := mysql.GetCommentCount(post.PostId)
+		if err != nil {
+			zap.L().Error("mysql.GetCommentCount failed",
+				zap.Int64("post_id", post.PostId),
+				zap.Error(err))
+			commentCount = 0
+		}
+
 		// 接口数据拼接
 		postDetail := &models.ApiPostDetail{
 			AuthorName:      user.UserName,
 			VoteNum:         voteData[idx],
+			CommentCount:    commentCount,
 			Post:            post,
 			CommunityDetail: community,
 		}
