@@ -57,8 +57,8 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.POST("/login", controller.LoginHandler)
 	v1.GET("/refresh_token", controller.RefreshTokenHandler)
 	// 帖子业务
-	v1.GET("/posts", controller.GetPostListHandler)   // 分页展示帖子列表
-	v1.GET("/posts2", controller.GetPostListHandler2) // 分页展示帖子列表：帖子的发布时间或分数排序
+	v1.GET("/posts", controller.GetPostListHandler)   // 查询帖子列表
+	v1.GET("/posts2", controller.GetPostListHandler2) // 查询帖子列表：按照帖子的发布时间或分数排序
 	v1.GET("/post/:id", controller.PostDetailHandler) // 查询帖子详情
 	v1.GET("/search", controller.PostSearchHandler)   // 搜索帖子
 	// 社区业务
@@ -71,11 +71,11 @@ func SetupRouter(mode string) *gin.Engine {
 	{
 		v1.POST("/post", controller.CreatePostHandler) // 创建帖子
 		v1.PUT("/post", controller.UpdatePostHandler)  // 更新帖子
-		v1.POST("/vote", controller.VoteHandler)       // 投票
+		v1.POST("/vote", controller.VoteHandler)       // 投票（帖子/评论）
 
 		// 评论业务
 		v1.POST("/comment", controller.CreateCommentHandler)         // 创建评论
-		v1.GET("/comment/:postId", controller.GetCommentListHandler) // 获取评论列表
+		v1.GET("/comment/:postId", controller.GetCommentListHandler) // 查询评论列表
 	}
 
 	pprof.Register(r) // 注册 pprof 相关路由
