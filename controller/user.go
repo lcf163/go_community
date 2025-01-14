@@ -8,6 +8,7 @@ import (
 	"go_community/models"
 	"go_community/pkg/jwt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
@@ -110,5 +111,36 @@ func RefreshTokenHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"access_token":  aToken,
 		"refresh_token": rToken,
+	})
+}
+
+// GetUserInfoHandler 获取用户信息
+func GetUserInfoHandler(c *gin.Context) {
+	// 获取用户ID参数
+	userIdStr := c.Param("id")
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	if err != nil {
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 获取用户信息
+	user, err := logic.GetUserInfo(userId)
+	if err != nil {
+		zap.L().Error("logic.GetUserInfo failed",
+			zap.Int64("user_id", userId),
+			zap.Error(err))
+		if err == mysql.ErrorUserNotExist {
+			ResponseError(c, CodeUserNotExist)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, gin.H{
+		"user_id":  fmt.Sprintf("%d", user.UserId),
+		"username": user.UserName,
+		"avatar":   user.GetAvatarURL(),
 	})
 }

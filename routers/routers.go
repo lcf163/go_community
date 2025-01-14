@@ -57,26 +57,30 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.POST("/login", controller.LoginHandler)
 	v1.GET("/refresh_token", controller.RefreshTokenHandler)
 	// 帖子业务
-	v1.GET("/posts", controller.GetPostListHandler)   // 获取帖子列表
-	v1.GET("/posts2", controller.GetPostListHandler2) // 获取帖子列表：按照帖子的发布时间或分数排序
+	v1.GET("/posts", controller.GetPostListHandler)   // 获取帖子列表（带分页）
+	v1.GET("/posts2", controller.GetPostListHandler2) // 获取帖子列表（带分页）：按照帖子的发布时间或分数排序
 	v1.GET("/post/:id", controller.PostDetailHandler) // 获取帖子详情
 	v1.GET("/search", controller.PostSearchHandler)   // 搜索帖子
 	// 社区业务
-	v1.GET("/community", controller.CommunityHandler)           // 分类社区列表
-	v1.GET("/community2", controller.CommunityHandler2)         // 获取分类社区列表
+	v1.GET("/community", controller.CommunityHandler)           // 获取分类社区列表
+	v1.GET("/community2", controller.CommunityHandler2)         // 获取分类社区列表（带分页）
 	v1.GET("/community/:id", controller.CommunityDetailHandler) // 根据ID查找社区详情
 
 	// 使用 JWT 认证中间件
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
+		// 用户业务
+		v1.GET("/user/:id", controller.GetUserInfoHandler) // 获取用户信息
+		// 帖子业务
 		v1.POST("/post", controller.CreatePostHandler) // 创建帖子
 		v1.PUT("/post", controller.UpdatePostHandler)  // 更新帖子
-		v1.POST("/vote", controller.VoteHandler)       // 投票（帖子/评论）
+		// 投票业务
+		v1.POST("/vote", controller.VoteHandler) // 投票（帖子/评论）
 
 		// 评论业务
 		v1.POST("/comment", controller.CreateCommentHandler)                       // 创建评论
 		v1.POST("/comment/reply", controller.CreateCommentReplyHandler)            // 创建评论回复
-		v1.GET("/comment/:postId", controller.GetCommentListHandler)               // 获取评论列表
+		v1.GET("/comment/:postId", controller.GetCommentListHandler)               // 获取评论列表（带分页）
 		v1.GET("/comment/reply/:commentId", controller.GetCommentReplyListHandler) // 获取评论的回复列表
 	}
 

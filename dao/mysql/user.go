@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"go_community/models"
+	"go_community/pkg/file"
 )
 
 // 把每一步数据库操作封装成函数
@@ -37,9 +38,11 @@ func CheckUserExist(username string) (err error) {
 func InsertUser(user *models.User) (err error) {
 	// 生成加密密码
 	user.Password = encryptPassword([]byte(user.Password))
+	// 设置随机默认头像
+	user.Avatar = file.GetRandomDefaultAvatar()
 	// 执行 SQL 语句入库
-	sqlStr := `insert into user(user_id, username, password) values (?,?,?)`
-	_, err = db.Exec(sqlStr, user.UserId, user.UserName, user.Password)
+	sqlStr := `insert into user(user_id, username, password, avatar) values (?,?,?,?)`
+	_, err = db.Exec(sqlStr, user.UserId, user.UserName, user.Password, user.Avatar)
 	return
 }
 
@@ -67,7 +70,14 @@ func Login(user *models.User) (err error) {
 // GetUserById 根据ID查询作者信息
 func GetUserById(id int64) (user *models.User, err error) {
 	user = new(models.User)
-	sqlStr := `select user_id, username from user where user_id = ?`
+	sqlStr := `select user_id, username, avatar from user where user_id = ?`
 	err = db.Get(user, sqlStr, id)
 	return
+}
+
+// UpdateUserAvatar 更新用户头像
+func UpdateUserAvatar(userId int64, avatarPath string) error {
+	sqlStr := `update user set avatar = ? where user_id = ?`
+	_, err := db.Exec(sqlStr, avatarPath, userId)
+	return err
 }

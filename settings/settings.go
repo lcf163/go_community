@@ -21,6 +21,7 @@ type AppConfig struct {
 	*LogConfig   `mapstructure:"log"`
 	*MySQLConfig `mapstructure:"mysql"`
 	*RedisConfig `mapstructure:"redis"`
+	Avatar       AvatarConfig `mapstructure:"avatar"`
 }
 
 type LogConfig struct {
@@ -47,6 +48,11 @@ type RedisConfig struct {
 	Port     int    `mapstructure:"port"`
 	DB       int    `mapstructure:"db"`
 	PoolSize int    `mapstructure:"pool_size"`
+}
+
+type AvatarConfig struct {
+	BaseURL string `mapstructure:"base_url"`
+	MaxSize int64  `mapstructure:"max_size"`
 }
 
 // Init 初始化读取配置文件

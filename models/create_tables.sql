@@ -13,6 +13,7 @@ CREATE TABLE `user` (
     `password` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
     `email` varchar(64) COLLATE utf8mb4_general_ci,
     `gender` tinyint(4) NOT NULL DEFAULT '0',
+    `avatar` varchar(200) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户头像URL',
     `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -63,6 +64,7 @@ CREATE TABLE `comment` (
   `parent_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '父评论id',
   `post_id` bigint(20) NOT NULL COMMENT '帖子id',
   `author_id` bigint(20) NOT NULL COMMENT '评论作者id',
+  `reply_to_uid` bigint(20) NOT NULL DEFAULT '0' COMMENT '被回复人的用户id',
   `content` text NOT NULL COMMENT '评论内容',
   `status` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '状态(1正常,0删除)',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -70,5 +72,6 @@ CREATE TABLE `comment` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_comment_id` (`comment_id`),
   KEY `idx_post_id` (`post_id`),
-  KEY `idx_author_Id` (`author_id`)
+  KEY `idx_author_Id` (`author_id`),
+  KEY `idx_reply_to_uid` (`reply_to_uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

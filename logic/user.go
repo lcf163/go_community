@@ -48,3 +48,16 @@ func Login(p *models.ParamLogin) (user *models.User, err error) {
 	user.RefreshToken = refreshToken
 	return
 }
+
+// GetUserInfo 获取用户信息
+func GetUserInfo(userId int64) (*models.User, error) {
+	// 从数据库中查询用户信息
+	user, err := mysql.GetUserById(userId)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, mysql.ErrorUserNotExist
+	}
+	return user, nil
+}

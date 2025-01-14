@@ -47,10 +47,15 @@ func GetCommentListHandler(c *gin.Context) {
 		return
 	}
 
+	// 获取分页参数
+	page, size := getPageInfo(c)
+
 	// 获取评论列表
-	data, err := logic.GetCommentList(postID)
+	data, err := logic.GetCommentList(postID, page, size)
 	if err != nil {
-		zap.L().Error("logic.GetCommentList failed", zap.Error(err))
+		zap.L().Error("logic.GetCommentList failed", 
+			zap.Int64("post_id", postID),
+			zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 		return
 	}
