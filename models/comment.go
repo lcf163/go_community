@@ -25,19 +25,19 @@ type ParamComment struct {
 
 // ApiCommentDetail 评论详情
 type ApiCommentDetail struct {
-	CommentId     int64  `json:"comment_id,string"`
-	ParentId      int64  `json:"parent_id,string"`
-	PostId        int64  `json:"post_id,string"`
-	AuthorId      int64  `json:"author_id,string"`
-	AuthorName    string `json:"author_name"`
-	AuthorAvatar  string `json:"author_avatar"`       // 评论作者头像
-	ReplyToUid    int64  `json:"reply_to_uid,string"` // 被回复人ID
-	ReplyToName   string `json:"reply_to_name"`       // 被回复人用户名
-	ReplyToAvatar string `json:"reply_to_avatar"`     // 被回复人头像
-	ReplyCount    int64  `json:"reply_count"`
-	VoteNum       int64  `json:"vote_num"`
-	Content       string `json:"content"`
-	CreateTime    string `json:"create_time"`
+	CommentId         int64  `json:"comment_id,string"`
+	ParentId          int64  `json:"parent_id,string"`
+	PostId            int64  `json:"post_id,string"`
+	AuthorId          int64  `json:"author_id,string"`
+	AuthorName        string `json:"author_name"`
+	AuthorAvatar      string `json:"author_avatar"`       // 评论作者头像
+	ReplyToUid        int64  `json:"reply_to_uid,string"` // 被回复人ID
+	ReplyToUserName   string `json:"reply_to_name"`       // 被回复人用户名
+	ReplyToUserAvatar string `json:"reply_to_avatar"`     // 被回复人头像
+	ReplyCount        int64  `json:"reply_count"`
+	VoteNum           int64  `json:"vote_num"`
+	Content           string `json:"content"`
+	CreateTime        string `json:"create_time"`
 }
 
 // ParamCommentReply 创建评论回复的请求参数

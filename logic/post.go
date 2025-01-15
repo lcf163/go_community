@@ -42,44 +42,48 @@ func GetPostById(postId int64) (data *models.ApiPostDetail, err error) {
 	user, err := mysql.GetUserById(post.AuthorId)
 	if err != nil {
 		zap.L().Error("mysql.GetUserById(post.AuthorId) failed",
-			zap.Int64("AuthorId", post.AuthorId),
+			zap.Int64("author_id", post.AuthorId),
 			zap.Error(err))
 		return nil, err
 	}
 
-	// 查询每篇帖子的投票数
-	voteData, err := redis.GetPostVoteNum(strconv.FormatInt(postId, 10))
-	if err != nil {
-		return nil, err
-	}
-
-	// 查询社区详细信息
+	// 查询社区信息
 	community, err := mysql.GetCommunityDetailById(post.CommunityId)
 	if err != nil {
-		zap.L().Error("mysql.GetCommunityByID(post.CommunityId) failed",
+		zap.L().Error("mysql.GetCommunityDetailById(post.CommunityId) failed",
 			zap.Int64("community_id", post.CommunityId),
 			zap.Error(err))
 		return nil, err
 	}
 
-	// 获取帖子的评论总数
+	// 获取帖子投票数
+	voteNum, err := redis.GetPostVoteNum(strconv.FormatInt(postId, 10))
+	if err != nil {
+		zap.L().Error("redis.GetPostVoteNum failed",
+			zap.Int64("post_id", postId),
+			zap.Error(err))
+		voteNum = 0
+	}
+
+	// 获取评论数量
 	commentCount, err := mysql.GetCommentCount(postId)
 	if err != nil {
 		zap.L().Error("mysql.GetCommentCount failed",
 			zap.Int64("post_id", postId),
 			zap.Error(err))
-		commentCount = 0 // 如果查询失败，默认为0
+		commentCount = 0
 	}
 
 	// 组装数据
 	data = &models.ApiPostDetail{
 		AuthorName:      user.UserName,
-		VoteNum:         voteData,
+		AuthorAvatar:    user.GetAvatarURL(),
+		VoteNum:         voteNum,
 		CommentCount:    commentCount,
 		Post:            post,
 		CommunityDetail: community,
 	}
-	return data, nil
+	return
 }
 
 // GetPostList 获取帖子列表
@@ -196,6 +200,7 @@ func GetPostList2(p *models.ParamPostList) (data *models.ApiPostDetailRes, err e
 		// 接口数据拼接
 		postDetail := &models.ApiPostDetail{
 			AuthorName:      user.UserName,
+			AuthorAvatar:    user.GetAvatarURL(),
 			VoteNum:         voteData[idx],
 			CommentCount:    commentCount,
 			Post:            post,
@@ -286,6 +291,7 @@ func GetCommunityPostList(p *models.ParamPostList) (data *models.ApiPostDetailRe
 		// 接口数据拼接
 		postDetail := &models.ApiPostDetail{
 			AuthorName:      user.UserName,
+			AuthorAvatar:    user.GetAvatarURL(),
 			VoteNum:         voteData[idx],
 			CommentCount:    commentCount,
 			Post:            post,

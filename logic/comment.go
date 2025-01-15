@@ -138,13 +138,16 @@ func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
 			continue
 		}
 
-		// 查询被回复人信息
-		replyToUser, err := mysql.GetUserById(comment.ReplyToUid)
-		if err != nil {
-			zap.L().Error("mysql.GetUserById failed",
-				zap.Int64("reply_to_uid", comment.ReplyToUid),
-				zap.Error(err))
-			continue
+		// 查询被回复人信息（仅当 ReplyToUid 不为 0 时）
+		var replyToUser *models.User
+		if comment.ReplyToUid != 0 {
+			replyToUser, err = mysql.GetUserById(comment.ReplyToUid)
+			if err != nil {
+				zap.L().Error("mysql.GetUserById failed",
+					zap.Int64("reply_to_uid", comment.ReplyToUid),
+					zap.Error(err))
+				continue
+			}
 		}
 
 		// 获取回复数量
@@ -165,23 +168,30 @@ func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
 			voteNum = 0
 		}
 
+		// 组装评论详情
 		commentDetail := &models.ApiCommentDetail{
-			CommentId:     comment.CommentId,
-			ParentId:      comment.ParentId,
-			PostId:        comment.PostId,
-			AuthorId:      comment.AuthorId,
-			AuthorName:    author.UserName,
-			AuthorAvatar:  author.Avatar,
-			ReplyToUid:    comment.ReplyToUid,
-			ReplyToName:   replyToUser.UserName,
-			ReplyToAvatar: replyToUser.Avatar,
-			ReplyCount:    replyCount,
-			VoteNum:       voteNum,
-			Content:       comment.Content,
-			CreateTime:    comment.CreateTime.Format("2006-01-02 15:04:05"),
+			CommentId:    comment.CommentId,
+			ParentId:     comment.ParentId,
+			PostId:       comment.PostId,
+			AuthorId:     comment.AuthorId,
+			Content:      comment.Content,
+			AuthorName:   author.UserName,
+			AuthorAvatar: author.GetAvatarURL(),
+			ReplyCount:   replyCount,
+			VoteNum:      voteNum,
+			CreateTime:   comment.CreateTime.Format("2006-01-02 15:04:05"),
 		}
+
+		// 只有在有被回复用户时才设置被回复人信息
+		if replyToUser != nil {
+			commentDetail.ReplyToUid = comment.ReplyToUid
+			commentDetail.ReplyToUserName = replyToUser.UserName
+			commentDetail.ReplyToUserAvatar = replyToUser.GetAvatarURL()
+		}
+
 		data = append(data, commentDetail)
 	}
+
 	return data, nil
 }
 
