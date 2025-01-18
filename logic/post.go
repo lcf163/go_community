@@ -379,6 +379,7 @@ func PostSearch(p *models.ParamPostList) (data *models.ApiPostDetailRes, err err
 		// 接口数据拼接
 		postDetail := &models.ApiPostDetail{
 			AuthorName:      user.UserName,
+			AuthorAvatar:    user.GetAvatarURL(),
 			VoteNum:         voteData[idx],
 			Post:            post,
 			CommunityDetail: community,
