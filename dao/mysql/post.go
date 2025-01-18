@@ -170,3 +170,22 @@ func UpdatePost(postId int64, title string, content string) error {
 	}
 	return nil
 }
+
+// GetUserPostTotalCount 获取用户发帖总数
+func GetUserPostTotalCount(userId int64) (count int64, err error) {
+	sqlStr := `select count(post_id) from post where author_id = ? and status = 1`
+	err = db.Get(&count, sqlStr, userId)
+	return
+}
+
+// GetUserPostList 获取用户的帖子列表
+func GetUserPostList(userId, page, size int64) (posts []*models.Post, err error) {
+	sqlStr := `select post_id, title, content, author_id, community_id, create_time 
+	from post 
+	where author_id = ? and status = 1
+	order by create_time desc 
+	limit ?,?`
+	posts = make([]*models.Post, 0, size)
+	err = db.Select(&posts, sqlStr, userId, (page-1)*size, size)
+	return
+}

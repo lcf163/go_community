@@ -161,3 +161,29 @@ func UpdatePostHandler(c *gin.Context) {
 
 	ResponseSuccess(c, nil)
 }
+
+// GetUserPostListHandler 根据用户ID获取帖子列表
+func GetUserPostListHandler(c *gin.Context) {
+	// 获取用户ID参数
+	userIdStr := c.Param("userId")
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	if err != nil {
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 获取分页参数
+	page, size := getPageInfo(c)
+
+	// 获取数据
+	data, err := logic.GetUserPostList(userId, page, size)
+	if err != nil {
+		zap.L().Error("logic.GetUserPostList failed",
+			zap.Int64("user_id", userId),
+			zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, data)
+}

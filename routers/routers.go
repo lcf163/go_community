@@ -59,11 +59,11 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.GET("/refresh_token", controller.RefreshTokenHandler)
 	v1.GET("/user/:id", controller.GetUserInfoHandler) // 获取用户信息
 	// 帖子业务
-	v1.GET("/posts", controller.GetPostListHandler)   // 获取帖子列表（带分页）
-	v1.GET("/posts2", controller.GetPostListHandler2) // 获取帖子列表（带分页）：按照帖子的发布时间或分数排序
-	v1.GET("/post/:id", controller.PostDetailHandler) // 获取帖子详情
-	//v1.GET("/post/:userId", controller.GetUserPostListHandler) // 获取帖子列表（根据用户ID）
-	v1.GET("/search", controller.PostSearchHandler) // 搜索帖子
+	v1.GET("/posts", controller.GetPostListHandler)                  // 获取帖子列表（带分页）
+	v1.GET("/posts2", controller.GetPostListHandler2)                // 获取帖子列表（带分页）：按照帖子的发布时间或分数排序
+	v1.GET("/posts/user/:userId", controller.GetUserPostListHandler) // 获取帖子列表（根据用户ID）
+	v1.GET("/post/:id", controller.PostDetailHandler)                // 获取帖子详情
+	v1.GET("/search", controller.PostSearchHandler)                  // 搜索帖子
 	// 社区业务
 	v1.GET("/community", controller.CommunityHandler)           // 获取分类社区列表
 	v1.GET("/community2", controller.CommunityHandler2)         // 获取分类社区列表（带分页）

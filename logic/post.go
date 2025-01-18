@@ -410,3 +410,83 @@ func UpdatePost(userId int64, p *models.ParamUpdatePost) (err error) {
 	// 更新帖子
 	return mysql.UpdatePost(postId, p.Title, p.Content)
 }
+
+// GetUserPostList 获取用户的帖子列表
+func GetUserPostList(userId, page, size int64) (data *models.ApiPostDetailRes, err error) {
+	// 初始化返回数据结构
+	data = &models.ApiPostDetailRes{
+		Page: models.Page{},
+		List: make([]*models.ApiPostDetail, 0),
+	}
+
+	// 获取该用户的帖子总数
+	total, err := mysql.GetUserPostTotalCount(userId)
+	if err != nil {
+		return nil, err
+	}
+	data.Page.Total = total
+	data.Page.Size = size
+	data.Page.Page = page
+
+	// 查询该用户的帖子列表
+	posts, err := mysql.GetUserPostList(userId, page, size)
+	if err != nil {
+		return nil, err
+	}
+	if len(posts) == 0 {
+		return data, nil
+	}
+
+	// 提前查询好每篇帖子的投票数
+	ids := make([]string, 0, len(posts))
+	for _, post := range posts {
+		ids = append(ids, strconv.FormatInt(post.PostId, 10))
+	}
+	voteData, err := redis.GetPostVoteData(ids)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取用户信息（只需要查询一次）
+	user, err := mysql.GetUserById(userId)
+	if err != nil {
+		zap.L().Error("mysql.GetUserById failed",
+			zap.Int64("user_id", userId),
+			zap.Error(err))
+		return nil, err
+	}
+
+	// 组装数据
+	for idx, post := range posts {
+		// 获取社区信息
+		community, err := mysql.GetCommunityDetailById(post.CommunityId)
+		if err != nil {
+			zap.L().Error("mysql.GetCommunityDetailById failed",
+				zap.Int64("community_id", post.CommunityId),
+				zap.Error(err))
+			continue
+		}
+
+		// 获取评论数量
+		commentCount, err := mysql.GetCommentCount(post.PostId)
+		if err != nil {
+			zap.L().Error("mysql.GetCommentCount failed",
+				zap.Int64("post_id", post.PostId),
+				zap.Error(err))
+			commentCount = 0
+		}
+
+		// 组装数据
+		postDetail := &models.ApiPostDetail{
+			AuthorName:      user.UserName,
+			AuthorAvatar:    user.GetAvatarURL(),
+			VoteNum:         voteData[idx],
+			CommentCount:    commentCount,
+			Post:            post,
+			CommunityDetail: community,
+		}
+		data.List = append(data.List, postDetail)
+	}
+
+	return data, nil
+}
