@@ -15,14 +15,13 @@ const (
 )
 
 // VoteForTarget 为帖子或评论投票
-func VoteForTarget(userId int64, p *models.ParamVoteData) error {
+func VoteForTarget(userId int64, p *models.ParamVoteData) (voteNum int64, err error) {
 	zap.L().Debug("VoteForTarget",
 		zap.Int64("userId", userId),
 		zap.String("targetId", p.TargetId),
 		zap.Int8("targetType", p.TargetType),
 		zap.Int8("direction", p.Direction))
 
-	// 根据目标类型执行不同的投票逻辑
 	userIdStr := strconv.Itoa(int(userId))
 	switch p.TargetType {
 	case TypePost:
@@ -30,6 +29,6 @@ func VoteForTarget(userId int64, p *models.ParamVoteData) error {
 	case TypeComment:
 		return redis.VoteForComment(userIdStr, p.TargetId, float64(p.Direction))
 	default:
-		return errors.New("无效的投票目标类型")
+		return 0, errors.New("无效的投票目标类型")
 	}
 }

@@ -36,8 +36,9 @@ func VoteHandler(c *gin.Context) {
 		return
 	}
 
-	// 投票
-	if err := logic.VoteForTarget(userID, vote); err != nil {
+	// 投票并获取最新点赞数
+	voteNum, err := logic.VoteForTarget(userID, vote)
+	if err != nil {
 		zap.L().Error("logic.VoteForTarget failed", zap.Error(err))
 		switch err {
 		case redis.ErrorVoteRepeted:
@@ -50,5 +51,7 @@ func VoteHandler(c *gin.Context) {
 		return
 	}
 
-	ResponseSuccess(c, nil)
+	ResponseSuccess(c, gin.H{
+		"vote_num": voteNum,
+	})
 }

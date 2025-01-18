@@ -1,9 +1,16 @@
 package redis
 
 import (
-	"github.com/go-redis/redis"
 	"time"
+
+	"github.com/go-redis/redis"
 )
+
+// GetCommentVoteNum 获取评论的投票数
+func GetCommentVoteNum(commentId string) (voteNum int64, err error) {
+	key := getRedisKey(KeyCommentVotedZSetPrefix + commentId)
+	return client.ZCount(key, "1", "1").Result()
+}
 
 // CreateComment 创建评论时记录到Redis
 func CreateComment(commentId int64) error {

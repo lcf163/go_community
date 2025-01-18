@@ -47,46 +47,85 @@ const (
 */
 
 // VoteForPost	为帖子投票
-func VoteForPost(userId, postId string, v float64) (err error) {
+func VoteForPost(userId, postId string, v float64) (voteNum int64, err error) {
 	// 1.判断投票限制
-	// 去redis取帖子发布时间
 	postTime := client.ZScore(getRedisKey(KeyPostTimeZSet), postId).Val()
 	if float64(time.Now().Unix())-postTime > OneWeekInSeconds {
-		// 超过一个星期，就不允许投票了
-		return ErrorVoteTimeExpire
+		return 0, ErrorVoteTimeExpire
 	}
-	// 2和3，需要放到一个事务中操作
-	// 2.更新帖子的分数
-	// 判断是否已经投过票，查当前用户给当前帖子的投票记录
-	key := getRedisKey(KeyPostVotedZSetPrefix) + postId
+
+	// 2.判断是否已投票
+	key := getRedisKey(KeyPostVotedZSetPrefix + postId)
 	ov := client.ZScore(key, userId).Val()
-	// 若这一次投票的值和之前保存的值一致，则提示不允许重复投票
 	if v == ov {
-		return ErrorVoteRepeted
+		return 0, ErrorVoteRepeted
 	}
+
+	// 3.更新投票数据
 	var op float64
 	if v > ov {
 		op = 1
 	} else {
 		op = -1
 	}
-	diffAbs := math.Abs(ov - v)                // 计算两次投票的差值
-	incrementScore := VoteScore * diffAbs * op // 计算分数（新增）
-	pipeline := client.TxPipeline()            // 事务操作
-	// ZIncrBy 用于将有序集合中的成员分数增加指定数量
-	pipeline.ZIncrBy(getRedisKey(KeyPostScoreZSet), incrementScore, postId) // 更新分数
-	// 3.记录用户为该帖子投票的数据
+	diffAbs := math.Abs(ov - v)
+	pipeline := client.TxPipeline()
+
+	// 更新分数
+	pipeline.ZIncrBy(getRedisKey(KeyPostScoreZSet), VoteScore*diffAbs*op, postId)
+
+	// 记录投票数据
 	if v == 0 {
 		pipeline.ZRem(key, userId)
 	} else {
-		pipeline.ZAdd(key, redis.Z{ // 记录已投票
-			Score:  v, // 赞成票还是反对票
+		pipeline.ZAdd(key, redis.Z{
+			Score:  v,
 			Member: userId,
 		})
 	}
 
-	_, err = pipeline.Exec() // 事务操作的提交
-	return err
+	_, err = pipeline.Exec()
+	if err != nil {
+		return 0, err
+	}
+
+	// 返回最新点赞数
+	return GetPostVoteNum(postId)
+}
+
+// VoteForComment 为评论投票
+func VoteForComment(userId, commentId string, v float64) (voteNum int64, err error) {
+	// 1.判断投票限制
+	commentTime := client.ZScore(getRedisKey(KeyCommentTimeZSet), commentId).Val()
+	if float64(time.Now().Unix())-commentTime > OneWeekInSeconds {
+		return 0, ErrorVoteTimeExpire
+	}
+
+	// 2.判断是否已投票
+	key := getRedisKey(KeyCommentVotedZSetPrefix + commentId)
+	ov := client.ZScore(key, userId).Val()
+	if v == ov {
+		return 0, ErrorVoteRepeted
+	}
+
+	// 3.更新投票数据
+	pipeline := client.TxPipeline()
+	if v == 0 {
+		pipeline.ZRem(key, userId)
+	} else {
+		pipeline.ZAdd(key, redis.Z{
+			Score:  v,
+			Member: userId,
+		})
+	}
+
+	_, err = pipeline.Exec()
+	if err != nil {
+		return 0, err
+	}
+
+	// 返回最新点赞数
+	return GetCommentVoteNum(commentId)
 }
 
 // CreatePost redis 存储帖子信息
@@ -110,42 +149,4 @@ func CreatePost(postId, communityId int64) (err error) {
 	pipeline.SAdd(communityKey, postId)
 	_, err = pipeline.Exec() // 事务操作的提交
 	return
-}
-
-// VoteForComment 为评论投票
-func VoteForComment(userId, commentId string, v float64) (err error) {
-	// 1.判断投票限制
-	commentTime := client.ZScore(getRedisKey(KeyCommentTimeZSet), commentId).Val()
-	if float64(time.Now().Unix())-commentTime > OneWeekInSeconds {
-		return ErrorVoteTimeExpire
-	}
-
-	// 2.判断是否已投票
-	key := getRedisKey(KeyCommentVotedZSetPrefix + commentId)
-	ov := client.ZScore(key, userId).Val()
-	
-	// 不允许重复投票
-	if v == ov {
-		return ErrorVoteRepeted
-	}
-
-	// 3.记录投票数据
-	pipeline := client.TxPipeline()
-	if v == 0 {
-		pipeline.ZRem(key, userId)
-	} else {
-		pipeline.ZAdd(key, redis.Z{
-			Score:  v,
-				Member: userId,
-		})
-	}
-
-	_, err = pipeline.Exec()
-	return
-}
-
-// GetCommentVoteNum 获取评论的投票数
-func GetCommentVoteNum(commentId string) (voteNum int64, err error) {
-	key := getRedisKey(KeyCommentVotedZSetPrefix + commentId)
-	return client.ZCount(key, "1", "1").Result()
 }
