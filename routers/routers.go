@@ -75,6 +75,9 @@ func SetupRouter(mode string) *gin.Engine {
 	// 使用 JWT 认证中间件
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
+		v1.PUT("/user/name", controller.UpdateUserNameHandler)     // 修改用户名
+		v1.PUT("/user/password", controller.UpdatePasswordHandler) // 修改用户密码
+		v1.POST("/user/avatar", controller.UpdateAvatarHandler)    // 修改用户头像
 		// 帖子业务
 		v1.POST("/post", controller.CreatePostHandler) // 创建帖子
 		v1.PUT("/post", controller.UpdatePostHandler)  // 更新帖子

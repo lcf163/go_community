@@ -18,6 +18,10 @@ const (
 	CodeVoteRepeated      MyCode = 1009
 	CodeVoteTimeExpire    MyCode = 1010
 	CodeNoPermission      MyCode = 1011
+
+	CodeFileUploadFailed MyCode = 1012
+	CodeFileSizeExceeded MyCode = 1013
+	CodeInvalidFileType  MyCode = 1014
 )
 
 var msgFlags = map[MyCode]string{
@@ -34,6 +38,9 @@ var msgFlags = map[MyCode]string{
 	CodeVoteRepeated:      "不允许重复投票",
 	CodeVoteTimeExpire:    "投票时间已过",
 	CodeNoPermission:      "无操作权限",
+	CodeFileUploadFailed:  "文件上传失败",
+	CodeFileSizeExceeded:  "文件大小超出限制",
+	CodeInvalidFileType:   "不支持的文件类型",
 }
 
 func (c MyCode) Msg() string {

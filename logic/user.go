@@ -3,8 +3,15 @@ package logic
 import (
 	"go_community/dao/mysql"
 	"go_community/models"
+	pkg_file "go_community/pkg/file"
 	"go_community/pkg/jwt"
 	"go_community/pkg/snowflake"
+	"go_community/settings"
+	"io"
+	"mime/multipart"
+	"os"
+	"path"
+	"strings"
 )
 
 // 存放业务逻辑的代码
@@ -60,4 +67,100 @@ func GetUserInfo(userId int64) (*models.User, error) {
 		return nil, mysql.ErrorUserNotExist
 	}
 	return user, nil
+}
+
+// UpdateUserName 更新用户名
+func UpdateUserName(userId int64, p *models.ParamUpdateUser) error {
+	// 检查用户名是否已存在
+	if err := mysql.CheckUserExist(p.Username); err != nil {
+		return err
+	}
+
+	// 更新用户名
+	return mysql.UpdateUserName(userId, p)
+}
+
+// UpdatePassword 修改密码
+func UpdatePassword(userId int64, p *models.ParamUpdatePassword) error {
+	// 验证旧密码是否正确
+	if err := mysql.CheckPassword(userId, p.OldPassword); err != nil {
+		return err
+	}
+
+	// 更新密码
+	return mysql.UpdatePassword(userId, p.NewPassword)
+}
+
+// UpdateAvatar 更新用户头像
+func UpdateAvatar(userId int64, file *multipart.FileHeader) (string, error) {
+	// 检查文件大小
+	if file.Size > settings.Conf.Avatar.MaxSize {
+		return "", pkg_file.ErrorFileLimit
+	}
+
+	// 检查文件类型
+	ext := path.Ext(file.Filename)
+	if !isValidImageExt(ext) {
+		return "", pkg_file.ErrorFileType
+	}
+
+	// 获取用户当前头像
+	user, err := mysql.GetUserById(userId)
+	if err != nil {
+		return "", err
+	}
+
+	// 生成新文件名（不包含域名和路径）
+	filename := pkg_file.GenerateAvatarFilename(userId, ext)
+
+	// 确保上传目录存在
+	uploadDir := settings.Conf.Avatar.BaseURL
+	if err := os.MkdirAll(uploadDir, 0755); err != nil {
+		return "", pkg_file.ErrorFileDirectory
+	}
+
+	// 如果用户已有头像且不是外部URL，删除原头像文件
+	if user.Avatar != "" && !strings.HasPrefix(user.Avatar, "http") {
+		oldAvatarPath := path.Join(uploadDir, user.Avatar)
+		// 忽略删除错误，因为文件可能不存在
+		_ = os.Remove(oldAvatarPath)
+	}
+
+	// 保存新文件
+	dst := path.Join(uploadDir, filename)
+	srcFile, err := file.Open()
+	if err != nil {
+		return "", err
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return "", err
+	}
+	defer dstFile.Close()
+
+	if _, err := io.Copy(dstFile, srcFile); err != nil {
+		return "", err
+	}
+
+	// 更新数据库中的头像路径
+	if err := mysql.UpdateUserAvatar(userId, filename); err != nil {
+		// 如果数据库更新失败，删除已上传的文件
+		os.Remove(dst)
+		return "", err
+	}
+
+	return filename, nil
+}
+
+// isValidImageExt 检查是否为有效的图片扩展名
+func isValidImageExt(ext string) bool {
+	validExts := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".gif":  true,
+	}
+	return validExts[strings.ToLower(ext)]
 }

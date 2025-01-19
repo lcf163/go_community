@@ -4,8 +4,10 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"encoding/hex"
+	"fmt"
 	"go_community/models"
 	"go_community/pkg/file"
+	"strings"
 )
 
 // 把每一步数据库操作封装成函数
@@ -38,7 +40,7 @@ func CheckUserExist(username string) (err error) {
 func InsertUser(user *models.User) (err error) {
 	// 生成加密密码
 	user.Password = encryptPassword([]byte(user.Password))
-	// 设置随机默认头像
+	// 设置随机默认头像 - 只存储文件名
 	user.Avatar = file.GetRandomDefaultAvatar()
 	// 执行 SQL 语句入库
 	sqlStr := `insert into user(user_id, username, password, avatar) values (?,?,?,?)`
@@ -79,5 +81,53 @@ func GetUserById(id int64) (user *models.User, err error) {
 func UpdateUserAvatar(userId int64, avatarPath string) error {
 	sqlStr := `update user set avatar = ? where user_id = ?`
 	_, err := db.Exec(sqlStr, avatarPath, userId)
+	return err
+}
+
+// UpdateUserName 更新用户名
+func UpdateUserName(userId int64, p *models.ParamUpdateUser) error {
+	// 构建更新语句
+	var updates []string
+	var args []interface{}
+
+	if p.Username != "" {
+		updates = append(updates, "username = ?")
+		args = append(args, p.Username)
+	}
+
+	// 如果没有要更新的字段
+	if len(updates) == 0 {
+		return nil
+	}
+
+	// 构建SQL语句
+	sqlStr := fmt.Sprintf("update user set %s where user_id = ?",
+		strings.Join(updates, ", "))
+	args = append(args, userId)
+
+	// 执行更新
+	_, err := db.Exec(sqlStr, args...)
+	return err
+}
+
+// CheckPassword 检查密码是否正确
+func CheckPassword(userId int64, password string) error {
+	sqlStr := `select password from user where user_id = ?`
+	var hashedPassword string
+	if err := db.Get(&hashedPassword, sqlStr, userId); err != nil {
+		return err
+	}
+
+	// 验证密码
+	if hashedPassword != encryptPassword([]byte(password)) {
+		return ErrorPasswordWrong
+	}
+	return nil
+}
+
+// UpdatePassword 更新密码
+func UpdatePassword(userId int64, newPassword string) error {
+	sqlStr := `update user set password = ? where user_id = ?`
+	_, err := db.Exec(sqlStr, encryptPassword([]byte(newPassword)), userId)
 	return err
 }

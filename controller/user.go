@@ -6,6 +6,7 @@ import (
 	"go_community/dao/mysql"
 	"go_community/logic"
 	"go_community/models"
+	pkg_file "go_community/pkg/file"
 	"go_community/pkg/jwt"
 	"net/http"
 	"strconv"
@@ -142,5 +143,116 @@ func GetUserInfoHandler(c *gin.Context) {
 		"user_id":  fmt.Sprintf("%d", user.UserId),
 		"username": user.UserName,
 		"avatar":   user.GetAvatarURL(),
+	})
+}
+
+// UpdateUserNameHandler 更新用户名
+func UpdateUserNameHandler(c *gin.Context) {
+	// 获取当前用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 获取参数
+	p := new(models.ParamUpdateUser)
+	if err := c.ShouldBindJSON(p); err != nil {
+		zap.L().Error("UpdateUserNameHandler with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 更新用户名
+	if err := logic.UpdateUserName(userID, p); err != nil {
+		zap.L().Error("logic.UpdateUserName failed",
+			zap.Int64("user_id", userID),
+			zap.Error(err))
+		if err == mysql.ErrorUserExist {
+			ResponseError(c, CodeUserExist)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
+}
+
+// UpdatePasswordHandler 修改密码
+func UpdatePasswordHandler(c *gin.Context) {
+	// 获取当前用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 获取参数
+	p := new(models.ParamUpdatePassword)
+	if err := c.ShouldBindJSON(p); err != nil {
+		zap.L().Error("UpdatePasswordHandler with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 修改密码
+	if err := logic.UpdatePassword(userID, p); err != nil {
+		zap.L().Error("logic.UpdatePassword failed",
+			zap.Int64("user_id", userID),
+			zap.Error(err))
+		if err == mysql.ErrorPasswordWrong {
+			ResponseError(c, CodeInvalidPassword)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
+}
+
+// UpdateAvatarHandler 更新用户头像
+func UpdateAvatarHandler(c *gin.Context) {
+	// 获取当前用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 获取上传的文件
+	file, err := c.FormFile("avatar")
+	if err != nil {
+		zap.L().Error("get form file failed", zap.Error(err))
+		ResponseErrorWithMsg(c, CodeInvalidParams, "请选择要上传的头像文件")
+		return
+	}
+
+	// 更新头像
+	filename, err := logic.UpdateAvatar(userID, file)
+	if err != nil {
+		zap.L().Error("logic.UpdateAvatar failed",
+			zap.Int64("user_id", userID),
+			zap.Error(err))
+
+		// 根据具体错误类型返回相应的错误信息
+		switch err {
+		case pkg_file.ErrorFileLimit:
+			ResponseErrorWithMsg(c, CodeInvalidParams, "文件大小超出限制")
+		case pkg_file.ErrorFileType:
+			ResponseErrorWithMsg(c, CodeInvalidParams, "不支持的文件类型，请上传jpg/jpeg/png/gif格式的图片")
+		case pkg_file.ErrorFileDirectory:
+			ResponseErrorWithMsg(c, CodeServerBusy, "服务器存储错误")
+		default:
+			ResponseError(c, CodeServerBusy)
+		}
+		return
+	}
+
+	// 返回成功响应，包含完整的头像URL
+	ResponseSuccess(c, gin.H{
+		"avatar":  pkg_file.GetAvatarPath(filename),
+		"message": "头像更新成功",
 	})
 }

@@ -51,8 +51,9 @@ type RedisConfig struct {
 }
 
 type AvatarConfig struct {
-	BaseURL string `mapstructure:"base_url"`
-	MaxSize int64  `mapstructure:"max_size"`
+	BaseURL  string `mapstructure:"base_url"`
+	MaxSize  int64  `mapstructure:"max_size"`
+	Domain   string `mapstructure:"domain"`
 }
 
 // Init 初始化读取配置文件

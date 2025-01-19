@@ -28,5 +28,6 @@ redis:
   db: 0
   pool_size: 100
 avatar:
-base_url: "static/img/avatar/"  # 头像存储的基础路径
-max_size: 2097152               # 最大文件大小(2MB)
+  base_url: "static/img/avatar/"    # 头像存储的基础路径
+  max_size: 2097152                    # 最大文件大小 (2MB = 2 * 1024 * 1024)
+  domain: "http://localhost:8081/"     # API服务器域名
