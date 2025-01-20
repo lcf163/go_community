@@ -29,7 +29,15 @@ func CreateCommentHandler(c *gin.Context) {
 
 	// 创建评论
 	if err := logic.CreateComment(userID, p); err != nil {
-		zap.L().Error("logic.CreateComment failed", zap.Error(err))
+		zap.L().Error("logic.CreateComment failed", 
+			zap.Error(err),
+			zap.Any("params", p))
+		
+		// 根据错误类型返回相应的错误码
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeInvalidParams)
+			return
+		}
 		ResponseError(c, CodeServerBusy)
 		return
 	}

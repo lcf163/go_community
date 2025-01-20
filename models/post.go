@@ -57,3 +57,19 @@ type ApiPostDetailRes struct {
 	Page Page             `json:"page"`
 	List []*ApiPostDetail `json:"list"`
 }
+
+// ParamPostList 获取帖子列表 query string 参数
+type ParamPostList struct {
+	CommunityId int64  `json:"community_id" form:"community_id"`   // 可以为空
+	Page        int64  `json:"page" form:"page"`                   // 页码
+	Size        int64  `json:"size" form:"size"`                   // 每页数量
+	Order       string `json:"order" form:"order" example:"score"` // 排序依据
+	Search      string `json:"search" form:"search"`               // 关键字搜索
+}
+
+// ParamUpdatePost 更新帖子请求参数
+type ParamUpdatePost struct {
+	PostId  int64  `json:"post_id" binding:"required"` // 帖子id
+	Title   string `json:"title" binding:"required"`   // 标题
+	Content string `json:"content" binding:"required"` // 内容
+}
