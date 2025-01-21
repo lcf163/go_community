@@ -10,12 +10,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// CreateCommentHandler 创建评论
+// CreateCommentHandler 创建评论/回复
 func CreateCommentHandler(c *gin.Context) {
 	// 参数校验
 	p := new(models.ParamComment)
 	if err := c.ShouldBindJSON(p); err != nil {
 		zap.L().Error("CreateCommentHandler with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 如果是回复,检查必填字段
+	if p.ParentId != 0 && p.ReplyToUid == 0 {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
@@ -29,91 +35,7 @@ func CreateCommentHandler(c *gin.Context) {
 
 	// 创建评论
 	if err := logic.CreateComment(userID, p); err != nil {
-		zap.L().Error("logic.CreateComment failed", 
-			zap.Error(err),
-			zap.Any("params", p))
-		
-		// 根据错误类型返回相应的错误码
-		if err == mysql.ErrorInvalidID {
-			ResponseError(c, CodeInvalidParams)
-			return
-		}
-		ResponseError(c, CodeServerBusy)
-		return
-	}
-
-	ResponseSuccess(c, nil)
-}
-
-// GetCommentListHandler 获取评论列表
-func GetCommentListHandler(c *gin.Context) {
-	// 获取帖子ID
-	postIDStr := c.Param("postId")
-	postID, err := strconv.ParseInt(postIDStr, 10, 64)
-	if err != nil {
-		ResponseError(c, CodeInvalidParams)
-		return
-	}
-
-	// 获取分页参数
-	page, size := getPageInfo(c)
-
-	// 获取评论列表
-	data, err := logic.GetCommentList(postID, page, size)
-	if err != nil {
-		zap.L().Error("logic.GetCommentList failed", 
-			zap.Int64("post_id", postID),
-			zap.Error(err))
-		ResponseError(c, CodeServerBusy)
-		return
-	}
-
-	ResponseSuccess(c, data)
-}
-
-// GetCommentReplyListHandler 获取评论的回复列表
-func GetCommentReplyListHandler(c *gin.Context) {
-	// 获取评论ID
-	commentIdStr := c.Param("commentId")
-	commentId, err := strconv.ParseInt(commentIdStr, 10, 64)
-	if err != nil {
-		ResponseError(c, CodeInvalidParams)
-		return
-	}
-
-	// 获取回复列表
-	data, err := logic.GetCommentReplyList(commentId)
-	if err != nil {
-		zap.L().Error("logic.GetCommentReplyList failed",
-			zap.Int64("comment_id", commentId),
-			zap.Error(err))
-		ResponseError(c, CodeServerBusy)
-		return
-	}
-
-	ResponseSuccess(c, data)
-}
-
-// CreateCommentReplyHandler 创建评论回复
-func CreateCommentReplyHandler(c *gin.Context) {
-	// 参数校验
-	p := new(models.ParamCommentReply)
-	if err := c.ShouldBindJSON(p); err != nil {
-		zap.L().Error("CreateCommentReplyHandler with invalid param", zap.Error(err))
-		ResponseError(c, CodeInvalidParams)
-		return
-	}
-
-	// 获取当前用户ID
-	userID, err := getCurrentUserId(c)
-	if err != nil {
-		ResponseError(c, CodeNotLogin)
-		return
-	}
-
-	// 创建回复
-	if err := logic.CreateCommentReply(userID, p); err != nil {
-		zap.L().Error("logic.CreateCommentReply failed",
+		zap.L().Error("logic.CreateComment failed",
 			zap.Error(err),
 			zap.Any("params", p))
 		if err == mysql.ErrorInvalidID {
@@ -149,7 +71,7 @@ func UpdateCommentHandler(c *gin.Context) {
 		zap.L().Error("logic.UpdateComment failed",
 			zap.Error(err),
 			zap.Any("params", p))
-		
+
 		if err == mysql.ErrorInvalidID {
 			ResponseError(c, CodeInvalidParams)
 			return
@@ -165,40 +87,66 @@ func UpdateCommentHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-// UpdateCommentReplyHandler 更新评论回复
-func UpdateCommentReplyHandler(c *gin.Context) {
-	// 参数校验
-	p := new(models.ParamUpdateCommentReply)
-	if err := c.ShouldBindJSON(p); err != nil {
-		zap.L().Error("UpdateCommentReplyHandler with invalid param", zap.Error(err))
+// GetCommentListHandler 获取评论列表（支持获取帖子评论和评论回复）
+func GetCommentListHandler(c *gin.Context) {
+	// 获取参数
+	p := &models.ParamCommentList{}
+	if err := c.ShouldBindQuery(p); err != nil {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
 
-	// 获取当前用户ID
-	userID, err := getCurrentUserId(c)
-	if err != nil {
-		ResponseError(c, CodeNotLogin)
+	// 参数校验
+	if p.PostId == 0 && p.CommentId == 0 {
+		ResponseError(c, CodeInvalidParams)
 		return
 	}
 
-	// 更新评论回复
-	if err := logic.UpdateCommentReply(userID, p); err != nil {
-		zap.L().Error("logic.UpdateCommentReply failed",
-			zap.Error(err),
-			zap.Any("params", p))
-		
+	// 根据参数判断获取类型
+	var data interface{}
+	var err error
+	if p.PostId != 0 {
+		// 获取帖子评论列表
+		data, err = logic.GetCommentList(p.PostId, p.Page, p.Size)
+	} else {
+		// 获取评论回复列表
+		data, err = logic.GetCommentReplyList(p.CommentId)
+	}
+
+	if err != nil {
+		zap.L().Error("get comments failed",
+			zap.Any("params", p),
+			zap.Error(err))
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, data)
+}
+
+// GetCommentDetailHandler 获取单个评论详情
+func GetCommentDetailHandler(c *gin.Context) {
+	// 获取评论ID参数
+	commentIDStr := c.Param("commentId")
+	commentID, err := strconv.ParseInt(commentIDStr, 10, 64)
+	if err != nil {
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 获取评论详情
+	data, err := logic.GetCommentById(commentID)
+	if err != nil {
+		zap.L().Error("logic.GetCommentById failed",
+			zap.Int64("comment_id", commentID),
+			zap.Error(err))
 		if err == mysql.ErrorInvalidID {
 			ResponseError(c, CodeInvalidParams)
-			return
-		}
-		if err == mysql.ErrorNoPermission {
-			ResponseError(c, CodeNoPermission)
 			return
 		}
 		ResponseError(c, CodeServerBusy)
 		return
 	}
 
-	ResponseSuccess(c, nil)
+	ResponseSuccess(c, data)
 }

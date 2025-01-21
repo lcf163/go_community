@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// CreateComment 创建评论
+// CreateComment 创建评论/回复
 func CreateComment(userId int64, p *models.ParamComment) error {
 	// 检查帖子是否存在
 	post, err := mysql.GetPostById(p.PostId)
@@ -21,8 +21,9 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 		return mysql.ErrorInvalidID
 	}
 
-	// 如果有父评论ID，检查父评论是否存在
+	// 如果是回复,需要额外检查
 	if p.ParentId != 0 {
+		// 检查父评论是否存在
 		parentComment, err := mysql.GetCommentById(p.ParentId)
 		if err != nil || parentComment == nil || parentComment.Status != 1 {
 			zap.L().Error("mysql.GetCommentById failed",
@@ -30,8 +31,7 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 				zap.Error(err))
 			return mysql.ErrorInvalidID
 		}
-
-		// 检查父评论是否属于该帖子
+		// 检查父评论是否属于指定的帖子
 		if parentComment.PostId != p.PostId {
 			zap.L().Error("parent comment does not belong to the specified post",
 				zap.Int64("comment_id", p.ParentId),
@@ -43,16 +43,18 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 	// 生成评论ID
 	commentId := snowflake.GetID()
 
+	// 创建评论
 	comment := &models.Comment{
-		CommentId: commentId,
-		ParentId:  p.ParentId,
-		PostId:    p.PostId,
-		AuthorId:  userId,
-		Content:   p.Content,
-		Status:    1,
+		CommentId:  commentId,
+		ParentId:   p.ParentId,
+		PostId:     p.PostId,
+		AuthorId:   userId,
+		ReplyToUid: p.ReplyToUid,
+		Content:    p.Content,
+		Status:     1,
 	}
 
-	// 保存到MySQL
+	// 保存到数据库
 	if err := mysql.CreateComment(comment); err != nil {
 		return err
 	}
@@ -208,72 +210,6 @@ func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
 	return data, nil
 }
 
-// CreateCommentReply 创建评论回复
-func CreateCommentReply(userId int64, p *models.ParamCommentReply) error {
-	// 检查帖子是否存在
-	post, err := mysql.GetPostById(p.PostId)
-	if err != nil || post == nil || post.Status != 1 {
-		zap.L().Error("mysql.GetPostById failed",
-			zap.Int64("post_id", p.PostId),
-			zap.Error(err))
-		return mysql.ErrorInvalidID
-	}
-
-	// 检查被回复的用户是否存在
-	replyToUser, err := mysql.GetUserById(p.ReplyToUid)
-	if err != nil || replyToUser == nil {
-		zap.L().Error("mysql.GetUserById failed",
-			zap.Int64("reply_to_uid", p.ReplyToUid),
-			zap.Error(err))
-		return mysql.ErrorInvalidID
-	}
-
-	// 检查父评论是否存在
-	parentComment, err := mysql.GetCommentById(p.ParentId)
-	if err != nil || parentComment == nil || parentComment.Status != 1 {
-		zap.L().Error("mysql.GetCommentById failed",
-			zap.Int64("comment_id", p.ParentId),
-			zap.Error(err))
-		return mysql.ErrorInvalidID
-	}
-
-	// 检查父评论是否属于指定的帖子
-	if parentComment.PostId != p.PostId {
-		zap.L().Error("parent comment does not belong to the specified post",
-			zap.Int64("comment_id", p.ParentId),
-			zap.Int64("post_id", p.PostId))
-		return mysql.ErrorInvalidID
-	}
-
-	// 生成评论ID
-	commentId := snowflake.GetID()
-
-	// 创建评论
-	comment := &models.Comment{
-		CommentId:  commentId,
-		ParentId:   p.ParentId,
-		PostId:     p.PostId,
-		AuthorId:   userId,
-		ReplyToUid: p.ReplyToUid,
-		Content:    p.Content,
-		Status:     1,
-	}
-
-	// 保存到数据库
-	if err := mysql.CreateComment(comment); err != nil {
-		return err
-	}
-
-	// 保存到Redis
-	if err := redis.CreateComment(commentId); err != nil {
-		zap.L().Error("redis.CreateComment failed",
-			zap.Int64("comment_id", commentId),
-			zap.Error(err))
-	}
-
-	return nil
-}
-
 // GetCommentById 根据ID获取评论详情
 func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
 	// 查询评论
@@ -342,37 +278,6 @@ func UpdateComment(userId int64, p *models.ParamUpdateComment) error {
 	// 检查是否是评论作者
 	if comment.AuthorId != userId {
 		zap.L().Error("no permission to update comment",
-			zap.Int64("comment_id", p.CommentId),
-			zap.Int64("user_id", userId),
-			zap.Int64("author_id", comment.AuthorId))
-		return mysql.ErrorNoPermission
-	}
-
-	// 更新评论内容
-	return mysql.UpdateComment(p.CommentId, p.Content)
-}
-
-// UpdateCommentReply 更新评论回复
-func UpdateCommentReply(userId int64, p *models.ParamUpdateCommentReply) error {
-	// 检查评论回复是否存在
-	comment, err := mysql.GetCommentById(p.CommentId)
-	if err != nil || comment == nil || comment.Status != 1 {
-		zap.L().Error("mysql.GetCommentById failed",
-			zap.Int64("comment_id", p.CommentId),
-			zap.Error(err))
-		return mysql.ErrorInvalidID
-	}
-
-	// 检查是否是父评论
-	if comment.ParentId == 0 {
-		zap.L().Error("not a reply comment",
-			zap.Int64("comment_id", p.CommentId))
-		return mysql.ErrorInvalidID
-	}
-
-	// 检查是否是评论作者
-	if comment.AuthorId != userId {
-		zap.L().Error("no permission to update comment reply",
 			zap.Int64("comment_id", p.CommentId),
 			zap.Int64("user_id", userId),
 			zap.Int64("author_id", comment.AuthorId))

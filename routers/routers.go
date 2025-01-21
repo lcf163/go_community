@@ -69,8 +69,8 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.GET("/community2", controller.CommunityHandler2)         // 获取分类社区列表（带分页）
 	v1.GET("/community/:id", controller.CommunityDetailHandler) // 根据ID查找社区详情
 	// 评论业务
-	v1.GET("/comment/:postId", controller.GetCommentListHandler)               // 获取评论列表（带分页）
-	v1.GET("/comment/reply/:commentId", controller.GetCommentReplyListHandler) // 获取评论的回复列表
+	v1.GET("/comments", controller.GetCommentListHandler)                    // 获取评论列表（支持获取帖子评论和评论回复）
+	v1.GET("/comment/detail/:commentId", controller.GetCommentDetailHandler) // 获取评论详情
 
 	// 使用 JWT 认证中间件
 	v1.Use(middlewares.JWTAuthMiddleware())
@@ -84,10 +84,8 @@ func SetupRouter(mode string) *gin.Engine {
 		// 投票业务
 		v1.POST("/vote", controller.VoteHandler) // 投票（帖子/评论）
 		// 评论业务
-		v1.POST("/comment", controller.CreateCommentHandler)            // 创建评论
-		v1.PUT("/comment", controller.UpdateCommentHandler)             // 更新评论
-		v1.POST("/comment/reply", controller.CreateCommentReplyHandler) // 创建评论回复
-		v1.PUT("/comment/reply", controller.UpdateCommentReplyHandler)  // 更新评论回复
+		v1.POST("/comment", controller.CreateCommentHandler) // 创建评论/回复
+		v1.PUT("/comment", controller.UpdateCommentHandler)  // 更新评论
 	}
 
 	pprof.Register(r) // 注册 pprof 相关路由

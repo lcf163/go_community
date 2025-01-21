@@ -52,20 +52,28 @@ type ParamUpdatePost struct {
 	Content string `json:"content" binding:"required"` // 内容
 }
 
-// ParamComment 创建评论请求参数
+// ParamComment 创建评论/回复的请求参数
 type ParamComment struct {
-	PostId   int64  `json:"post_id" binding:"required"` // 帖子id
-	ParentId int64  `json:"parent_id"`                  // 父评论id，可选
-	Content  string `json:"content" binding:"required"` // 评论内容
+	PostId     int64  `json:"post_id" binding:"required"`                // 帖子id
+	ParentId   int64  `json:"parent_id"`                                 // 父评论id（0表示创建评论，非0表示创建回复）
+	ReplyToUid int64  `json:"reply_to_uid"`                              // 被回复人的用户id（parent_id不为0时必填）
+	Content    string `json:"content" binding:"required,min=1,max=1000"` // 内容
 }
 
-// ParamCommentReply 创建评论回复的请求参数
-type ParamCommentReply struct {
-	ParentId   int64  `json:"parent_id" binding:"required"`              // 父评论id
-	PostId     int64  `json:"post_id" binding:"required"`                // 帖子id
-	ReplyToUid int64  `json:"reply_to_uid" binding:"required"`           // 被回复人的用户id
-	Content    string `json:"content" binding:"required,min=1,max=1000"` // 修改最大长度限制
-}
+//// ParamComment 创建评论请求参数
+//type ParamComment struct {
+//	PostId   int64  `json:"post_id" binding:"required"` // 帖子id
+//	ParentId int64  `json:"parent_id"`                  // 父评论id，可选
+//	Content  string `json:"content" binding:"required"` // 评论内容
+//}
+//
+//// ParamCommentReply 创建评论回复的请求参数
+//type ParamCommentReply struct {
+//	ParentId   int64  `json:"parent_id" binding:"required"`              // 父评论id
+//	PostId     int64  `json:"post_id" binding:"required"`                // 帖子id
+//	ReplyToUid int64  `json:"reply_to_uid" binding:"required"`           // 被回复人的用户id
+//	Content    string `json:"content" binding:"required,min=1,max=1000"` // 修改最大长度限制
+//}
 
 // ParamUpdateComment 更新评论请求参数
 type ParamUpdateComment struct {
@@ -73,10 +81,18 @@ type ParamUpdateComment struct {
 	Content   string `json:"content" binding:"required"`    // 评论内容
 }
 
-// ParamUpdateCommentReply 更新评论回复请求参数
-type ParamUpdateCommentReply struct {
-	CommentId int64  `json:"comment_id" binding:"required"` // 评论id
-	Content   string `json:"content" binding:"required"`    // 回复内容
+//// ParamUpdateCommentReply 更新评论回复请求参数
+//type ParamUpdateCommentReply struct {
+//	CommentId int64  `json:"comment_id" binding:"required"` // 评论id
+//	Content   string `json:"content" binding:"required"`    // 回复内容
+//}
+
+// ParamCommentList 获取评论列表的请求参数
+type ParamCommentList struct {
+	PostId    int64 `form:"post_id"`         // 帖子id,获取帖子评论时必填
+	CommentId int64 `form:"comment_id"`      // 评论id,获取评论回复时必填
+	Page      int64 `form:"page,default=1"`  // 页码
+	Size      int64 `form:"size,default=10"` // 每页数量
 }
 
 // ParamVoteData 投票数据
