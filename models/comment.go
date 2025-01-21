@@ -38,30 +38,3 @@ type ApiCommentListRes struct {
 	Page *Page               `json:"page"` // 分页信息
 	List []*ApiCommentDetail `json:"list"` // 评论列表
 }
-
-// ParamComment 创建评论请求参数
-type ParamComment struct {
-	PostId   int64  `json:"post_id" binding:"required"` // 帖子id
-	ParentId int64  `json:"parent_id"`                  // 父评论id，可选
-	Content  string `json:"content" binding:"required"` // 评论内容
-}
-
-// ParamCommentReply 创建评论回复的请求参数
-type ParamCommentReply struct {
-	ParentId   int64  `json:"parent_id" binding:"required"`              // 父评论id
-	PostId     int64  `json:"post_id" binding:"required"`                // 帖子id
-	ReplyToUid int64  `json:"reply_to_uid" binding:"required"`           // 被回复人的用户id
-	Content    string `json:"content" binding:"required,min=1,max=1000"` // 修改最大长度限制
-}
-
-// ParamUpdateComment 更新评论请求参数
-type ParamUpdateComment struct {
-	CommentId int64  `json:"comment_id" binding:"required"` // 评论id
-	Content   string `json:"content" binding:"required"`    // 评论内容
-}
-
-// ParamUpdateCommentReply 更新评论回复请求参数
-type ParamUpdateCommentReply struct {
-	CommentId int64  `json:"comment_id" binding:"required"` // 评论id
-	Content   string `json:"content" binding:"required"`    // 回复内容
-}

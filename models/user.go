@@ -50,14 +50,3 @@ func (u *User) GetAvatarURL() string {
 	// 返回完整的URL路径，此时 u.Avatar 只包含文件名
 	return file.GetAvatarPath(u.Avatar)
 }
-
-// ParamUpdateUser 修改用户名的参数
-type ParamUpdateUser struct {
-	Username string `json:"username" binding:"required"` // 用户名,必填
-}
-
-// ParamUpdatePassword 修改密码的参数
-type ParamUpdatePassword struct {
-	OldPassword string `json:"old_password" binding:"required"` // 旧密码
-	NewPassword string `json:"new_password" binding:"required"` // 新密码
-}
