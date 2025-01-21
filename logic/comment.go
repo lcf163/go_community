@@ -327,3 +327,58 @@ func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
 
 	return commentDetail, nil
 }
+
+// UpdateComment 更新评论
+func UpdateComment(userId int64, p *models.ParamUpdateComment) error {
+	// 检查评论是否存在
+	comment, err := mysql.GetCommentById(p.CommentId)
+	if err != nil || comment == nil || comment.Status != 1 {
+		zap.L().Error("mysql.GetCommentById failed",
+			zap.Int64("comment_id", p.CommentId),
+			zap.Error(err))
+		return mysql.ErrorInvalidID
+	}
+
+	// 检查是否是评论作者
+	if comment.AuthorId != userId {
+		zap.L().Error("no permission to update comment",
+			zap.Int64("comment_id", p.CommentId),
+			zap.Int64("user_id", userId),
+			zap.Int64("author_id", comment.AuthorId))
+		return mysql.ErrorNoPermission
+	}
+
+	// 更新评论内容
+	return mysql.UpdateComment(p.CommentId, p.Content)
+}
+
+// UpdateCommentReply 更新评论回复
+func UpdateCommentReply(userId int64, p *models.ParamUpdateCommentReply) error {
+	// 检查评论回复是否存在
+	comment, err := mysql.GetCommentById(p.CommentId)
+	if err != nil || comment == nil || comment.Status != 1 {
+		zap.L().Error("mysql.GetCommentById failed",
+			zap.Int64("comment_id", p.CommentId),
+			zap.Error(err))
+		return mysql.ErrorInvalidID
+	}
+
+	// 检查是否是父评论
+	if comment.ParentId == 0 {
+		zap.L().Error("not a reply comment",
+			zap.Int64("comment_id", p.CommentId))
+		return mysql.ErrorInvalidID
+	}
+
+	// 检查是否是评论作者
+	if comment.AuthorId != userId {
+		zap.L().Error("no permission to update comment reply",
+			zap.Int64("comment_id", p.CommentId),
+			zap.Int64("user_id", userId),
+			zap.Int64("author_id", comment.AuthorId))
+		return mysql.ErrorNoPermission
+	}
+
+	// 更新评论内容
+	return mysql.UpdateComment(p.CommentId, p.Content)
+}

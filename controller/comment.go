@@ -126,3 +126,79 @@ func CreateCommentReplyHandler(c *gin.Context) {
 
 	ResponseSuccess(c, nil)
 }
+
+// UpdateCommentHandler 更新评论
+func UpdateCommentHandler(c *gin.Context) {
+	// 参数校验
+	p := new(models.ParamUpdateComment)
+	if err := c.ShouldBindJSON(p); err != nil {
+		zap.L().Error("UpdateCommentHandler with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 获取当前用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 更新评论
+	if err := logic.UpdateComment(userID, p); err != nil {
+		zap.L().Error("logic.UpdateComment failed",
+			zap.Error(err),
+			zap.Any("params", p))
+		
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeInvalidParams)
+			return
+		}
+		if err == mysql.ErrorNoPermission {
+			ResponseError(c, CodeNoPermission)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
+}
+
+// UpdateCommentReplyHandler 更新评论回复
+func UpdateCommentReplyHandler(c *gin.Context) {
+	// 参数校验
+	p := new(models.ParamUpdateCommentReply)
+	if err := c.ShouldBindJSON(p); err != nil {
+		zap.L().Error("UpdateCommentReplyHandler with invalid param", zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 获取当前用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 更新评论回复
+	if err := logic.UpdateCommentReply(userID, p); err != nil {
+		zap.L().Error("logic.UpdateCommentReply failed",
+			zap.Error(err),
+			zap.Any("params", p))
+		
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeInvalidParams)
+			return
+		}
+		if err == mysql.ErrorNoPermission {
+			ResponseError(c, CodeNoPermission)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
+}

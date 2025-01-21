@@ -25,8 +25,20 @@ func CreateComment(comment *models.Comment) (err error) {
 // UpdateComment 修改评论
 func UpdateComment(commentId int64, content string) error {
 	sqlStr := `update comment set content = ? where comment_id = ? and status = 1`
-	_, err := db.Exec(sqlStr, content, commentId)
-	return err
+	result, err := db.Exec(sqlStr, content, commentId)
+	if err != nil {
+		return err
+	}
+	
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
+	}
+	
+	return nil
 }
 
 // GetCommentCount 获取帖子的评论数量
