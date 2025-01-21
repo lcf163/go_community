@@ -150,3 +150,18 @@ func CreatePost(postId, communityId int64) (err error) {
 	_, err = pipeline.Exec() // 事务操作的提交
 	return
 }
+
+// DeleteCommentVote 删除评论的点赞数据
+func DeleteCommentVote(commentID string) error {
+	pipeline := client.TxPipeline() // 使用事务pipeline
+	
+	// 删除评论点赞记录
+	pipeline.Del(getRedisKey(KeyCommentVotedZSetPrefix + commentID))
+	
+	// 删除评论时间记录
+	pipeline.ZRem(getRedisKey(KeyCommentTimeZSet), commentID)
+	
+	// 执行事务
+	_, err := pipeline.Exec()
+	return err
+}

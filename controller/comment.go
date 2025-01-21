@@ -127,7 +127,7 @@ func GetCommentListHandler(c *gin.Context) {
 // GetCommentDetailHandler 获取单个评论详情
 func GetCommentDetailHandler(c *gin.Context) {
 	// 获取评论ID参数
-	commentIDStr := c.Param("commentId")
+	commentIDStr := c.Param("id")
 	commentID, err := strconv.ParseInt(commentIDStr, 10, 64)
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
@@ -149,4 +149,44 @@ func GetCommentDetailHandler(c *gin.Context) {
 	}
 
 	ResponseSuccess(c, data)
+}
+
+// DeleteCommentHandler 删除评论
+func DeleteCommentHandler(c *gin.Context) {
+	// 1. 获取评论ID
+	commentIDStr := c.Param("id")
+	commentID, err := strconv.ParseInt(commentIDStr, 10, 64)
+	if err != nil {
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 2. 获取当前登录用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 3. 删除评论
+	if err := logic.DeleteComment(userID, commentID); err != nil {
+		zap.L().Error("logic.DeleteComment failed",
+			zap.Int64("comment_id", commentID),
+			zap.Int64("user_id", userID),
+			zap.Error(err))
+		
+		// 根据错误类型返回对应的错误码
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeInvalidParams)
+			return
+		}
+		if err == mysql.ErrorNoPermission {
+			ResponseError(c, CodeNoPermission)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
 }

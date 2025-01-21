@@ -287,3 +287,57 @@ func UpdateComment(userId int64, p *models.ParamUpdateComment) error {
 	// 更新评论内容
 	return mysql.UpdateComment(p.CommentId, p.Content)
 }
+
+// DeleteComment 删除评论
+func DeleteComment(userID, commentID int64) error {
+	// 1. 检查评论是否存在
+	comment, err := mysql.GetCommentById(commentID)
+	if err != nil {
+		return err
+	}
+	if comment == nil || comment.Status == 0 {
+		return mysql.ErrorInvalidID
+	}
+
+	// 2. 检查是否是评论作者
+	if comment.AuthorId != userID {
+		zap.L().Error("no permission to delete comment",
+			zap.Int64("comment_id", commentID),
+			zap.Int64("user_id", userID),
+			zap.Int64("author_id", comment.AuthorId))
+		return mysql.ErrorNoPermission
+	}
+
+	// 3. 开启事务
+	tx, err := mysql.GetDB().Begin()
+	if err != nil {
+		return err
+	}
+
+	// 使用 defer 处理事务的提交和回滚
+	defer func() {
+		if p := recover(); p != nil {
+			// 发生 panic 时回滚事务
+			tx.Rollback()
+			panic(p) // 重新抛出 panic
+		} else if err != nil {
+			// 有错误时回滚事务
+			tx.Rollback()
+		} else {
+			// 无错误时提交事务
+			err = tx.Commit()
+		}
+	}()
+
+	// 4. 软删除评论（将状态设为0）
+	if err = mysql.DeleteCommentWithTx(tx, commentID); err != nil {
+		return err // defer 中会处理回滚
+	}
+
+	// 5. 删除Redis中的评论数据
+	if err = redis.DeleteCommentVote(strconv.FormatInt(commentID, 10)); err != nil {
+		return err // defer 中会处理回滚
+	}
+
+	return nil // defer 中会处理提交
+}

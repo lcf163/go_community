@@ -28,6 +28,10 @@ func Init(cfg *settings.MySQLConfig) (err error) {
 	return
 }
 
+func GetDB() *sqlx.DB {
+	return db
+}
+
 // Close 关闭MySQL连接
 func Close() {
 	_ = db.Close()

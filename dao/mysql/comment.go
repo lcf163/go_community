@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"database/sql"
 	"go_community/models"
 )
 
@@ -9,7 +10,7 @@ func CreateComment(comment *models.Comment) (err error) {
 	sqlStr := `insert into comment(
 	comment_id, parent_id, post_id, author_id, reply_to_uid, content, status
 	) values(?,?,?,?,?,?,?)`
-	
+
 	_, err = db.Exec(sqlStr,
 		comment.CommentId,
 		comment.ParentId,
@@ -18,7 +19,7 @@ func CreateComment(comment *models.Comment) (err error) {
 		comment.ReplyToUid,
 		comment.Content,
 		comment.Status)
-	
+
 	return err
 }
 
@@ -29,7 +30,7 @@ func UpdateComment(commentId int64, content string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	rows, err := result.RowsAffected()
 	if err != nil {
 		return err
@@ -37,7 +38,7 @@ func UpdateComment(commentId int64, content string) error {
 	if rows == 0 {
 		return ErrorInvalidID
 	}
-	
+
 	return nil
 }
 
@@ -55,7 +56,7 @@ func GetCommentList(postId int64, page, size int64) ([]*models.Comment, error) {
 	where post_id = ? and parent_id = 0 and status = 1 
 	order by create_time desc
 	limit ?, ?`
-	
+
 	comments := make([]*models.Comment, 0)
 	err := db.Select(&comments, sqlStr, postId, (page-1)*size, size)
 	return comments, err
@@ -75,7 +76,7 @@ func GetCommentReplyList(commentId int64) ([]*models.Comment, error) {
 	from comment 
 	where parent_id = ? and status = 1 
 	order by create_time desc`
-	
+
 	comments := make([]*models.Comment, 0)
 	err := db.Select(&comments, sqlStr, commentId)
 	return comments, err
@@ -89,4 +90,24 @@ func GetCommentById(commentId int64) (*models.Comment, error) {
 	where comment_id = ?`
 	err := db.Get(comment, sqlStr, commentId)
 	return comment, err
+}
+
+// DeleteCommentWithTx 删除评论(使用事务)
+func DeleteCommentWithTx(tx *sql.Tx, commentID int64) error {
+	sqlStr := `update comment set status = 0 where comment_id = ? and status = 1`
+	result, err := tx.Exec(sqlStr, commentID)
+	if err != nil {
+		return err
+	}
+
+	// 检查是否更新了记录
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
+	}
+
+	return nil
 }
