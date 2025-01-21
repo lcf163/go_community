@@ -187,3 +187,45 @@ func GetUserPostListHandler(c *gin.Context) {
 
 	ResponseSuccess(c, data)
 }
+
+// DeletePostHandler 删除帖子
+func DeletePostHandler(c *gin.Context) {
+	// 1. 获取帖子ID
+	postIDStr := c.Param("id")
+	postID, err := strconv.ParseInt(postIDStr, 10, 64)
+	if err != nil {
+		zap.L().Error("get post_id failed", 
+			zap.String("post_id", postIDStr),
+			zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 2. 获取当前登录用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 3. 删除帖子
+	if err := logic.DeletePost(userID, postID); err != nil {
+		zap.L().Error("logic.DeletePost failed",
+			zap.Int64("post_id", postID),
+			zap.Int64("user_id", userID),
+			zap.Error(err))
+		
+		if err == mysql.ErrorInvalidID {
+			ResponseErrorWithMsg(c, CodeInvalidParams, "帖子不存在或已删除")
+			return
+		}
+		if err == mysql.ErrorNoPermission {
+			ResponseErrorWithMsg(c, CodeNoPermission, "无权删除该帖子")
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
+}

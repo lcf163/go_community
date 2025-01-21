@@ -485,3 +485,63 @@ func GetUserPostList(userId, page, size int64) (data *models.ApiPostDetailRes, e
 
 	return data, nil
 }
+
+// DeletePost 删除帖子
+func DeletePost(userID, postID int64) error {
+	// 1. 检查帖子是否存在
+	post, err := mysql.GetPostById(postID)
+	if err != nil {
+		return err
+	}
+	if post == nil || post.Status == 0 {
+		return mysql.ErrorInvalidID
+	}
+
+	// 2. 检查是否有权限删除（是否是帖子作者）
+	if post.AuthorId != userID {
+		zap.L().Error("no permission to delete post",
+			zap.Int64("post_id", postID),
+			zap.Int64("user_id", userID),
+			zap.Int64("author_id", post.AuthorId))
+		return mysql.ErrorNoPermission
+	}
+
+	// 3. 开启事务
+	tx, err := mysql.GetDB().Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	// 4. 获取需要删除的评论ID列表
+	commentIDs, err := mysql.GetPostCommentIDs(tx, postID)
+	if err != nil {
+		return err
+	}
+
+	// 5. 删除帖子(软删除)
+	if err = mysql.DeletePostWithTx(tx, postID); err != nil {
+		return err
+	}
+
+	// 6. 删除帖子下的所有评论(软删除)
+	if err = mysql.DeletePostCommentsWithTx(tx, postID); err != nil {
+		return err
+	}
+
+	// 7. 删除Redis中的相关数据(包括帖子和评论的数据)
+	if err = redis.DeletePostData(strconv.FormatInt(postID, 10), commentIDs); err != nil {
+		return err
+	}
+
+	return nil
+}

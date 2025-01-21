@@ -3,6 +3,7 @@ package mysql
 import (
 	"database/sql"
 	"go_community/models"
+	"strconv"
 	"strings"
 	"time"
 
@@ -188,4 +189,50 @@ func GetUserPostList(userId, page, size int64) (posts []*models.Post, err error)
 	posts = make([]*models.Post, 0, size)
 	err = db.Select(&posts, sqlStr, userId, (page-1)*size, size)
 	return
+}
+
+// DeletePostWithTx 删除帖子(使用事务)
+func DeletePostWithTx(tx *sql.Tx, postID int64) error {
+	sqlStr := `update post set status = 0 where post_id = ? and status = 1`
+	result, err := tx.Exec(sqlStr, postID)
+	if err != nil {
+		return err
+	}
+	
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
+	}
+	
+	return nil
+}
+
+// DeletePostCommentsWithTx 删除帖子下的所有评论(使用事务)
+func DeletePostCommentsWithTx(tx *sql.Tx, postID int64) error {
+	sqlStr := `update comment set status = 0 where post_id = ? and status = 1`
+	_, err := tx.Exec(sqlStr, postID)
+	return err
+}
+
+// GetPostCommentIDs 获取帖子下所有评论的ID
+func GetPostCommentIDs(tx *sql.Tx, postID int64) ([]string, error) {
+	sqlStr := `select comment_id from comment where post_id = ? and status = 1`
+	rows, err := tx.Query(sqlStr, postID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	
+	var commentIDs []string
+	for rows.Next() {
+		var commentID int64
+		if err := rows.Scan(&commentID); err != nil {
+			return nil, err
+		}
+		commentIDs = append(commentIDs, strconv.FormatInt(commentID, 10))
+	}
+	return commentIDs, nil
 }

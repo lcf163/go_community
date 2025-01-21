@@ -26,3 +26,19 @@ func CreateComment(commentId int64) error {
 	_, err := pipeline.Exec()
 	return err
 }
+
+// DeleteCommentsVoteData 批量删除评论的点赞数据
+func DeleteCommentsVoteData(commentIDs []string) error {
+	pipeline := client.TxPipeline()
+	
+	// 批量删除评论的点赞数据和时间记录
+	for _, commentID := range commentIDs {
+		// 删除评论点赞记录
+		pipeline.Del(getRedisKey(KeyCommentVotedZSetPrefix + commentID))
+		// 删除评论时间记录
+		pipeline.ZRem(getRedisKey(KeyCommentTimeZSet), commentID)
+	}
+	
+	_, err := pipeline.Exec()
+	return err
+}

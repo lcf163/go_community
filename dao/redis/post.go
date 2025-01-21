@@ -95,3 +95,21 @@ func GetCommunityPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
 	// 2.确定查询的索引起始点
 	return getIdsFormKey(key, p.Page, p.Size)
 }
+
+// DeletePostData 删除帖子相关的Redis数据(包括评论的点赞数据)
+func DeletePostData(postID string, commentIDs []string) error {
+	pipeline := client.TxPipeline()
+
+	// 1. 删除帖子相关数据
+	pipeline.ZRem(getRedisKey(KeyPostTimeZSet), postID)
+	pipeline.ZRem(getRedisKey(KeyPostScoreZSet), postID)
+	pipeline.Del(getRedisKey(KeyPostVotedZSetPrefix + postID))
+
+	// 2. 删除该帖子下所有评论的点赞数据
+	for _, commentID := range commentIDs {
+		pipeline.Del(getRedisKey(KeyCommentVotedZSetPrefix + commentID))
+	}
+
+	_, err := pipeline.Exec()
+	return err
+}

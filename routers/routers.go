@@ -79,14 +79,16 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.PUT("/user/password", controller.UpdatePasswordHandler) // 修改用户密码
 		v1.POST("/user/avatar", controller.UpdateAvatarHandler)    // 修改用户头像
 		// 帖子业务
-		v1.POST("/post", controller.CreatePostHandler) // 创建帖子
-		v1.PUT("/post", controller.UpdatePostHandler)  // 更新帖子
+		v1.POST("/post", controller.CreatePostHandler)       // 创建帖子
+		v1.PUT("/post", controller.UpdatePostHandler)        // 更新帖子
+		v1.DELETE("/post/:id", controller.DeletePostHandler) // 删除帖子
 		// 投票业务
 		v1.POST("/vote", controller.VoteHandler) // 投票（帖子/评论）
 		// 评论业务
-		v1.POST("/comment", controller.CreateCommentHandler)       // 创建评论/回复
-		v1.PUT("/comment", controller.UpdateCommentHandler)        // 更新评论
-		v1.DELETE("/comment/:id", controller.DeleteCommentHandler) // 删除评论
+		v1.POST("/comment", controller.CreateCommentHandler)                   // 创建评论/回复
+		v1.PUT("/comment", controller.UpdateCommentHandler)                    // 更新评论
+		v1.DELETE("/comment/:id", controller.DeleteCommentHandler)             // 删除评论
+		v1.DELETE("/comments/:id", controller.DeleteCommentWithRepliesHandler) // 删除评论及其回复
 	}
 
 	pprof.Register(r) // 注册 pprof 相关路由

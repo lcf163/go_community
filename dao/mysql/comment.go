@@ -3,6 +3,7 @@ package mysql
 import (
 	"database/sql"
 	"go_community/models"
+	"strconv"
 )
 
 // CreateComment 创建评论
@@ -110,4 +111,31 @@ func DeleteCommentWithTx(tx *sql.Tx, commentID int64) error {
 	}
 
 	return nil
+}
+
+// GetCommentRepliesIDs 获取评论的所有回复ID
+func GetCommentRepliesIDs(tx *sql.Tx, commentID int64) ([]string, error) {
+	sqlStr := `select comment_id from comment where parent_id = ? and status = 1`
+	rows, err := tx.Query(sqlStr, commentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	
+	var replyIDs []string
+	for rows.Next() {
+		var replyID int64
+		if err := rows.Scan(&replyID); err != nil {
+			return nil, err
+		}
+		replyIDs = append(replyIDs, strconv.FormatInt(replyID, 10))
+	}
+	return replyIDs, nil
+}
+
+// DeleteCommentRepliesWithTx 删除评论的所有回复(使用事务)
+func DeleteCommentRepliesWithTx(tx *sql.Tx, commentID int64) error {
+	sqlStr := `update comment set status = 0 where parent_id = ? and status = 1`
+	_, err := tx.Exec(sqlStr, commentID)
+	return err
 }

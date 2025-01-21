@@ -341,3 +341,64 @@ func DeleteComment(userID, commentID int64) error {
 
 	return nil // defer 中会处理提交
 }
+
+// DeleteCommentWithReplies 删除评论及其所有回复
+func DeleteCommentWithReplies(userID, commentID int64) error {
+	// 1. 检查评论是否存在
+	comment, err := mysql.GetCommentById(commentID)
+	if err != nil {
+		return err
+	}
+	if comment == nil || comment.Status == 0 {
+		return mysql.ErrorInvalidID
+	}
+
+	// 2. 检查是否有权限删除（是否是评论作者）
+	if comment.AuthorId != userID {
+		zap.L().Error("no permission to delete comment",
+			zap.Int64("comment_id", commentID),
+			zap.Int64("user_id", userID),
+			zap.Int64("author_id", comment.AuthorId))
+		return mysql.ErrorNoPermission
+	}
+
+	// 3. 开启事务
+	tx, err := mysql.GetDB().Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p)
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+		}
+	}()
+
+	// 4. 获取所有需要删除的回复ID
+	replyIDs, err := mysql.GetCommentRepliesIDs(tx, commentID)
+	if err != nil {
+		return err
+	}
+
+	// 5. 删除主评论
+	if err = mysql.DeleteCommentWithTx(tx, commentID); err != nil {
+		return err
+	}
+
+	// 6. 删除所有回复
+	if err = mysql.DeleteCommentRepliesWithTx(tx, commentID); err != nil {
+		return err
+	}
+
+	// 7. 删除Redis中的相关数据
+	allCommentIDs := append([]string{strconv.FormatInt(commentID, 10)}, replyIDs...)
+	if err = redis.DeleteCommentsVoteData(allCommentIDs); err != nil {
+		return err
+	}
+
+	return nil
+}

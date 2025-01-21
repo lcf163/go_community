@@ -190,3 +190,45 @@ func DeleteCommentHandler(c *gin.Context) {
 
 	ResponseSuccess(c, nil)
 }
+
+// DeleteCommentWithRepliesHandler 删除评论及其所有回复
+func DeleteCommentWithRepliesHandler(c *gin.Context) {
+	// 1. 获取评论ID
+	commentIDStr := c.Param("id")
+	commentID, err := strconv.ParseInt(commentIDStr, 10, 64)
+	if err != nil {
+		zap.L().Error("get comment_id failed", 
+			zap.String("comment_id", commentIDStr),
+			zap.Error(err))
+		ResponseError(c, CodeInvalidParams)
+		return
+	}
+
+	// 2. 获取当前登录用户ID
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 3. 删除评论及其回复
+	if err := logic.DeleteCommentWithReplies(userID, commentID); err != nil {
+		zap.L().Error("logic.DeleteCommentWithReplies failed",
+			zap.Int64("comment_id", commentID),
+			zap.Int64("user_id", userID),
+			zap.Error(err))
+		
+		if err == mysql.ErrorInvalidID {
+			ResponseErrorWithMsg(c, CodeInvalidParams, "评论不存在或已删除")
+			return
+		}
+		if err == mysql.ErrorNoPermission {
+			ResponseErrorWithMsg(c, CodeNoPermission, "无权删除该评论")
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+
+	ResponseSuccess(c, nil)
+}
