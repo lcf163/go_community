@@ -83,14 +83,17 @@ func GetCommentReplyList(commentId int64) ([]*models.Comment, error) {
 	return comments, err
 }
 
-// GetCommentById 根据ID获取评论
-func GetCommentById(commentId int64) (*models.Comment, error) {
-	comment := new(models.Comment)
-	sqlStr := `select id, comment_id, parent_id, post_id, author_id, content, status, create_time
+// GetCommentById 根据评论ID获取评论
+func GetCommentById(commentId int64) (comment *models.Comment, err error) {
+	comment = new(models.Comment)
+	sqlStr := `select comment_id, content, post_id, author_id, parent_id, create_time 
 	from comment 
-	where comment_id = ?`
-	err := db.Get(comment, sqlStr, commentId)
-	return comment, err
+	where comment_id = ? and status = 1`
+	err = db.Get(comment, sqlStr, commentId)
+	if err == sql.ErrNoRows {
+		return nil, ErrorInvalidID
+	}
+	return
 }
 
 // DeleteCommentWithTx 删除评论(使用事务)
@@ -121,7 +124,7 @@ func GetCommentRepliesIDs(tx *sql.Tx, commentID int64) ([]string, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var replyIDs []string
 	for rows.Next() {
 		var replyID int64

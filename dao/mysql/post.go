@@ -14,7 +14,7 @@ import (
 
 // GetPostTotalCount 查询帖子总数
 func GetPostTotalCount() (count int64, err error) {
-	sqlStr := `select count(post_id) from post`
+	sqlStr := `select count(post_id) from post where status = 1`
 	err = db.Get(&count, sqlStr)
 	if err != nil {
 		zap.L().Error("db.Get(&count, sqlStr) failed", zap.Error(err))
@@ -25,7 +25,7 @@ func GetPostTotalCount() (count int64, err error) {
 
 // GetCommunityPostTotalCount 根据社区id查询数据库帖子总数
 func GetCommunityPostTotalCount(communityId int64) (count int64, err error) {
-	sqlStr := `select count(post_id) from post where community_id = ?`
+	sqlStr := `select count(post_id) from post where community_id = ? and status = 1`
 	err = db.Get(&count, sqlStr, communityId)
 	if err != nil {
 		zap.L().Error("db.Get(&count, sqlStr) failed", zap.Error(err))
@@ -80,6 +80,7 @@ func GetPostById(postId int64) (post *models.Post, err error) {
 func GetPostList(page, size int64) (posts []*models.Post, err error) {
 	sqlStr := `select post_id, title, content, author_id, community_id, create_time
 	from post
+	where status = 1
 	ORDER BY create_time 
 	DESC 
 	limit ?,?`
@@ -98,6 +99,7 @@ func GetPostListByIds(ids []string) (postList []*models.Post, err error) {
 	sqlStr := `select post_id, title, content, author_id, community_id, create_time
 	from post
 	where post_id in (?)
+	and status = 1
 	order by FIND_IN_SET(post_id, ?)`
 	// 动态填充 id
 	query, args, err := sqlx.In(sqlStr, ids, strings.Join(ids, ","))
@@ -115,10 +117,11 @@ func GetPostListTotalCount(p *models.ParamPostList) (count int64, err error) {
 	// 根据帖子标题或者帖子内容模糊查询帖子列表总数
 	sqlStr := `select count(post_id)
 	from post
-	where title like ?
-	or content like ?
-	`
-	// %keyword%
+	where status = 1
+	and (
+		title like ?
+		or content like ?
+	)`
 	keyword := "%" + p.Search + "%"
 	err = db.Get(&count, sqlStr, keyword, keyword)
 	return
@@ -129,8 +132,11 @@ func GetPostListByKeywords(p *models.ParamPostList) (posts []*models.Post, err e
 	// 根据帖子标题或者帖子内容模糊查询帖子列表
 	sqlStr := `select post_id, title, content, author_id, community_id, create_time
 	from post
-	where title like ?
-	or content like ?
+	where status = 1
+	and (
+		title like ?
+		or content like ?
+	)
 	ORDER BY create_time
 	DESC
 	limit ?,?

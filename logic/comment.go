@@ -14,7 +14,7 @@ import (
 func CreateComment(userId int64, p *models.ParamComment) error {
 	// 检查帖子是否存在
 	post, err := mysql.GetPostById(p.PostId)
-	if err != nil || post == nil || post.Status != 1 {
+	if err != nil || post == nil {
 		zap.L().Error("mysql.GetPostById failed",
 			zap.Int64("post_id", p.PostId),
 			zap.Error(err))
@@ -25,7 +25,7 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 	if p.ParentId != 0 {
 		// 检查父评论是否存在
 		parentComment, err := mysql.GetCommentById(p.ParentId)
-		if err != nil || parentComment == nil || parentComment.Status != 1 {
+		if err != nil || parentComment == nil {
 			zap.L().Error("mysql.GetCommentById failed",
 				zap.Int64("parent_id", p.ParentId),
 				zap.Error(err))
