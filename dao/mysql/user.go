@@ -25,7 +25,7 @@ func encryptPassword(data []byte) (result string) {
 
 // CheckUserExist 检查指定用户名的用户是否存在
 func CheckUserExist(username string) (err error) {
-	sqlStr := `select count(user_id) from user where username = ?`
+	sqlStr := `select count(user_id) from user where username = ? and status = 1`
 	var count int
 	if err := db.Get(&count, sqlStr, username); err != nil {
 		return err
@@ -42,16 +42,18 @@ func InsertUser(user *models.User) (err error) {
 	user.Password = encryptPassword([]byte(user.Password))
 	// 设置随机默认头像 - 只存储文件名
 	user.Avatar = file.GetRandomDefaultAvatar()
+	// 设置默认状态为1
+	user.Status = 1
 	// 执行 SQL 语句入库
-	sqlStr := `insert into user(user_id, username, password, avatar) values (?,?,?,?)`
-	_, err = db.Exec(sqlStr, user.UserId, user.UserName, user.Password, user.Avatar)
+	sqlStr := `insert into user(user_id, username, password, avatar, status) values (?,?,?,?,?)`
+	_, err = db.Exec(sqlStr, user.UserId, user.UserName, user.Password, user.Avatar, user.Status)
 	return
 }
 
 // Login 用户登录
 func Login(user *models.User) (err error) {
 	originPassword := user.Password // 用户登录的原始密码
-	sqlStr := `select user_id, username, password from user where username = ?`
+	sqlStr := `select user_id, username, password from user where username = ? and status = 1`
 	err = db.Get(user, sqlStr, user.UserName)
 	// 用户不存在
 	if err == sql.ErrNoRows {
@@ -72,16 +74,29 @@ func Login(user *models.User) (err error) {
 // GetUserById 根据ID查询作者信息
 func GetUserById(id int64) (user *models.User, err error) {
 	user = new(models.User)
-	sqlStr := `select user_id, username, avatar from user where user_id = ?`
+	sqlStr := `select user_id, username, avatar from user where user_id = ? and status = 1`
 	err = db.Get(user, sqlStr, id)
+	if err == sql.ErrNoRows {
+		return nil, ErrorUserNotExist
+	}
 	return
 }
 
 // UpdateUserAvatar 更新用户头像
 func UpdateUserAvatar(userId int64, avatarPath string) error {
-	sqlStr := `update user set avatar = ? where user_id = ?`
-	_, err := db.Exec(sqlStr, avatarPath, userId)
-	return err
+	sqlStr := `update user set avatar = ? where user_id = ? and status = 1`
+	result, err := db.Exec(sqlStr, avatarPath, userId)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
+	}
+	return nil
 }
 
 // UpdateUserName 更新用户名
@@ -100,21 +115,34 @@ func UpdateUserName(userId int64, p *models.ParamUpdateUser) error {
 		return nil
 	}
 
-	// 构建SQL语句
-	sqlStr := fmt.Sprintf("update user set %s where user_id = ?",
+	// 构建SQL语句，添加 status = 1 检查
+	sqlStr := fmt.Sprintf("update user set %s where user_id = ? and status = 1",
 		strings.Join(updates, ", "))
 	args = append(args, userId)
 
 	// 执行更新
-	_, err := db.Exec(sqlStr, args...)
-	return err
+	result, err := db.Exec(sqlStr, args...)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
+	}
+	return nil
 }
 
 // CheckPassword 检查密码是否正确
 func CheckPassword(userId int64, password string) error {
-	sqlStr := `select password from user where user_id = ?`
+	sqlStr := `select password from user where user_id = ? and status = 1`
 	var hashedPassword string
 	if err := db.Get(&hashedPassword, sqlStr, userId); err != nil {
+		if err == sql.ErrNoRows {
+			return ErrorUserNotExist
+		}
 		return err
 	}
 
@@ -127,7 +155,17 @@ func CheckPassword(userId int64, password string) error {
 
 // UpdatePassword 更新密码
 func UpdatePassword(userId int64, newPassword string) error {
-	sqlStr := `update user set password = ? where user_id = ?`
-	_, err := db.Exec(sqlStr, encryptPassword([]byte(newPassword)), userId)
-	return err
+	sqlStr := `update user set password = ? where user_id = ? and status = 1`
+	result, err := db.Exec(sqlStr, encryptPassword([]byte(newPassword)), userId)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
+	}
+	return nil
 }

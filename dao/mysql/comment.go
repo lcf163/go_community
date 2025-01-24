@@ -4,10 +4,15 @@ import (
 	"database/sql"
 	"go_community/models"
 	"strconv"
+
+	"go.uber.org/zap"
 )
 
 // CreateComment 创建评论
 func CreateComment(comment *models.Comment) (err error) {
+	// 确保新创建的评论状态为1
+	comment.Status = 1
+
 	sqlStr := `insert into comment(
 	comment_id, parent_id, post_id, author_id, reply_to_uid, content, status
 	) values(?,?,?,?,?,?,?)`
@@ -21,7 +26,14 @@ func CreateComment(comment *models.Comment) (err error) {
 		comment.Content,
 		comment.Status)
 
-	return err
+	if err != nil {
+		zap.L().Error("CreateComment failed",
+			zap.String("sql", sqlStr),
+			zap.Any("comment", comment),
+			zap.Error(err))
+		return err
+	}
+	return nil
 }
 
 // UpdateComment 修改评论
@@ -31,7 +43,6 @@ func UpdateComment(commentId int64, content string) error {
 	if err != nil {
 		return err
 	}
-
 	rows, err := result.RowsAffected()
 	if err != nil {
 		return err
@@ -39,7 +50,6 @@ func UpdateComment(commentId int64, content string) error {
 	if rows == 0 {
 		return ErrorInvalidID
 	}
-
 	return nil
 }
 
@@ -47,7 +57,10 @@ func UpdateComment(commentId int64, content string) error {
 func GetCommentCount(postId int64) (count int64, err error) {
 	sqlStr := `select count(comment_id) from comment where post_id = ? and parent_id = 0 and status = 1`
 	err = db.Get(&count, sqlStr, postId)
-	return count, err
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 // GetCommentList 获取帖子的评论列表(分页)
@@ -103,7 +116,6 @@ func DeleteCommentWithTx(tx *sql.Tx, commentID int64) error {
 	if err != nil {
 		return err
 	}
-
 	// 检查是否更新了记录
 	rows, err := result.RowsAffected()
 	if err != nil {

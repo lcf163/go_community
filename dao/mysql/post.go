@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"go_community/models"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -17,7 +16,6 @@ func GetPostTotalCount() (count int64, err error) {
 	sqlStr := `select count(post_id) from post where status = 1`
 	err = db.Get(&count, sqlStr)
 	if err != nil {
-		zap.L().Error("db.Get(&count, sqlStr) failed", zap.Error(err))
 		return 0, err
 	}
 	return
@@ -28,7 +26,6 @@ func GetCommunityPostTotalCount(communityId int64) (count int64, err error) {
 	sqlStr := `select count(post_id) from post where community_id = ? and status = 1`
 	err = db.Get(&count, sqlStr, communityId)
 	if err != nil {
-		zap.L().Error("db.Get(&count, sqlStr) failed", zap.Error(err))
 		return 0, err
 	}
 	return
@@ -36,13 +33,18 @@ func GetCommunityPostTotalCount(communityId int64) (count int64, err error) {
 
 // CreatePost 创建帖子
 func CreatePost(post *models.Post) (err error) {
+	// 设置默认状态为1
+	post.Status = 1
 	sqlStr := `insert into post(
-	post_id, title, content, author_id, community_id)
-	values(?,?,?,?,?)`
+	post_id, title, content, author_id, community_id, status)
+	values(?,?,?,?,?,?)`
 	_, err = db.Exec(sqlStr, post.PostId, post.Title,
-		post.Content, post.AuthorId, post.CommunityId)
+		post.Content, post.AuthorId, post.CommunityId, post.Status)
 	if err != nil {
-		zap.L().Error("insert post failed", zap.Error(err))
+		zap.L().Error("CreatePost failed",
+			zap.String("sql", sqlStr),
+			zap.Any("post", post),
+			zap.Error(err))
 		err = ErrorInsertFailed
 		return
 	}
@@ -56,23 +58,13 @@ func GetPostById(postId int64) (post *models.Post, err error) {
 	from post
 	where post_id = ? and status = 1`
 
-	// 打印SQL语句
-	zap.L().Debug("GetPostById SQL",
-		zap.String("sql", sqlStr),
-		zap.Int64("post_id", postId))
-
 	err = db.Get(post, sqlStr, postId)
 	if err == sql.ErrNoRows {
 		return nil, ErrorInvalidID
 	}
 	if err != nil {
-		zap.L().Error("query post failed",
-			zap.String("sql", sqlStr),
-			zap.Int64("post_id", postId),
-			zap.Error(err))
 		return nil, err
 	}
-
 	return post, nil
 }
 
@@ -87,28 +79,34 @@ func GetPostList(page, size int64) (posts []*models.Post, err error) {
 	posts = make([]*models.Post, 0, 2)
 	err = db.Select(&posts, sqlStr, (page-1)*size, size)
 	if err != nil {
-		zap.L().Error("query post list failed", zap.String("sql", sqlStr), zap.Error(err))
+		zap.L().Error("GetPostList failed",
+			zap.String("sql", sqlStr),
+			zap.Error(err))
 		err = ErrorQueryFailed
 		return
 	}
 	return
 }
 
-// GetPostListByIds 根据给定的 id 列表查询帖子数据
-func GetPostListByIds(ids []string) (postList []*models.Post, err error) {
+// GetPostListByIds 根据给定的id列表查询帖子数据
+func GetPostListByIds(ids []string) (posts []*models.Post, err error) {
+	// 使用 FIND_IN_SET 来确保返回的数据按照给定的id顺序
+	// 使用 ORDER BY create_time DESC 来确保时间降序
 	sqlStr := `select post_id, title, content, author_id, community_id, create_time
 	from post
-	where post_id in (?)
-	and status = 1
-	order by FIND_IN_SET(post_id, ?)`
-	// 动态填充 id
-	query, args, err := sqlx.In(sqlStr, ids, strings.Join(ids, ","))
+	where post_id in (?) and status = 1
+	ORDER BY create_time DESC`
+
+	// 使用 sqlx.In 来动态生成 IN 查询语句
+	query, args, err := sqlx.In(sqlStr, ids)
 	if err != nil {
 		return
 	}
-	// sqlx.In 返回带 `?` bindvar 的查询语句, 使用 Rebind() 重新绑定它
+
+	// sqlx.In 返回带 `?` 的查询语句, 我们使用 Rebind() 重新绑定它
 	query = db.Rebind(query)
-	err = db.Select(&postList, query, args...)
+	// 执行查询
+	err = db.Select(&posts, query, args...)
 	return
 }
 
@@ -124,6 +122,9 @@ func GetPostListTotalCount(p *models.ParamPostList) (count int64, err error) {
 	)`
 	keyword := "%" + p.Search + "%"
 	err = db.Get(&count, sqlStr, keyword, keyword)
+	if err != nil {
+		return
+	}
 	return
 }
 
@@ -147,33 +148,33 @@ func GetPostListByKeywords(p *models.ParamPostList) (posts []*models.Post, err e
 	posts = make([]*models.Post, 0, 2)
 	// 执行查询
 	err = db.Select(&posts, sqlStr, p.Search, p.Search, (p.Page-1)*p.Size, p.Size)
-
-	// 添加日志记录实际执行的 SQL
-	zap.L().Debug("GetPostListByKeywords SQL",
-		zap.String("sql", sqlStr),
-		zap.String("keyword", p.Search),
-		zap.Int64("offset", (p.Page-1)*p.Size),
-		zap.Int64("size", p.Size))
-
+	if err != nil {
+		// 添加日志记录实际执行的 SQL
+		zap.L().Error("GetPostListByKeywords failed",
+			zap.String("sql", sqlStr),
+			zap.Any("param", p),
+			zap.Error(err))
+		err = ErrorQueryFailed
+		return
+	}
 	return
 }
 
 // UpdatePost 更新帖子
 func UpdatePost(postId int64, title string, content string) error {
-	loc, err := time.LoadLocation("Asia/Shanghai")
+	sqlStr := `update post 
+	set title = ?, content = ?, update_time = ? 
+	where post_id = ? and status = 1`
+	result, err := db.Exec(sqlStr, title, content, time.Now(), postId)
 	if err != nil {
 		return err
 	}
-
-	sqlStr := `update post 
-	set title = ?, 
-	content = ?, 
-	update_time = ? 
-	where post_id = ?`
-	_, err = db.Exec(sqlStr, title, content, time.Now().In(loc), postId)
+	rows, err := result.RowsAffected()
 	if err != nil {
-		zap.L().Error("update post failed", zap.Error(err))
 		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
 	}
 	return nil
 }
@@ -204,7 +205,6 @@ func DeletePostWithTx(tx *sql.Tx, postID int64) error {
 	if err != nil {
 		return err
 	}
-	
 	rows, err := result.RowsAffected()
 	if err != nil {
 		return err
@@ -212,7 +212,6 @@ func DeletePostWithTx(tx *sql.Tx, postID int64) error {
 	if rows == 0 {
 		return ErrorInvalidID
 	}
-	
 	return nil
 }
 
@@ -231,7 +230,7 @@ func GetPostCommentIDs(tx *sql.Tx, postID int64) ([]string, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var commentIDs []string
 	for rows.Next() {
 		var commentID int64

@@ -114,9 +114,6 @@ func GetCommentListHandler(c *gin.Context) {
 	}
 
 	if err != nil {
-		zap.L().Error("get comments failed",
-			zap.Any("params", p),
-			zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 		return
 	}
@@ -174,7 +171,7 @@ func DeleteCommentHandler(c *gin.Context) {
 			zap.Int64("comment_id", commentID),
 			zap.Int64("user_id", userID),
 			zap.Error(err))
-		
+
 		// 根据错误类型返回对应的错误码
 		if err == mysql.ErrorInvalidID {
 			ResponseError(c, CodeInvalidParams)
@@ -197,9 +194,6 @@ func DeleteCommentWithRepliesHandler(c *gin.Context) {
 	commentIDStr := c.Param("id")
 	commentID, err := strconv.ParseInt(commentIDStr, 10, 64)
 	if err != nil {
-		zap.L().Error("get comment_id failed", 
-			zap.String("comment_id", commentIDStr),
-			zap.Error(err))
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
@@ -217,7 +211,7 @@ func DeleteCommentWithRepliesHandler(c *gin.Context) {
 			zap.Int64("comment_id", commentID),
 			zap.Int64("user_id", userID),
 			zap.Error(err))
-		
+
 		if err == mysql.ErrorInvalidID {
 			ResponseErrorWithMsg(c, CodeInvalidParams, "评论不存在或已删除")
 			return

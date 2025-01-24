@@ -13,6 +13,8 @@ CREATE TABLE `user` (
     `password` varchar(64) COLLATE utf8mb4_general_ci NOT NULL,
     `email` varchar(64) COLLATE utf8mb4_general_ci,
     `gender` tinyint(4) NOT NULL DEFAULT '0',
+    `avatar` varchar(200) COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '用户头像URL',
+    `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态(1正常,0删除)',
     `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
     `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
@@ -27,6 +29,7 @@ CREATE TABLE `community` (
   `community_id` int(10) unsigned NOT NULL,
   `community_name` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
   `introduction` varchar(256) COLLATE utf8mb4_general_ci NOT NULL,
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态(1正常,0删除)',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -46,7 +49,7 @@ CREATE TABLE `post` (
   `content` varchar(8192) COLLATE utf8mb4_general_ci NOT NULL COMMENT '内容',
   `author_id` bigint(20) NOT NULL COMMENT '作者的用户id',
   `community_id` bigint(20) NOT NULL COMMENT '所属社区',
-  `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '帖子状态',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态(1正常,0删除)',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -59,16 +62,18 @@ CREATE TABLE `post` (
 DROP TABLE IF EXISTS `comment`;
 CREATE TABLE `comment` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `post_id` bigint(20) NOT NULL COMMENT '帖子id',
   `comment_id` bigint(20) NOT NULL COMMENT '评论id',
   `parent_id` bigint(20) NOT NULL DEFAULT '0' COMMENT '父评论id',
+  `post_id` bigint(20) NOT NULL COMMENT '帖子id',
   `author_id` bigint(20) NOT NULL COMMENT '评论作者id',
+  `reply_to_uid` bigint(20) NOT NULL DEFAULT '0' COMMENT '被回复人的用户id',
   `content` text NOT NULL COMMENT '评论内容',
-  `status` tinyint(3) unsigned NOT NULL DEFAULT '1' COMMENT '状态(1正常,0删除)',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态(1正常,0删除)',
   `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_comment_id` (`comment_id`),
   KEY `idx_post_id` (`post_id`),
-  KEY `idx_author_Id` (`author_id`)
+  KEY `idx_author_Id` (`author_id`),
+  KEY `idx_reply_to_uid` (`reply_to_uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

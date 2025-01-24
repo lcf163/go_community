@@ -13,6 +13,7 @@ type User struct {
 	UserName     string `json:"username" db:"username"`
 	Password     string `json:"password" db:"password"`
 	Avatar       string `json:"avatar" db:"avatar"` // 头像相对路径
+	Status       int8   `json:"status" db:"status"`
 	AccessToken  string
 	RefreshToken string
 }

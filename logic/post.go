@@ -493,7 +493,7 @@ func DeletePost(userID, postID int64) error {
 	if err != nil {
 		return err
 	}
-	if post == nil || post.Status == 0 {
+	if post == nil {
 		return mysql.ErrorInvalidID
 	}
 

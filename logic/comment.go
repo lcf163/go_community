@@ -217,7 +217,7 @@ func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
 	if err != nil {
 		return nil, err
 	}
-	if comment == nil || comment.Status != 1 {
+	if comment == nil {
 		return nil, mysql.ErrorInvalidID
 	}
 
@@ -268,7 +268,7 @@ func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
 func UpdateComment(userId int64, p *models.ParamUpdateComment) error {
 	// 检查评论是否存在
 	comment, err := mysql.GetCommentById(p.CommentId)
-	if err != nil || comment == nil || comment.Status != 1 {
+	if err != nil || comment == nil {
 		zap.L().Error("mysql.GetCommentById failed",
 			zap.Int64("comment_id", p.CommentId),
 			zap.Error(err))
@@ -295,7 +295,7 @@ func DeleteComment(userID, commentID int64) error {
 	if err != nil {
 		return err
 	}
-	if comment == nil || comment.Status == 0 {
+	if comment == nil {
 		return mysql.ErrorInvalidID
 	}
 
@@ -349,7 +349,7 @@ func DeleteCommentWithReplies(userID, commentID int64) error {
 	if err != nil {
 		return err
 	}
-	if comment == nil || comment.Status == 0 {
+	if comment == nil {
 		return mysql.ErrorInvalidID
 	}
 

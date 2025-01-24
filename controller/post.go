@@ -52,7 +52,7 @@ func PostDetailHandler(c *gin.Context) {
 	// 2.根据ID取出帖子数据（查数据库）
 	post, err := logic.GetPostById(postId)
 	if err != nil {
-		zap.L().Error("logic.GetPost failed", zap.Error(err))
+		zap.L().Error("logic.GetPostById failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 	}
 	// 3.返回响应
@@ -66,7 +66,7 @@ func GetPostListHandler(c *gin.Context) {
 	// 获取数据
 	posts, err := logic.GetPostList(page, size)
 	if err != nil {
-		zap.L().Error("logic.GetPost failed", zap.Error(err))
+		zap.L().Error("logic.GetPostList failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 	}
 	// 返回响应
@@ -103,7 +103,7 @@ func GetPostListHandler2(c *gin.Context) {
 	// 获取数据
 	posts, err := logic.GetPostListNew(p) // 更新：合二为一
 	if err != nil {
-		zap.L().Error("logic.GetPostList2 failed", zap.Error(err))
+		zap.L().Error("logic.GetPostListNew failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 		return // 添加return，避免错误情况下继续执行
 	}
@@ -165,7 +165,7 @@ func UpdatePostHandler(c *gin.Context) {
 // GetUserPostListHandler 根据用户ID获取帖子列表
 func GetUserPostListHandler(c *gin.Context) {
 	// 获取用户ID参数
-	userIdStr := c.Param("userId")
+	userIdStr := c.Param("id")
 	userId, err := strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
@@ -194,9 +194,6 @@ func DeletePostHandler(c *gin.Context) {
 	postIDStr := c.Param("id")
 	postID, err := strconv.ParseInt(postIDStr, 10, 64)
 	if err != nil {
-		zap.L().Error("get post_id failed", 
-			zap.String("post_id", postIDStr),
-			zap.Error(err))
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
@@ -214,7 +211,7 @@ func DeletePostHandler(c *gin.Context) {
 			zap.Int64("post_id", postID),
 			zap.Int64("user_id", userID),
 			zap.Error(err))
-		
+
 		if err == mysql.ErrorInvalidID {
 			ResponseErrorWithMsg(c, CodeInvalidParams, "帖子不存在或已删除")
 			return
