@@ -95,6 +95,12 @@ type ParamCommentList struct {
 	Size      int64 `form:"size,default=10"` // 每页数量
 }
 
+// ParamUpdateCommunity 更新社区请求参数
+type ParamUpdateCommunity struct {
+	Name         string `json:"community_name" binding:"required"` // 评论id
+	Introduction string `json:"introduction" binding:"required"`   // 评论内容
+}
+
 // ParamVoteData 投票数据
 type ParamVoteData struct {
 	TargetId   int64 `json:"target_id" binding:"required"`              // 投票目标ID

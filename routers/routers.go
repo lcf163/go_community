@@ -84,6 +84,10 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.DELETE("/post/:id", controller.DeletePostHandler) // 删除帖子
 		// 投票业务
 		v1.POST("/vote", controller.VoteHandler) // 投票（帖子/评论）
+		// 社区业务
+		v1.POST("/community", controller.CreateCommunityHandler)       // 创建社区
+		v1.PUT("/community/:id", controller.UpdateCommunityHandler)    // 更新社区
+		v1.DELETE("/community/:id", controller.DeleteCommunityHandler) // 删除社区
 		// 评论业务
 		v1.POST("/comment", controller.CreateCommentHandler)                   // 创建评论/回复
 		v1.PUT("/comment", controller.UpdateCommentHandler)                    // 更新评论

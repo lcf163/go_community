@@ -64,6 +64,26 @@ func GetCommunityDetailById(id int64) (community *models.CommunityDetail, err er
 	return
 }
 
+// GetCommunityDetailByName 根据名称查询社区详情
+func GetCommunityDetailByName(name string) (community *models.CommunityDetail, err error) {
+	community = new(models.CommunityDetail)
+	sqlStr := `select community_id, community_name, introduction, create_time, status
+	from community
+	where community_name = ? and status = 1`
+	err = db.Get(community, sqlStr, name)
+	if err == sql.ErrNoRows {
+		return nil, ErrorInvalidID
+	}
+	if err != nil {
+		zap.L().Error("query community by name failed",
+			zap.String("sql", sqlStr),
+			zap.String("name", name),
+			zap.Error(err))
+		return nil, ErrorQueryFailed
+	}
+	return community, nil
+}
+
 // CreateCommunity 创建社区
 func CreateCommunity(community *models.CommunityDetail) (err error) {
 	// 设置默认状态为1
@@ -107,6 +127,23 @@ func UpdateCommunity(id int64, name, introduction string) error {
 func DeleteCommunity(id int64) error {
 	sqlStr := `update community set status = 0 where community_id = ? and status = 1`
 	result, err := db.Exec(sqlStr, id)
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return ErrorInvalidID
+	}
+	return nil
+}
+
+// UpdateCommunityStatus 更新社区状态（软删除）
+func UpdateCommunityStatus(id int64, status int8) error {
+	sqlStr := `update community set status = ? where community_id = ?`
+	result, err := db.Exec(sqlStr, status, id)
 	if err != nil {
 		return err
 	}

@@ -26,7 +26,7 @@ CREATE TABLE `user` (
 DROP TABLE IF EXISTS `community`;
 CREATE TABLE `community` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `community_id` int(10) unsigned NOT NULL,
+  `community_id` bigint(20) NOT NULL,
   `community_name` varchar(128) COLLATE utf8mb4_general_ci NOT NULL,
   `introduction` varchar(256) COLLATE utf8mb4_general_ci NOT NULL,
   `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态(1正常,0删除)',

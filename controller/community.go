@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"go_community/dao/mysql"
 	"go_community/logic"
 	"go_community/models"
 	"strconv"
@@ -63,8 +64,127 @@ func CommunityDetailHandler(c *gin.Context) {
 	communityList, err := logic.GetCommunityDetailById(communityId)
 	if err != nil {
 		zap.L().Error("logic.GetCommunityDetailById failed", zap.Error(err))
-		ResponseErrorWithMsg(c, CodeSuccess, err.Error())
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeCommunityNotExist)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
 		return
 	}
 	ResponseSuccess(c, communityList)
+}
+
+// CreateCommunityHandler 创建社区
+func CreateCommunityHandler(c *gin.Context) {
+	// 检查用户权限
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 获取参数
+	community := new(models.CommunityDetail)
+	if err := c.ShouldBindJSON(community); err != nil {
+		zap.L().Error("CreateCommunityHandler with invalid param",
+			zap.Error(err))
+		ResponseErrorWithMsg(c, CodeInvalidParams, "请检查社区名称和简介是否为空")
+		return
+	}
+
+	// 创建社区
+	if err := logic.CreateCommunity(userID, community); err != nil {
+		zap.L().Error("logic.CreateCommunity failed",
+			zap.Any("community", community),
+			zap.Error(err))
+		if err.Error() == "社区名称已存在" {
+			ResponseError(c, CodeCommunityExist)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	ResponseSuccess(c, nil)
+}
+
+// UpdateCommunityHandler 更新社区信息
+func UpdateCommunityHandler(c *gin.Context) {
+	// 检查用户权限
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 获取社区ID
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		ResponseErrorWithMsg(c, CodeInvalidParams, "无效的社区ID")
+		return
+	}
+
+	// 获取更新参数
+	p := new(models.ParamUpdateCommunity)
+	if err := c.ShouldBindJSON(p); err != nil {
+		zap.L().Error("UpdateCommunityHandler with invalid param",
+			zap.Error(err))
+		ResponseErrorWithMsg(c, CodeInvalidParams, "请检查社区名称和简介格式是否正确")
+		return
+	}
+
+	// 更新社区信息
+	if err := logic.UpdateCommunity(userID, id, p.Name, p.Introduction); err != nil {
+		zap.L().Error("logic.UpdateCommunity failed",
+			zap.Int64("id", id),
+			zap.Any("params", p),
+			zap.Error(err))
+		if err.Error() == "社区名称已存在" {
+			ResponseError(c, CodeCommunityExist)
+			return
+		}
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeCommunityNotExist)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	ResponseSuccess(c, nil)
+}
+
+// DeleteCommunityHandler 删除社区
+func DeleteCommunityHandler(c *gin.Context) {
+	// 检查用户权限
+	userID, err := getCurrentUserId(c)
+	if err != nil {
+		ResponseError(c, CodeNotLogin)
+		return
+	}
+
+	// 获取社区ID
+	idStr := c.Param("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		ResponseErrorWithMsg(c, CodeInvalidParams, "无效的社区ID")
+		return
+	}
+
+	// 2. 删除社区
+	if err := logic.DeleteCommunity(userID, id); err != nil {
+		zap.L().Error("logic.DeleteCommunity failed",
+			zap.Int64("id", id),
+			zap.Error(err))
+		if err == mysql.ErrorInvalidID {
+			ResponseError(c, CodeCommunityNotExist)
+			return
+		}
+		if err.Error() == "该社区下还有帖子，无法删除" {
+			ResponseError(c, CodeCommunityHasPost)
+			return
+		}
+		ResponseError(c, CodeServerBusy)
+		return
+	}
+	ResponseSuccess(c, nil)
 }

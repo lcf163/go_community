@@ -8,7 +8,7 @@ import (
 
 var node *sf.Node
 
-// Init 需传入当前的机器ID
+// Init 初始化雪花算法节点
 func Init(startTime string, machineId int64) (err error) {
 	var st time.Time
 	st, err = time.Parse("2006-01-02", startTime)

@@ -22,6 +22,10 @@ const (
 	CodeFileUploadFailed MyCode = 1012
 	CodeFileSizeExceeded MyCode = 1013
 	CodeInvalidFileType  MyCode = 1014
+
+	CodeCommunityExist    MyCode = 1015
+	CodeCommunityNotExist MyCode = 1016
+	CodeCommunityHasPost  MyCode = 1017
 )
 
 var msgFlags = map[MyCode]string{
@@ -41,6 +45,10 @@ var msgFlags = map[MyCode]string{
 	CodeFileUploadFailed:  "文件上传失败",
 	CodeFileSizeExceeded:  "文件大小超出限制",
 	CodeInvalidFileType:   "不支持的文件类型",
+
+	CodeCommunityExist:    "社区名称已存在",
+	CodeCommunityNotExist: "社区不存在",
+	CodeCommunityHasPost:  "该社区下还有帖子，无法删除",
 }
 
 func (c MyCode) Msg() string {
