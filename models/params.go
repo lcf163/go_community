@@ -36,7 +36,29 @@ type ParamUpdatePassword struct {
 	NewPassword string `json:"new_password" binding:"required"` // 新密码
 }
 
-// ParamPostList 获取帖子列表 query string 参数
+// ParamPost 创建帖子请求参数
+type ParamPost struct {
+	CommunityID int64  `json:"community_id" binding:"required"` // 社区ID
+	Title       string `json:"title" binding:"required"`        // 标题
+	Content     string `json:"content" binding:"required"`      // 内容
+}
+
+// ParamPostListQueryNoSearch 获取帖子列表的请求参数（不搜索关键词）
+type ParamPostListQueryNoSearch struct {
+	CommunityId int64  `json:"community_id" form:"community_id"`   // 可以为空
+	Page        int64  `json:"page" form:"page"`                   // 页码
+	Size        int64  `json:"size" form:"size"`                   // 每页数量
+	Order       string `json:"order" form:"order" example:"score"` // 排序依据
+}
+
+// ParamPostListQueryWithSearch 获取帖子列表的请求参数（不搜索社区ID）
+type ParamPostListQueryWithSearch struct {
+	Page   int64  `json:"page" form:"page"`     // 页码
+	Size   int64  `json:"size" form:"size"`     // 每页数量
+	Search string `json:"search" form:"search"` // 关键字搜索
+}
+
+// ParamPostList 获取帖子列表的请求参数
 type ParamPostList struct {
 	CommunityId int64  `json:"community_id" form:"community_id"`   // 可以为空
 	Page        int64  `json:"page" form:"page"`                   // 页码

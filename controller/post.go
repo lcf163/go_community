@@ -12,7 +12,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreatePostHandler 创建帖子
+// CreatePostHandler
+// @Summary 创建帖子
+// @Description 创建新帖子
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param post body models.ParamPost true "帖子信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1006 {object} ResponseData "无效的Token"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /post [post]
 func CreatePostHandler(c *gin.Context) {
 	// 1.获取参数及校验参数
 	//var post models.Post
@@ -40,7 +54,17 @@ func CreatePostHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-// PostDetailHandler 获取帖子详情
+// PostDetailHandler
+// @Summary 获取帖子详情
+// @Description 获取帖子的详细信息
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param id path int true "帖子ID"
+// @Success 1000 {object} _ResponsePostDetail
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /post/{id} [get]
 func PostDetailHandler(c *gin.Context) {
 	// 1.获取参数（URL中获取帖子ID）
 	postIdStr := c.Param("id")
@@ -59,7 +83,18 @@ func PostDetailHandler(c *gin.Context) {
 	ResponseSuccess(c, post)
 }
 
-// GetPostListHandler 分页获取帖子列表
+// GetPostListHandler
+// @Summary 获取帖子列表
+// @Description 分页获取帖子列表
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param page query int false "页码" minimum(1) default(1)
+// @Param size query int false "每页数量" minimum(1) maximum(10) default(5)
+// @Success 1000 {object} _ResponsePostList
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /posts [get]
 func GetPostListHandler(c *gin.Context) {
 	// 获取分页参数
 	page, size := getPageInfo(c)
@@ -73,15 +108,13 @@ func GetPostListHandler(c *gin.Context) {
 	ResponseSuccess(c, posts)
 }
 
-// GetPostListHandler2 分页获取帖子列表（按帖子的创建时间或者分数排序）
+// GetPostListHandler2
 // @Summary 升级版帖子列表接口
-// @Description 按社区按时间或分数排序查询帖子列表接口
+// @Description 分页获取帖子列表（按帖子的创建时间或者分数排序）
 // @Tags 帖子相关接口
 // @Accept application/json
 // @Produce application/json
-// @Param Authorization header string false "Bearer 用户令牌"
-// @Param object query models.ParamPostList false "查询参数"
-// @Security ApiKeyAuth
+// @Param object query models.ParamPostListQueryNoSearch false "查询参数"
 // @Success 200 {object} _ResponsePostList
 // @Router /posts2 [get]
 func GetPostListHandler2(c *gin.Context) {
@@ -112,7 +145,17 @@ func GetPostListHandler2(c *gin.Context) {
 	ResponseSuccess(c, posts)
 }
 
-// PostSearchHandler 搜索帖子
+// PostSearchHandler
+// @Summary 搜索帖子
+// @Description 根据关键词搜索帖子
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param object query models.ParamPostListQueryWithSearch false "查询参数"
+// @Success 1000 {object} _ResponsePostList
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /search [get]
 func PostSearchHandler(c *gin.Context) {
 	p := &models.ParamPostList{}
 	if err := c.ShouldBindQuery(p); err != nil {
@@ -131,7 +174,21 @@ func PostSearchHandler(c *gin.Context) {
 	ResponseSuccess(c, data)
 }
 
-// UpdatePostHandler 更新帖子
+// UpdatePostHandler
+// @Summary 更新帖子
+// @Description 更新帖子内容
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param post body models.ParamUpdatePost true "帖子更新信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1011 {object} ResponseData "无操作权限"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /post [put]
 func UpdatePostHandler(c *gin.Context) {
 	// 1. 参数校验
 	p := new(models.ParamUpdatePost)
@@ -162,7 +219,20 @@ func UpdatePostHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-// GetUserPostListHandler 根据用户ID获取帖子列表
+// GetUserPostListHandler
+// @Summary 获取用户帖子列表
+// @Description 获取指定用户发布的帖子列表
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param id path int true "用户ID"
+// @Param page query int false "页码" minimum(1) default(1)
+// @Param size query int false "每页数量" minimum(1) maximum(10) default(5)
+// @Success 1000 {object} _ResponsePostList
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1003 {object} ResponseData "用户不存在"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /posts/user/{id} [get]
 func GetUserPostListHandler(c *gin.Context) {
 	// 获取用户ID参数
 	userIdStr := c.Param("id")
@@ -188,7 +258,21 @@ func GetUserPostListHandler(c *gin.Context) {
 	ResponseSuccess(c, data)
 }
 
-// DeletePostHandler 删除帖子
+// DeletePostHandler
+// @Summary 删除帖子
+// @Description 删除指定帖子
+// @Tags 帖子相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security ApiKeyAuth
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id path int true "帖子ID"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1011 {object} ResponseData "无操作权限"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /post/{id} [delete]
 func DeletePostHandler(c *gin.Context) {
 	// 1. 获取帖子ID
 	postIDStr := c.Param("id")

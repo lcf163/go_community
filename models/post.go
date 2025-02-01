@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// Post 帖子model，注意内存对齐
+// Post 帖子模型（注意内存对齐）
 type Post struct {
 	PostId      int64     `json:"post_id,string" db:"post_id"`
 	AuthorId    int64     `json:"author_id" db:"author_id"`
@@ -42,7 +42,7 @@ func (p *Post) UnmarshalJSON(data []byte) (err error) {
 	return
 }
 
-// ApiPostDetail 帖子返回的详情model
+// ApiPostDetail 帖子详情模型
 type ApiPostDetail struct {
 	AuthorName       string             `json:"author_name"`   // 作者名
 	AuthorAvatar     string             `json:"author_avatar"` // 头像相对路径
@@ -52,7 +52,7 @@ type ApiPostDetail struct {
 	*CommunityDetail `json:"community"` // 嵌入社区结构体
 }
 
-// ApiPostDetailRes 搜索帖子返回的model
+// ApiPostDetailRes 搜索帖子返回模型
 type ApiPostDetailRes struct {
 	Page Page             `json:"page"`
 	List []*ApiPostDetail `json:"list"`

@@ -8,10 +8,11 @@ import (
 	"net/http"
 
 	"github.com/gin-contrib/cors"
+	swaggerFiles "github.com/swaggo/files"
+	gs "github.com/swaggo/gin-swagger"
+
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files" // swagger embed files
-	gs "github.com/swaggo/gin-swagger"
 )
 
 // SetupRouter 设置路由
@@ -30,15 +31,12 @@ func SetupRouter(mode string) *gin.Engine {
 	r.Use(cors.Default())                               // 默认允许所有跨域请求
 	// 自定义跨域请求 CORS 相关配置项
 	//r.Use(cors.New(cors.Config{
-	//	AllowOrigins:     []string{"https://foo.com"},
-	//	AllowMethods:     []string{"PUT", "PATCH"},
-	//	AllowHeaders:     []string{"Origin"},
+	//	AllowOrigins:     []string{"*"},                                       // 允许所有来源
+	//	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},            // 允许的 HTTP 方法
+	//	AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"}, // 允许的请求头
 	//	ExposeHeaders:    []string{"Content-Length"},
 	//	AllowCredentials: true,
-	//	AllowOriginFunc: func(origin string) bool {
-	//		return origin == "https://github.com"
-	//	},
-	//	MaxAge: 12 * time.Hour,
+	//	MaxAge:           12 * time.Hour,
 	//}))
 
 	// 前端相关
@@ -53,26 +51,28 @@ func SetupRouter(mode string) *gin.Engine {
 	// 注册路由
 	v1 := r.Group("/api/v1")
 
-	// 用户业务
-	v1.POST("/signup", controller.SignUpHandler)
-	v1.POST("/login", controller.LoginHandler)
-	v1.GET("/refresh_token", controller.RefreshTokenHandler)
-	v1.GET("/user/:id", controller.GetUserInfoHandler) // 获取用户信息
-	// 帖子业务
-	v1.GET("/posts", controller.GetPostListHandler)              // 获取帖子列表（带分页）
-	v1.GET("/posts2", controller.GetPostListHandler2)            // 获取帖子列表（带分页）：按照帖子的发布时间或分数排序
-	v1.GET("/posts/user/:id", controller.GetUserPostListHandler) // 获取帖子列表（根据用户ID）
-	v1.GET("/post/:id", controller.PostDetailHandler)            // 获取帖子详情
-	v1.GET("/search", controller.PostSearchHandler)              // 搜索帖子
-	// 社区业务
-	v1.GET("/community", controller.CommunityHandler)           // 获取分类社区列表
-	v1.GET("/community2", controller.CommunityHandler2)         // 获取分类社区列表（带分页）
-	v1.GET("/community/:id", controller.CommunityDetailHandler) // 根据ID查找社区详情
-	// 评论业务
-	v1.GET("/comments", controller.GetCommentListHandler)      // 获取评论列表（支持获取帖子评论和评论回复）
-	v1.GET("/comment/:id", controller.GetCommentDetailHandler) // 获取评论详情
+	// 无需认证的接口
+	{
+		v1.POST("/signup", controller.SignUpHandler)
+		v1.POST("/login", controller.LoginHandler)
+		v1.GET("/refresh_token", controller.RefreshTokenHandler)
+		v1.GET("/user/:id", controller.GetUserInfoHandler) // 获取用户信息
+		// 帖子业务
+		v1.GET("/posts", controller.GetPostListHandler)              // 获取帖子列表（带分页）
+		v1.GET("/posts2", controller.GetPostListHandler2)            // 获取帖子列表（带分页以及排序）
+		v1.GET("/posts/user/:id", controller.GetUserPostListHandler) // 获取帖子列表（根据用户ID）
+		v1.GET("/post/:id", controller.PostDetailHandler)            // 获取帖子详情
+		v1.GET("/search", controller.PostSearchHandler)              // 搜索帖子
+		// 社区业务
+		v1.GET("/community", controller.CommunityHandler)           // 获取分类社区列表
+		v1.GET("/community2", controller.CommunityHandler2)         // 获取分类社区列表（带分页）
+		v1.GET("/community/:id", controller.CommunityDetailHandler) // 根据ID查找社区详情
+		// 评论业务
+		v1.GET("/comments", controller.GetCommentListHandler)      // 获取评论列表（支持获取帖子评论和评论回复）
+		v1.GET("/comment/:id", controller.GetCommentDetailHandler) // 获取评论详情
+	}
 
-	// 使用 JWT 认证中间件
+	// 需要认证的接口
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
 		v1.PUT("/user/name", controller.UpdateUserNameHandler)     // 修改用户名

@@ -17,11 +17,16 @@ import (
 
 // @title go_community backend
 // @version 1.0
-// @description main.go
+// @description go_community API documentation
 // @termsOfService http://swagger.io/terms/
 
-// @host 127.0.0.1:8081
-// @BasePath /api/v1/
+// @host localhost:8081
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey Bearer
+// @in header
+// @name Authorization
+// @description 在值的前面添加 Bearer，并带上空格。例如：Bearer your_token_here
 
 func main() {
 	// 1. 加载配置
