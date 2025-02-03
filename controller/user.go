@@ -20,6 +20,17 @@ import (
 )
 
 // SignUpHandler 处理注册请求
+// @Summary 用户注册
+// @Description 创建新用户账号
+// @Tags 用户相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param user body models.ParamSignUp true "注册信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1002 {object} ResponseData "用户名已存在"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /signup [post]
 func SignUpHandler(c *gin.Context) {
 	// 1.获取请求参数和参数校验
 	//var p models.ParamSignUp
@@ -51,7 +62,18 @@ func SignUpHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-// LoginHandler 处理注册请求的函数
+// LoginHandler 处理登录请求
+// @Summary 用户登录
+// @Description 用户登录并获取token
+// @Tags 用户相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param user body models.ParamLogin true "登录信息"
+// @Success 1000 {object} ResponseData{data=map[string]string{user_id=string,user_name=string,access_token=string,refresh_token=string}}
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1004 {object} ResponseData "用户名或密码错误"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /login [post]
 func LoginHandler(c *gin.Context) {
 	// 1.获取请求参数和参数校验
 	p := new(models.ParamLogin)
@@ -88,7 +110,17 @@ func LoginHandler(c *gin.Context) {
 	})
 }
 
-// RefreshTokenHandler 刷新accessToken
+// RefreshTokenHandler 刷新token
+// @Summary 刷新访问令牌
+// @Description 使用refresh_token刷新access_token
+// @Tags 用户相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param refresh_token query string true "刷新令牌"
+// @Success 200 {object} map[string]string{access_token=string,refresh_token=string}
+// @Failure 1006 {object} ResponseData "无效的Token"
+// @Router /refresh_token [post]
 func RefreshTokenHandler(c *gin.Context) {
 	rt := c.Query("refresh_token")
 	// 客户端携带 Token 有三种方式 1.放在请求头 2.放在请求体 3.放在 URI
@@ -116,6 +148,17 @@ func RefreshTokenHandler(c *gin.Context) {
 }
 
 // GetUserInfoHandler 获取用户信息
+// @Summary 获取用户信息
+// @Description 获取指定用户的详细信息
+// @Tags 用户相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param id path int true "用户ID"
+// @Success 1000 {object} ResponseData{data=map[string]string{user_id=string,username=string,avatar=string}}
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1003 {object} ResponseData "用户不存在"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /user/{id} [get]
 func GetUserInfoHandler(c *gin.Context) {
 	// 获取用户ID参数
 	userIdStr := c.Param("id")
@@ -147,6 +190,20 @@ func GetUserInfoHandler(c *gin.Context) {
 }
 
 // UpdateUserNameHandler 更新用户名
+// @Summary 更新用户名
+// @Description 修改当前登录用户的用户名
+// @Tags 用户相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param user body models.ParamUpdateUser true "用户名信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1002 {object} ResponseData "用户名已存在"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /user/name [put]
 func UpdateUserNameHandler(c *gin.Context) {
 	// 获取当前用户ID
 	userID, err := getCurrentUserId(c)
@@ -180,6 +237,20 @@ func UpdateUserNameHandler(c *gin.Context) {
 }
 
 // UpdatePasswordHandler 修改密码
+// @Summary 修改密码
+// @Description 修改当前登录用户的密码
+// @Tags 用户相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param password body models.ParamUpdatePassword true "密码信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1004 {object} ResponseData "原密码错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /user/password [put]
 func UpdatePasswordHandler(c *gin.Context) {
 	// 获取当前用户ID
 	userID, err := getCurrentUserId(c)
@@ -213,6 +284,19 @@ func UpdatePasswordHandler(c *gin.Context) {
 }
 
 // UpdateAvatarHandler 更新用户头像
+// @Summary 更新头像
+// @Description 更新当前登录用户的头像
+// @Tags 用户相关接口
+// @Accept multipart/form-data
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param avatar formData file true "头像文件"
+// @Success 1000 {object} ResponseData{data=map[string]string{avatar=string,message=string}}
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /user/avatar [post]
 func UpdateAvatarHandler(c *gin.Context) {
 	// 获取当前用户ID
 	userID, err := getCurrentUserId(c)

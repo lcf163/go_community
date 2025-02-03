@@ -12,7 +12,15 @@ import (
 
 // 社区相关
 
-// CommunityHandler 社区列表
+// CommunityHandler
+// @Summary 获取社区列表
+// @Description 获取所有社区的信息列表
+// @Tags 社区相关接口
+// @Accept application/json
+// @Produce application/json
+// @Success 1000 {object} ResponseData{data=[]models.Community}
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /community [get]
 func CommunityHandler(c *gin.Context) {
 	// 查询到所有的社区（community_id, community_name），以列表的形式返回
 	communityList, err := logic.GetCommunityList()
@@ -24,7 +32,18 @@ func CommunityHandler(c *gin.Context) {
 	ResponseSuccess(c, communityList)
 }
 
-// CommunityHandler2 获取社区列表（带分页）
+// CommunityHandler2
+// @Summary 获取社区列表
+// @Description 获取社区列表（带分页）
+// @Tags 社区相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param page query int false "页码" minimum(1) default(1)
+// @Param size query int false "每页数量" minimum(1) maximum(100) default(10)
+// @Success 1000 {object} ResponseData{data=[]models.CommunityDetail}
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /community2 [get]
 func CommunityHandler2(c *gin.Context) {
 	// GET 请求参数（query string）: /api/v1/community?page=1&size=10
 	p := &models.ParamPage{
@@ -51,10 +70,21 @@ func CommunityHandler2(c *gin.Context) {
 }
 
 // CommunityDetailHandler 社区详情
+// @Summary 获取社区详情
+// @Description 根据社区ID获取社区详细信息
+// @Tags 社区相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param id path int true "社区ID"
+// @Success 1000 {object} ResponseData{data=models.CommunityDetail}
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1009 {object} ResponseData "社区不存在"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /community/{id} [get]
 func CommunityDetailHandler(c *gin.Context) {
 	// 1.获取社区ID
-	communityIdStr := c.Param("id")                              // 获取URL参数
-	communityId, err := strconv.ParseInt(communityIdStr, 10, 64) // id字符串格式转换
+	communityIdStr := c.Param("id")
+	communityId, err := strconv.ParseInt(communityIdStr, 10, 64)
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
 		return
@@ -75,6 +105,20 @@ func CommunityDetailHandler(c *gin.Context) {
 }
 
 // CreateCommunityHandler 创建社区
+// @Summary 创建社区
+// @Description 创建新的社区
+// @Tags 社区相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param community body models.ParamUpdateCommunity true "社区信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1010 {object} ResponseData "社区已存在"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /community [post]
 func CreateCommunityHandler(c *gin.Context) {
 	// 检查用户权限
 	userID, err := getCurrentUserId(c)
@@ -108,6 +152,22 @@ func CreateCommunityHandler(c *gin.Context) {
 }
 
 // UpdateCommunityHandler 更新社区信息
+// @Summary 更新社区
+// @Description 更新社区信息
+// @Tags 社区相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id path int true "社区ID"
+// @Param community body models.ParamUpdateCommunity true "社区更新信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1009 {object} ResponseData "社区不存在"
+// @Failure 1010 {object} ResponseData "社区名称已存在"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /community/{id} [put]
 func UpdateCommunityHandler(c *gin.Context) {
 	// 检查用户权限
 	userID, err := getCurrentUserId(c)
@@ -154,6 +214,21 @@ func UpdateCommunityHandler(c *gin.Context) {
 }
 
 // DeleteCommunityHandler 删除社区
+// @Summary 删除社区
+// @Description 删除指定社区
+// @Tags 社区相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id path int true "社区ID"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1009 {object} ResponseData "社区不存在"
+// @Failure 1014 {object} ResponseData "社区下存在帖子"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /community/{id} [delete]
 func DeleteCommunityHandler(c *gin.Context) {
 	// 检查用户权限
 	userID, err := getCurrentUserId(c)

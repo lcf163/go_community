@@ -44,24 +44,23 @@ func GetCommunityTotalCount() (count int64, err error) {
 }
 
 // GetCommunityDetailById 根据ID查询社区详情
-func GetCommunityDetailById(id int64) (community *models.CommunityDetail, err error) {
-	community = new(models.CommunityDetail)
-	sqlStr := `select community_id, community_name, introduction, create_time
-	from community
+func GetCommunityDetailById(id int64) (*models.CommunityDetail, error) {
+	community := new(models.CommunityDetail)
+	sqlStr := `select community_id, community_name, introduction, create_time 
+	from community 
 	where community_id = ? and status = 1`
-	err = db.Get(community, sqlStr, id)
-	if err == sql.ErrNoRows {
-		err = ErrorInvalidID
-		return
-	}
+	err := db.Get(community, sqlStr, id)
 	if err != nil {
 		zap.L().Error("query community failed",
 			zap.String("sql", sqlStr),
 			zap.Error(err))
 		err = ErrorQueryFailed
-		return
+		if err == sql.ErrNoRows {
+			return nil, ErrorInvalidID
+		}
+		return nil, err
 	}
-	return
+	return community, nil
 }
 
 // GetCommunityDetailByName 根据名称查询社区详情

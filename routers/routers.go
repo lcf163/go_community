@@ -53,6 +53,7 @@ func SetupRouter(mode string) *gin.Engine {
 
 	// 无需认证的接口
 	{
+		// 用户业务
 		v1.POST("/signup", controller.SignUpHandler)
 		v1.POST("/login", controller.LoginHandler)
 		v1.GET("/refresh_token", controller.RefreshTokenHandler)
@@ -75,6 +76,7 @@ func SetupRouter(mode string) *gin.Engine {
 	// 需要认证的接口
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
+		// 用户业务
 		v1.PUT("/user/name", controller.UpdateUserNameHandler)     // 修改用户名
 		v1.PUT("/user/password", controller.UpdatePasswordHandler) // 修改用户密码
 		v1.POST("/user/avatar", controller.UpdateAvatarHandler)    // 修改用户头像

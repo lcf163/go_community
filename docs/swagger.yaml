@@ -203,6 +203,15 @@ definitions:
     - content
     - title
     type: object
+  models.Community:
+    properties:
+      community_id:
+        type: integer
+      community_name:
+        type: string
+      status:
+        type: integer
+    type: object
   models.CommunityDetail:
     properties:
       community_id:
@@ -248,6 +257,16 @@ definitions:
     - content
     - post_id
     type: object
+  models.ParamLogin:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
   models.ParamPost:
     properties:
       community_id:
@@ -264,6 +283,19 @@ definitions:
     - content
     - title
     type: object
+  models.ParamSignUp:
+    properties:
+      confirm_password:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - confirm_password
+    - password
+    - username
+    type: object
   models.ParamUpdateComment:
     properties:
       comment_id:
@@ -275,6 +307,30 @@ definitions:
     required:
     - comment_id
     - content
+    type: object
+  models.ParamUpdateCommunity:
+    properties:
+      community_name:
+        description: 评论id
+        type: string
+      introduction:
+        description: 评论内容
+        type: string
+    required:
+    - community_name
+    - introduction
+    type: object
+  models.ParamUpdatePassword:
+    properties:
+      new_password:
+        description: 新密码
+        type: string
+      old_password:
+        description: 旧密码
+        type: string
+    required:
+    - new_password
+    - old_password
     type: object
   models.ParamUpdatePost:
     properties:
@@ -291,6 +347,37 @@ definitions:
     - content
     - post_id
     - title
+    type: object
+  models.ParamUpdateUser:
+    properties:
+      username:
+        description: 用户名,必填
+        type: string
+    required:
+    - username
+    type: object
+  models.ParamVoteData:
+    properties:
+      direction:
+        description: 赞成票(1)、取消投票(0)、反对票(-1)
+        enum:
+        - 1
+        - 0
+        - -1
+        type: integer
+      target_id:
+        description: 投票目标ID
+        type: integer
+      target_type:
+        description: 投票目标类型(1:帖子 2:评论)
+        enum:
+        - 1
+        - 2
+        type: integer
+    required:
+    - direction
+    - target_id
+    - target_type
     type: object
 host: localhost:8081
 info:
@@ -330,10 +417,6 @@ paths:
             $ref: '#/definitions/controller.ResponseData'
         "1005":
           description: 服务繁忙
-          schema:
-            $ref: '#/definitions/controller.ResponseData'
-        "1006":
-          description: 无效的Token
           schema:
             $ref: '#/definitions/controller.ResponseData'
         "1008":
@@ -550,6 +633,310 @@ paths:
       summary: 删除评论及其回复
       tags:
       - 评论相关接口
+  /community:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有社区的信息列表
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Community'
+                  type: array
+              type: object
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 获取社区列表
+      tags:
+      - 社区相关接口
+    post:
+      consumes:
+      - application/json
+      description: 创建新的社区
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 社区信息
+        in: body
+        name: community
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamUpdateCommunity'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1010":
+          description: 社区已存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 创建社区
+      tags:
+      - 社区相关接口
+  /community/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定社区
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 社区ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1009":
+          description: 社区不存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1014":
+          description: 社区下存在帖子
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 删除社区
+      tags:
+      - 社区相关接口
+    get:
+      consumes:
+      - application/json
+      description: 根据社区ID获取社区详细信息
+      parameters:
+      - description: 社区ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.ResponseData'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.CommunityDetail'
+              type: object
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1009":
+          description: 社区不存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 获取社区详情
+      tags:
+      - 社区相关接口
+    put:
+      consumes:
+      - application/json
+      description: 更新社区信息
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 社区ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 社区更新信息
+        in: body
+        name: community
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamUpdateCommunity'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1009":
+          description: 社区不存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1010":
+          description: 社区名称已存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 更新社区
+      tags:
+      - 社区相关接口
+  /community2:
+    get:
+      consumes:
+      - application/json
+      description: 获取社区列表（带分页）
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.ResponseData'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.CommunityDetail'
+                  type: array
+              type: object
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 获取社区列表
+      tags:
+      - 社区相关接口
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录并获取token
+      parameters:
+      - description: 登录信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamLogin'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.ResponseData'
+            - properties:
+                data:
+                  additionalProperties:
+                    allOf:
+                    - type: string
+                    - properties:
+                        access_token:
+                          type: string
+                        refresh_token:
+                          type: string
+                        user_id:
+                          type: string
+                        user_name:
+                          type: string
+                      type: object
+                  type: object
+              type: object
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1004":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 用户登录
+      tags:
+      - 用户相关接口
   /post:
     post:
       consumes:
@@ -580,10 +967,6 @@ paths:
             $ref: '#/definitions/controller.ResponseData'
         "1005":
           description: 服务繁忙
-          schema:
-            $ref: '#/definitions/controller.ResponseData'
-        "1006":
-          description: 无效的Token
           schema:
             $ref: '#/definitions/controller.ResponseData'
         "1008":
@@ -827,6 +1210,45 @@ paths:
       summary: 升级版帖子列表接口
       tags:
       - 帖子相关接口
+  /refresh_token:
+    post:
+      consumes:
+      - application/json
+      description: 使用refresh_token刷新access_token
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 刷新令牌
+        in: query
+        name: refresh_token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              allOf:
+              - type: string
+              - properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                type: object
+            type: object
+        "1006":
+          description: 无效的Token
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 刷新访问令牌
+      tags:
+      - 用户相关接口
   /search:
     get:
       consumes:
@@ -863,4 +1285,292 @@ paths:
       summary: 搜索帖子
       tags:
       - 帖子相关接口
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户账号
+      parameters:
+      - description: 注册信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamSignUp'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1002":
+          description: 用户名已存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 用户注册
+      tags:
+      - 用户相关接口
+  /user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定用户的详细信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.ResponseData'
+            - properties:
+                data:
+                  additionalProperties:
+                    allOf:
+                    - type: string
+                    - properties:
+                        avatar:
+                          type: string
+                        user_id:
+                          type: string
+                        username:
+                          type: string
+                      type: object
+                  type: object
+              type: object
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1003":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 获取用户信息
+      tags:
+      - 用户相关接口
+  /user/avatar:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 更新当前登录用户的头像
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 头像文件
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.ResponseData'
+            - properties:
+                data:
+                  additionalProperties:
+                    allOf:
+                    - type: string
+                    - properties:
+                        avatar:
+                          type: string
+                        message:
+                          type: string
+                      type: object
+                  type: object
+              type: object
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 更新头像
+      tags:
+      - 用户相关接口
+  /user/name:
+    put:
+      consumes:
+      - application/json
+      description: 修改当前登录用户的用户名
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 用户名信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamUpdateUser'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1002":
+          description: 用户名已存在
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 更新用户名
+      tags:
+      - 用户相关接口
+  /user/password:
+    put:
+      consumes:
+      - application/json
+      description: 修改当前登录用户的密码
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 密码信息
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamUpdatePassword'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1004":
+          description: 原密码错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 修改密码
+      tags:
+      - 用户相关接口
+  /vote:
+    post:
+      consumes:
+      - application/json
+      description: 对帖子或评论进行投票
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 投票信息
+        in: body
+        name: vote
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamVoteData'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            allOf:
+            - $ref: '#/definitions/controller.ResponseData'
+            - properties:
+                data:
+                  additionalProperties:
+                    allOf:
+                    - type: integer
+                    - properties:
+                        vote_num:
+                          type: integer
+                      type: object
+                  type: object
+              type: object
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1012":
+          description: 重复投票
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1013":
+          description: 投票时间已过
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 投票
+      tags:
+      - 投票相关接口
 swagger: "2.0"

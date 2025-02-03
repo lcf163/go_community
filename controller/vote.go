@@ -13,6 +13,21 @@ import (
 )
 
 // VoteHandler 投票处理
+// @Summary 投票
+// @Description 对帖子或评论进行投票
+// @Tags 投票相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param vote body models.ParamVoteData true "投票信息"
+// @Success 1000 {object} ResponseData{data=map[string]int64{vote_num=int64}}
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1012 {object} ResponseData "重复投票"
+// @Failure 1013 {object} ResponseData "投票时间已过"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /vote [post]
 func VoteHandler(c *gin.Context) {
 	// 1.获取请求参数和参数校验
 	vote := new(models.ParamVoteData)

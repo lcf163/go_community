@@ -21,7 +21,6 @@ import (
 // @Param comment body models.ParamComment true "评论信息"
 // @Success 1000 {object} ResponseData
 // @Failure 1001 {object} ResponseData "参数错误"
-// @Failure 1006 {object} ResponseData "无效的Token"
 // @Failure 1008 {object} ResponseData "未登录"
 // @Failure 1005 {object} ResponseData "服务繁忙"
 // @Router /comment [post]
