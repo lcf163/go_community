@@ -1,5 +1,37 @@
 basePath: /api/v1
 definitions:
+  controller._ResponseCommentDetail:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/controller.MyCode'
+        description: 业务响应状态码
+        example: 1000
+      data:
+        allOf:
+        - $ref: '#/definitions/models.ApiCommentDetail'
+        description: 评论详情数据
+      message:
+        description: 提示信息
+        example: success
+        type: string
+    type: object
+  controller._ResponseCommentList:
+    properties:
+      code:
+        allOf:
+        - $ref: '#/definitions/controller.MyCode'
+        description: 业务响应状态码
+        example: 1000
+      data:
+        allOf:
+        - $ref: '#/definitions/models.ApiCommentListRes'
+        description: 评论列表数据
+      message:
+        description: 提示信息
+        example: success
+        type: string
+    type: object
   controller._ResponsePostDetail:
     properties:
       code:
@@ -81,6 +113,56 @@ definitions:
         description: 若该字段为空，则不显示
       message: {}
     type: object
+  models.ApiCommentDetail:
+    properties:
+      author_avatar:
+        description: 评论作者头像
+        type: string
+      author_id:
+        example: "0"
+        type: string
+      author_name:
+        type: string
+      comment_id:
+        example: "0"
+        type: string
+      content:
+        type: string
+      create_time:
+        type: string
+      parent_id:
+        example: "0"
+        type: string
+      post_id:
+        example: "0"
+        type: string
+      reply_count:
+        type: integer
+      reply_to_avatar:
+        description: 被回复人头像
+        type: string
+      reply_to_name:
+        description: 被回复人用户名
+        type: string
+      reply_to_uid:
+        description: 被回复人ID
+        example: "0"
+        type: string
+      vote_num:
+        type: integer
+    type: object
+  models.ApiCommentListRes:
+    properties:
+      list:
+        description: 评论列表
+        items:
+          $ref: '#/definitions/models.ApiCommentDetail'
+        type: array
+      page:
+        allOf:
+        - $ref: '#/definitions/models.Page'
+        description: 分页信息
+    type: object
   models.ApiPostDetail:
     properties:
       author_avatar:
@@ -111,6 +193,8 @@ definitions:
         type: integer
       title:
         type: string
+      update_time:
+        type: string
       vote_num:
         description: 投票数量
         type: integer
@@ -132,6 +216,38 @@ definitions:
       status:
         type: integer
     type: object
+  models.Page:
+    properties:
+      page:
+        description: 页码
+        type: integer
+      size:
+        description: 每页数量
+        type: integer
+      total:
+        description: 总数
+        type: integer
+    type: object
+  models.ParamComment:
+    properties:
+      content:
+        description: 内容
+        maxLength: 1000
+        minLength: 1
+        type: string
+      parent_id:
+        description: 父评论id（0表示创建评论，非0表示创建回复）
+        type: integer
+      post_id:
+        description: 帖子id
+        type: integer
+      reply_to_uid:
+        description: 被回复人的用户id（parent_id不为0时必填）
+        type: integer
+    required:
+    - content
+    - post_id
+    type: object
   models.ParamPost:
     properties:
       community_id:
@@ -147,6 +263,18 @@ definitions:
     - community_id
     - content
     - title
+    type: object
+  models.ParamUpdateComment:
+    properties:
+      comment_id:
+        description: 评论id
+        type: integer
+      content:
+        description: 评论内容
+        type: string
+    required:
+    - comment_id
+    - content
     type: object
   models.ParamUpdatePost:
     properties:
@@ -172,6 +300,256 @@ info:
   title: go_community backend
   version: "1.0"
 paths:
+  /comment:
+    post:
+      consumes:
+      - application/json
+      description: 创建评论或回复评论
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 评论信息
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamComment'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1006":
+          description: 无效的Token
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 创建评论/回复
+      tags:
+      - 评论相关接口
+    put:
+      consumes:
+      - application/json
+      description: 更新评论内容
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 更新评论信息
+        in: body
+        name: comment
+        required: true
+        schema:
+          $ref: '#/definitions/models.ParamUpdateComment'
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1011":
+          description: 无操作权限
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 更新评论
+      tags:
+      - 评论相关接口
+  /comment/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定评论
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1011":
+          description: 无操作权限
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 删除评论
+      tags:
+      - 评论相关接口
+    get:
+      consumes:
+      - application/json
+      description: 获取评论的详细信息
+      parameters:
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller._ResponseCommentDetail'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 获取评论详情
+      tags:
+      - 评论相关接口
+  /comments:
+    get:
+      consumes:
+      - application/json
+      description: 获取帖子评论或评论回复列表
+      parameters:
+      - description: 帖子ID(获取帖子评论时必填)
+        in: query
+        name: post_id
+        type: integer
+      - description: 评论ID(获取评论回复时必填)
+        in: query
+        name: comment_id
+        type: integer
+      - default: 1
+        description: 页码
+        in: query
+        minimum: 1
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        maximum: 100
+        minimum: 1
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller._ResponseCommentList'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      summary: 获取评论列表
+      tags:
+      - 评论相关接口
+  /comments/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除指定评论及其所有回复
+      parameters:
+      - description: Bearer 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 评论ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "1000":
+          description: ""
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1001":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1005":
+          description: 服务繁忙
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1008":
+          description: 未登录
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+        "1011":
+          description: 无操作权限
+          schema:
+            $ref: '#/definitions/controller.ResponseData'
+      security:
+      - Bearer: []
+      summary: 删除评论及其回复
+      tags:
+      - 评论相关接口
   /post:
     post:
       consumes:
@@ -420,7 +798,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: 按时间或分数排序查询帖子列表接口
+      description: 分页获取帖子列表（按帖子的创建时间或者分数排序）
       parameters:
       - description: 可以为空
         in: query
@@ -485,10 +863,4 @@ paths:
       summary: 搜索帖子
       tags:
       - 帖子相关接口
-securityDefinitions:
-  Bearer:
-    description: 在值的前面添加 Bearer，并带上空格。例如：Bearer your_token_here
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

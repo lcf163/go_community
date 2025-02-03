@@ -16,6 +16,388 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/comment": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "更新评论内容",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论相关接口"
+                ],
+                "summary": "更新评论",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "更新评论信息",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ParamUpdateComment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1000": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1005": {
+                        "description": "服务繁忙",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1008": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1011": {
+                        "description": "无操作权限",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "创建评论或回复评论",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论相关接口"
+                ],
+                "summary": "创建评论/回复",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "评论信息",
+                        "name": "comment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.ParamComment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "1000": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1005": {
+                        "description": "服务繁忙",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1006": {
+                        "description": "无效的Token",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1008": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/comment/{id}": {
+            "get": {
+                "description": "获取评论的详细信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论相关接口"
+                ],
+                "summary": "获取评论详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "评论ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1000": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponseCommentDetail"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1005": {
+                        "description": "服务繁忙",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除指定评论",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论相关接口"
+                ],
+                "summary": "删除评论",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "评论ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1000": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1005": {
+                        "description": "服务繁忙",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1008": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1011": {
+                        "description": "无操作权限",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/comments": {
+            "get": {
+                "description": "获取帖子评论或评论回复列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论相关接口"
+                ],
+                "summary": "获取评论列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "帖子ID(获取帖子评论时必填)",
+                        "name": "post_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "评论ID(获取评论回复时必填)",
+                        "name": "comment_id",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 1,
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "size",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "1000": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/controller._ResponseCommentList"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1005": {
+                        "description": "服务繁忙",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    }
+                }
+            }
+        },
+        "/comments/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "删除指定评论及其所有回复",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "评论相关接口"
+                ],
+                "summary": "删除评论及其回复",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "评论ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "1000": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1001": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1005": {
+                        "description": "服务繁忙",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1008": {
+                        "description": "未登录",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    },
+                    "1011": {
+                        "description": "无操作权限",
+                        "schema": {
+                            "$ref": "#/definitions/controller.ResponseData"
+                        }
+                    }
+                }
+            }
+        },
         "/post": {
             "put": {
                 "security": [
@@ -387,7 +769,7 @@ const docTemplate = `{
         },
         "/posts2": {
             "get": {
-                "description": "按时间或分数排序查询帖子列表接口",
+                "description": "分页获取帖子列表（按帖子的创建时间或者分数排序）",
                 "consumes": [
                     "application/json"
                 ],
@@ -547,6 +929,60 @@ const docTemplate = `{
                 "message": {}
             }
         },
+        "controller._ResponseCommentDetail": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务响应状态码",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controller.MyCode"
+                        }
+                    ],
+                    "example": 1000
+                },
+                "data": {
+                    "description": "评论详情数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ApiCommentDetail"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "提示信息",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
+        "controller._ResponseCommentList": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "description": "业务响应状态码",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/controller.MyCode"
+                        }
+                    ],
+                    "example": 1000
+                },
+                "data": {
+                    "description": "评论列表数据",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.ApiCommentListRes"
+                        }
+                    ]
+                },
+                "message": {
+                    "description": "提示信息",
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        },
         "controller._ResponsePostDetail": {
             "type": "object",
             "properties": {
@@ -600,6 +1036,79 @@ const docTemplate = `{
                 }
             }
         },
+        "models.ApiCommentDetail": {
+            "type": "object",
+            "properties": {
+                "author_avatar": {
+                    "description": "评论作者头像",
+                    "type": "string"
+                },
+                "author_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "author_name": {
+                    "type": "string"
+                },
+                "comment_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "parent_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "post_id": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "reply_count": {
+                    "type": "integer"
+                },
+                "reply_to_avatar": {
+                    "description": "被回复人头像",
+                    "type": "string"
+                },
+                "reply_to_name": {
+                    "description": "被回复人用户名",
+                    "type": "string"
+                },
+                "reply_to_uid": {
+                    "description": "被回复人ID",
+                    "type": "string",
+                    "example": "0"
+                },
+                "vote_num": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.ApiCommentListRes": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "评论列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ApiCommentDetail"
+                    }
+                },
+                "page": {
+                    "description": "分页信息",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.Page"
+                        }
+                    ]
+                }
+            }
+        },
         "models.ApiPostDetail": {
             "type": "object",
             "required": [
@@ -650,6 +1159,9 @@ const docTemplate = `{
                 "title": {
                     "type": "string"
                 },
+                "update_time": {
+                    "type": "string"
+                },
                 "vote_num": {
                     "description": "投票数量",
                     "type": "integer"
@@ -676,6 +1188,50 @@ const docTemplate = `{
                 }
             }
         },
+        "models.Page": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "description": "页码",
+                    "type": "integer"
+                },
+                "size": {
+                    "description": "每页数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        },
+        "models.ParamComment": {
+            "type": "object",
+            "required": [
+                "content",
+                "post_id"
+            ],
+            "properties": {
+                "content": {
+                    "description": "内容",
+                    "type": "string",
+                    "maxLength": 1000,
+                    "minLength": 1
+                },
+                "parent_id": {
+                    "description": "父评论id（0表示创建评论，非0表示创建回复）",
+                    "type": "integer"
+                },
+                "post_id": {
+                    "description": "帖子id",
+                    "type": "integer"
+                },
+                "reply_to_uid": {
+                    "description": "被回复人的用户id（parent_id不为0时必填）",
+                    "type": "integer"
+                }
+            }
+        },
         "models.ParamPost": {
             "type": "object",
             "required": [
@@ -694,6 +1250,23 @@ const docTemplate = `{
                 },
                 "title": {
                     "description": "标题",
+                    "type": "string"
+                }
+            }
+        },
+        "models.ParamUpdateComment": {
+            "type": "object",
+            "required": [
+                "comment_id",
+                "content"
+            ],
+            "properties": {
+                "comment_id": {
+                    "description": "评论id",
+                    "type": "integer"
+                },
+                "content": {
+                    "description": "评论内容",
                     "type": "string"
                 }
             }
@@ -719,14 +1292,6 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "Bearer": {
-            "description": "在值的前面添加 Bearer，并带上空格。例如：Bearer your_token_here",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
         }
     }
 }`

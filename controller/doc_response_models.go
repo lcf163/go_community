@@ -18,3 +18,17 @@ type _ResponsePostDetail struct {
 	Message string                `json:"message" example:"success"` // 提示信息
 	Data    *models.ApiPostDetail `json:"data"`                      // 帖子详情数据
 }
+
+// _ResponseCommentList 评论列表响应
+type _ResponseCommentList struct {
+	Code    MyCode                    `json:"code" example:"1000"`       // 业务响应状态码
+	Message string                    `json:"message" example:"success"` // 提示信息
+	Data    *models.ApiCommentListRes `json:"data"`                      // 评论列表数据
+}
+
+// _ResponseCommentDetail 评论详情响应
+type _ResponseCommentDetail struct {
+	Code    MyCode                   `json:"code" example:"1000"`       // 业务响应状态码
+	Message string                   `json:"message" example:"success"` // 提示信息
+	Data    *models.ApiCommentDetail `json:"data"`                      // 评论详情数据
+}

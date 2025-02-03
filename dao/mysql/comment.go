@@ -65,7 +65,7 @@ func GetCommentCount(postId int64) (count int64, err error) {
 
 // GetCommentList 获取帖子的评论列表(分页)
 func GetCommentList(postId int64, page, size int64) ([]*models.Comment, error) {
-	sqlStr := `select id, comment_id, parent_id, post_id, author_id, content, create_time
+	sqlStr := `select comment_id, parent_id, post_id, author_id, content, create_time
 	from comment 
 	where post_id = ? and parent_id = 0 and status = 1 
 	order by create_time desc
@@ -86,7 +86,7 @@ func GetCommentReplyCount(commentId int64) (int64, error) {
 
 // GetCommentReplyList 获取评论的回复列表
 func GetCommentReplyList(commentId int64) ([]*models.Comment, error) {
-	sqlStr := `select id, comment_id, parent_id, post_id, author_id, reply_to_uid, content, status, create_time
+	sqlStr := `select comment_id, parent_id, post_id, author_id, reply_to_uid, content, status, create_time
 	from comment 
 	where parent_id = ? and status = 1 
 	order by create_time desc`

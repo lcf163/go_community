@@ -23,11 +23,6 @@ import (
 // @host localhost:8081
 // @BasePath /api/v1
 
-// @securityDefinitions.apikey Bearer
-// @in header
-// @name Authorization
-// @description 在值的前面添加 Bearer，并带上空格。例如：Bearer your_token_here
-
 func main() {
 	// 1. 加载配置
 	if err := settings.Init(); err != nil {

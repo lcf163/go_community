@@ -10,7 +10,21 @@ import (
 	"go.uber.org/zap"
 )
 
-// CreateCommentHandler 创建评论/回复
+// CreateCommentHandler
+// @Summary 创建评论/回复
+// @Description 创建评论或回复评论
+// @Tags 评论相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param comment body models.ParamComment true "评论信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1006 {object} ResponseData "无效的Token"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /comment [post]
 func CreateCommentHandler(c *gin.Context) {
 	// 参数校验
 	p := new(models.ParamComment)
@@ -49,7 +63,21 @@ func CreateCommentHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-// UpdateCommentHandler 更新评论
+// UpdateCommentHandler
+// @Summary 更新评论
+// @Description 更新评论内容
+// @Tags 评论相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param comment body models.ParamUpdateComment true "更新评论信息"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1011 {object} ResponseData "无操作权限"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /comment [put]
 func UpdateCommentHandler(c *gin.Context) {
 	// 参数校验
 	p := new(models.ParamUpdateComment)
@@ -87,7 +115,20 @@ func UpdateCommentHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-// GetCommentListHandler 获取评论列表（支持获取帖子评论和评论回复）
+// GetCommentListHandler
+// @Summary 获取评论列表
+// @Description 获取帖子评论或评论回复列表
+// @Tags 评论相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param post_id query int false "帖子ID(获取帖子评论时必填)"
+// @Param comment_id query int false "评论ID(获取评论回复时必填)"
+// @Param page query int false "页码" minimum(1) default(1)
+// @Param size query int false "每页数量" minimum(1) maximum(100) default(10)
+// @Success 1000 {object} _ResponseCommentList
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /comments [get]
 func GetCommentListHandler(c *gin.Context) {
 	// 获取参数
 	p := &models.ParamCommentList{}
@@ -121,7 +162,17 @@ func GetCommentListHandler(c *gin.Context) {
 	ResponseSuccess(c, data)
 }
 
-// GetCommentDetailHandler 获取单个评论详情
+// GetCommentDetailHandler
+// @Summary 获取评论详情
+// @Description 获取评论的详细信息
+// @Tags 评论相关接口
+// @Accept application/json
+// @Produce application/json
+// @Param id path int true "评论ID"
+// @Success 1000 {object} _ResponseCommentDetail
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /comment/{id} [get]
 func GetCommentDetailHandler(c *gin.Context) {
 	// 获取评论ID参数
 	commentIDStr := c.Param("id")
@@ -148,7 +199,21 @@ func GetCommentDetailHandler(c *gin.Context) {
 	ResponseSuccess(c, data)
 }
 
-// DeleteCommentHandler 删除评论
+// DeleteCommentHandler
+// @Summary 删除评论
+// @Description 删除指定评论
+// @Tags 评论相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id path int true "评论ID"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1011 {object} ResponseData "无操作权限"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /comment/{id} [delete]
 func DeleteCommentHandler(c *gin.Context) {
 	// 1. 获取评论ID
 	commentIDStr := c.Param("id")
@@ -188,7 +253,21 @@ func DeleteCommentHandler(c *gin.Context) {
 	ResponseSuccess(c, nil)
 }
 
-// DeleteCommentWithRepliesHandler 删除评论及其所有回复
+// DeleteCommentWithRepliesHandler
+// @Summary 删除评论及其回复
+// @Description 删除指定评论及其所有回复
+// @Tags 评论相关接口
+// @Accept application/json
+// @Produce application/json
+// @Security Bearer
+// @Param Authorization header string true "Bearer 用户令牌"
+// @Param id path int true "评论ID"
+// @Success 1000 {object} ResponseData
+// @Failure 1001 {object} ResponseData "参数错误"
+// @Failure 1008 {object} ResponseData "未登录"
+// @Failure 1011 {object} ResponseData "无操作权限"
+// @Failure 1005 {object} ResponseData "服务繁忙"
+// @Router /comments/{id} [delete]
 func DeleteCommentWithRepliesHandler(c *gin.Context) {
 	// 1. 获取评论ID
 	commentIDStr := c.Param("id")
