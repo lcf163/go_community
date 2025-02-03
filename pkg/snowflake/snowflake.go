@@ -19,8 +19,8 @@ func Init(startTime string, machineId int64) (err error) {
 
 	// 标准雪花算法的分配：
 	// 1位符号位 + 41位时间戳 + 10位机器ID + 12位序列号 = 64位
-	// sf.NodeBits = uint8(10)
-	// sf.StepBits = uint8(12)
+	sf.NodeBits = uint8(10)
+	sf.StepBits = uint8(12)
 
 	// 修改雪花算法的位数分配:
 	// 1位符号位 + 41位时间戳 + 5位机器ID + 6位序列号 = 53位
