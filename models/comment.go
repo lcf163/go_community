@@ -4,7 +4,6 @@ import "time"
 
 // Comment 评论模型
 type Comment struct {
-	Id         int64     `json:"id,string" db:"id"`
 	CommentId  int64     `json:"comment_id,string" db:"comment_id"`
 	ParentId   int64     `json:"parent_id,string" db:"parent_id"` // 父评论id，如果是0表示是一级评论
 	PostId     int64     `json:"post_id,string" db:"post_id"`

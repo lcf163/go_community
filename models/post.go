@@ -15,7 +15,7 @@ type Post struct {
 	Content     string    `json:"content" db:"content" binding:"required"`
 	Status      int8      `json:"status" db:"status"`
 	CreateTime  time.Time `json:"create_time" db:"create_time"`
-	UpdateTime  time.Time `json:"-" db:"update_time"`
+	UpdateTime  time.Time `json:"update_time" db:"update_time"`
 }
 
 // UnmarshalJSON 为POST类型实现自定义的 UnmarshalJSON 方法
