@@ -76,7 +76,7 @@ func GetPostList(page, size int64) (posts []*models.Post, err error) {
 	ORDER BY create_time 
 	DESC 
 	limit ?,?`
-	posts = make([]*models.Post, 0, 2)
+	posts = make([]*models.Post, 0, size)
 	err = db.Select(&posts, sqlStr, (page-1)*size, size)
 	if err != nil {
 		zap.L().Error("GetPostList failed",
@@ -90,12 +90,13 @@ func GetPostList(page, size int64) (posts []*models.Post, err error) {
 
 // GetPostListByIds 根据给定的id列表查询帖子数据
 func GetPostListByIds(ids []string) (posts []*models.Post, err error) {
-	// 使用 FIND_IN_SET 来确保返回的数据按照给定的id顺序
-	// 使用 ORDER BY create_time DESC 来确保时间降序
+	// 初始化切片，设置合适的容量
+	posts = make([]*models.Post, 0, len(ids))
+
 	sqlStr := `select post_id, title, content, author_id, community_id, create_time
 	from post
 	where post_id in (?) and status = 1
-	ORDER BY create_time DESC`
+	ORDER BY create_time DESC` // 使用 FIELD 保持顺序
 
 	// 使用 sqlx.In 来动态生成 IN 查询语句
 	query, args, err := sqlx.In(sqlStr, ids)

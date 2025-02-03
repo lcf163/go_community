@@ -113,3 +113,19 @@ func DeletePostData(postID string, commentIDs []string) error {
 	_, err := pipeline.Exec()
 	return err
 }
+
+// RemoveInvalidPostIds 从 Redis 中删除无效的帖子 ID
+func RemoveInvalidPostIds(ids []string) error {
+	pipeline := client.Pipeline()
+
+	// 从时间排序集合中删除
+	timeKey := getRedisKey(KeyPostTimeZSet)
+	pipeline.ZRem(timeKey, ids)
+
+	// 从分数排序集合中删除
+	scoreKey := getRedisKey(KeyPostScoreZSet)
+	pipeline.ZRem(scoreKey, ids)
+
+	_, err := pipeline.Exec()
+	return err
+}

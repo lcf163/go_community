@@ -151,7 +151,6 @@ func GetPostList2(p *models.ParamPostList) (data *models.ApiPostDetailRes, err e
 		zap.L().Warn("redis.GetPostIdInOrder(p), return data is empty")
 		return data, nil
 	}
-	zap.L().Debug("GetPostList2", zap.Any("ids: ", ids))
 
 	// 根据 Id 在数据库 mysql 中查询帖子详细信息
 	// 返回的数据需要按照给定的 id 的顺序，order by FIND_IN_SET(post_id, ?)
@@ -159,7 +158,41 @@ func GetPostList2(p *models.ParamPostList) (data *models.ApiPostDetailRes, err e
 	if err != nil {
 		return nil, err
 	}
-	zap.L().Debug("GetPostList2", zap.Any("posts: ", posts))
+
+	// 添加数据一致性检查
+	// if len(posts) != len(ids) {
+	// 	zap.L().Warn("data inconsistency between Redis and MySQL",
+	// 		zap.Int("redis_count", len(ids)),
+	// 		zap.Int("mysql_count", len(posts)),
+	// 		zap.Strings("redis_ids", ids))
+
+	// 	// 找出在 MySQL 中不存在的 ID
+	// 	existingIds := make(map[string]bool)
+	// 	for _, post := range posts {
+	// 		existingIds[strconv.FormatInt(post.PostId, 10)] = true
+	// 	}
+
+	// 	var invalidIds []string
+	// 	for _, id := range ids {
+	// 		if !existingIds[id] {
+	// 			invalidIds = append(invalidIds, id)
+	// 		}
+	// 	}
+
+	// 	// 异步清理 Redis 中的无效数据
+	// 	if len(invalidIds) > 0 {
+	// 		go func() {
+	// 			if err := redis.RemoveInvalidPostIds(invalidIds); err != nil {
+	// 				zap.L().Error("failed to remove invalid post ids from redis",
+	// 					zap.Error(err),
+	// 					zap.Strings("invalid_ids", invalidIds))
+	// 			} else {
+	// 				zap.L().Info("successfully removed invalid post ids from redis",
+	// 					zap.Strings("invalid_ids", invalidIds))
+	// 			}
+	// 		}()
+	// 	}
+	// }
 
 	// 提前查询好每篇帖子的投票数
 	voteData, err := redis.GetPostVoteData(ids)
