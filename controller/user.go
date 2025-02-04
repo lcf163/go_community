@@ -103,7 +103,7 @@ func LoginHandler(c *gin.Context) {
 	}
 	// 3.返回响应
 	ResponseSuccess(c, gin.H{
-		"user_id":       fmt.Sprintf("%d", user.UserId), // JS 的数字小于 1<<53 -1，int64: 1<<63 -1
+		"user_id":       fmt.Sprintf("%d", user.UserID), // JS 的数字小于 1<<53-1，int64: 1<<63-1
 		"user_name":     user.UserName,
 		"access_token":  user.AccessToken,
 		"refresh_token": user.RefreshToken,
@@ -162,17 +162,17 @@ func RefreshTokenHandler(c *gin.Context) {
 func GetUserInfoHandler(c *gin.Context) {
 	// 获取用户ID参数
 	userIdStr := c.Param("id")
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	UserID, err := strconv.ParseInt(userIdStr, 10, 64)
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
 
 	// 获取用户信息
-	user, err := logic.GetUserInfo(userId)
+	user, err := logic.GetUserInfo(UserID)
 	if err != nil {
 		zap.L().Error("logic.GetUserInfo failed",
-			zap.Int64("user_id", userId),
+			zap.Int64("user_id", UserID),
 			zap.Error(err))
 		if err == mysql.ErrorUserNotExist {
 			ResponseError(c, CodeUserNotExist)
@@ -183,7 +183,7 @@ func GetUserInfoHandler(c *gin.Context) {
 	}
 
 	ResponseSuccess(c, gin.H{
-		"user_id":  fmt.Sprintf("%d", user.UserId),
+		"user_id":  fmt.Sprintf("%d", user.UserID),
 		"username": user.UserName,
 		"avatar":   user.GetAvatarURL(),
 	})

@@ -46,7 +46,7 @@ func InsertUser(user *models.User) (err error) {
 	user.Status = 1
 	// 执行 SQL 语句入库
 	sqlStr := `insert into user(user_id, username, password, avatar, status) values (?,?,?,?,?)`
-	_, err = db.Exec(sqlStr, user.UserId, user.UserName, user.Password, user.Avatar, user.Status)
+	_, err = db.Exec(sqlStr, user.UserID, user.UserName, user.Password, user.Avatar, user.Status)
 	return
 }
 
@@ -83,9 +83,9 @@ func GetUserById(id int64) (user *models.User, err error) {
 }
 
 // UpdateUserAvatar 更新用户头像
-func UpdateUserAvatar(userId int64, avatarPath string) error {
+func UpdateUserAvatar(UserID int64, avatarPath string) error {
 	sqlStr := `update user set avatar = ? where user_id = ? and status = 1`
-	result, err := db.Exec(sqlStr, avatarPath, userId)
+	result, err := db.Exec(sqlStr, avatarPath, UserID)
 	if err != nil {
 		return err
 	}
@@ -100,7 +100,7 @@ func UpdateUserAvatar(userId int64, avatarPath string) error {
 }
 
 // UpdateUserName 更新用户名
-func UpdateUserName(userId int64, p *models.ParamUpdateUser) error {
+func UpdateUserName(UserID int64, p *models.ParamUpdateUser) error {
 	// 构建更新语句
 	var updates []string
 	var args []interface{}
@@ -118,7 +118,7 @@ func UpdateUserName(userId int64, p *models.ParamUpdateUser) error {
 	// 构建SQL语句，添加 status = 1 检查
 	sqlStr := fmt.Sprintf("update user set %s where user_id = ? and status = 1",
 		strings.Join(updates, ", "))
-	args = append(args, userId)
+	args = append(args, UserID)
 
 	// 执行更新
 	result, err := db.Exec(sqlStr, args...)
@@ -136,10 +136,10 @@ func UpdateUserName(userId int64, p *models.ParamUpdateUser) error {
 }
 
 // CheckPassword 检查密码是否正确
-func CheckPassword(userId int64, password string) error {
+func CheckPassword(UserID int64, password string) error {
 	sqlStr := `select password from user where user_id = ? and status = 1`
 	var hashedPassword string
-	if err := db.Get(&hashedPassword, sqlStr, userId); err != nil {
+	if err := db.Get(&hashedPassword, sqlStr, UserID); err != nil {
 		if err == sql.ErrNoRows {
 			return ErrorUserNotExist
 		}
@@ -154,9 +154,9 @@ func CheckPassword(userId int64, password string) error {
 }
 
 // UpdatePassword 更新密码
-func UpdatePassword(userId int64, newPassword string) error {
+func UpdatePassword(UserID int64, newPassword string) error {
 	sqlStr := `update user set password = ? where user_id = ? and status = 1`
-	result, err := db.Exec(sqlStr, encryptPassword([]byte(newPassword)), userId)
+	result, err := db.Exec(sqlStr, encryptPassword([]byte(newPassword)), UserID)
 	if err != nil {
 		return err
 	}
