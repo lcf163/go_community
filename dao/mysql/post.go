@@ -38,8 +38,8 @@ func CreatePost(post *models.Post) (err error) {
 	sqlStr := `insert into post(
 	post_id, title, content, author_id, community_id, status)
 	values(?,?,?,?,?,?)`
-	_, err = db.Exec(sqlStr, post.PostId, post.Title,
-		post.Content, post.AuthorId, post.CommunityId, post.Status)
+	_, err = db.Exec(sqlStr, post.PostID, post.Title,
+		post.Content, post.AuthorID, post.CommunityID, post.Status)
 	if err != nil {
 		zap.L().Error("CreatePost failed",
 			zap.String("sql", sqlStr),

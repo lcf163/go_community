@@ -8,9 +8,9 @@ import (
 
 // Post 帖子模型（注意内存对齐）
 type Post struct {
-	PostId      int64     `json:"post_id,string" db:"post_id"`
-	AuthorId    int64     `json:"author_id" db:"author_id"`
-	CommunityId int64     `json:"community_id" db:"community_id" binding:"required"`
+	PostID      int64     `json:"post_id,string" db:"post_id"`
+	AuthorID    int64     `json:"author_id" db:"author_id"`
+	CommunityID int64     `json:"community_id" db:"community_id" binding:"required"`
 	Title       string    `json:"title" db:"title" binding:"required"`
 	Content     string    `json:"content" db:"content" binding:"required"`
 	Status      int8      `json:"status" db:"status"`
@@ -23,7 +23,7 @@ func (p *Post) UnmarshalJSON(data []byte) (err error) {
 	required := struct {
 		Title       string `json:"title" db:"title"`
 		Content     string `json:"content" db:"content"`
-		CommunityId int64  `json:"community_id" db:"community_id"`
+		CommunityID int64  `json:"community_id" db:"community_id"`
 	}{}
 	err = json.Unmarshal(data, &required)
 	if err != nil {
@@ -32,12 +32,12 @@ func (p *Post) UnmarshalJSON(data []byte) (err error) {
 		err = errors.New("帖子标题不能为空")
 	} else if len(required.Content) == 0 {
 		err = errors.New("帖子内容不能为空")
-	} else if required.CommunityId == 0 {
+	} else if required.CommunityID == 0 {
 		err = errors.New("未指定版块")
 	} else {
 		p.Title = required.Title
 		p.Content = required.Content
-		p.CommunityId = required.CommunityId
+		p.CommunityID = required.CommunityID
 	}
 	return
 }

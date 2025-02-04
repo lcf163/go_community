@@ -77,9 +77,9 @@ func GetCommunityPostIdsInOrder(p *models.ParamPostList) ([]string, error) {
 	// 针对新的 zset，按之前的逻辑取数据
 	// 利用缓存 key 减少 zinterstore 执行的次数
 	// 社区的 key
-	communityKey := getRedisKey(KeyCommunityPostSetPrefix + strconv.Itoa(int(p.CommunityId)))
+	communityKey := getRedisKey(KeyCommunityPostSetPrefix + strconv.Itoa(int(p.CommunityID)))
 	// 缓存的 key
-	key := orderKey + strconv.Itoa(int(p.CommunityId))
+	key := orderKey + strconv.Itoa(int(p.CommunityID))
 	if client.Exists(key).Val() < 1 {
 		// 不存在，需要计算
 		pipeline := client.Pipeline()

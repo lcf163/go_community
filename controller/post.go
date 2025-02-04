@@ -42,7 +42,7 @@ func CreatePostHandler(c *gin.Context) {
 		ResponseError(c, CodeNotLogin)
 		return
 	}
-	p.AuthorId = userID
+	p.AuthorID = userID
 	// 2.创建帖子
 	if err := logic.CreatePost(p); err != nil {
 		zap.L().Error("logic.CreatePost failed", zap.Error(err))
@@ -66,14 +66,14 @@ func CreatePostHandler(c *gin.Context) {
 // @Router /post/{id} [get]
 func PostDetailHandler(c *gin.Context) {
 	// 1.获取参数（URL中获取帖子ID）
-	postIdStr := c.Param("id")
-	postId, err := strconv.ParseInt(postIdStr, 10, 64)
+	postIDStr := c.Param("id")
+	postID, err := strconv.ParseInt(postIDStr, 10, 64)
 	if err != nil {
 		zap.L().Error("PostDetailHandler with invalid param", zap.Error(err))
 		ResponseError(c, CodeInvalidParams)
 	}
 	// 2.根据ID取出帖子数据（查数据库）
-	post, err := logic.GetPostById(postId)
+	post, err := logic.GetPostById(postID)
 	if err != nil {
 		zap.L().Error("logic.GetPostById failed", zap.Error(err))
 		ResponseError(c, CodeServerBusy)
@@ -234,8 +234,8 @@ func UpdatePostHandler(c *gin.Context) {
 // @Router /posts/user/{id} [get]
 func GetUserPostListHandler(c *gin.Context) {
 	// 获取用户ID参数
-	userIdStr := c.Param("id")
-	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
 		return
@@ -245,10 +245,10 @@ func GetUserPostListHandler(c *gin.Context) {
 	page, size := getPageInfo(c)
 
 	// 获取数据
-	data, err := logic.GetUserPostList(userId, page, size)
+	data, err := logic.GetUserPostList(userID, page, size)
 	if err != nil {
 		zap.L().Error("logic.GetUserPostList failed",
-			zap.Int64("user_id", userId),
+			zap.Int64("user_id", userID),
 			zap.Error(err))
 		ResponseError(c, CodeServerBusy)
 		return

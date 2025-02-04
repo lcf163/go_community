@@ -83,15 +83,15 @@ func CommunityHandler2(c *gin.Context) {
 // @Router /community/{id} [get]
 func CommunityDetailHandler(c *gin.Context) {
 	// 1.获取社区ID
-	communityIdStr := c.Param("id")
-	communityId, err := strconv.ParseInt(communityIdStr, 10, 64)
+	communityIDStr := c.Param("id")
+	communityID, err := strconv.ParseInt(communityIDStr, 10, 64)
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
 
 	// 2.根据ID获取社区详情
-	communityList, err := logic.GetCommunityDetailById(communityId)
+	communityList, err := logic.GetCommunityDetailById(communityID)
 	if err != nil {
 		zap.L().Error("logic.GetCommunityDetailById failed", zap.Error(err))
 		if err == mysql.ErrorInvalidID {
@@ -177,8 +177,8 @@ func UpdateCommunityHandler(c *gin.Context) {
 	}
 
 	// 获取社区ID
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	communityIDStr := c.Param("id")
+	communityID, err := strconv.ParseInt(communityIDStr, 10, 64)
 	if err != nil {
 		ResponseErrorWithMsg(c, CodeInvalidParams, "无效的社区ID")
 		return
@@ -194,9 +194,9 @@ func UpdateCommunityHandler(c *gin.Context) {
 	}
 
 	// 更新社区信息
-	if err := logic.UpdateCommunity(userID, id, p.Name, p.Introduction); err != nil {
+	if err := logic.UpdateCommunity(userID, communityID, p.Name, p.Introduction); err != nil {
 		zap.L().Error("logic.UpdateCommunity failed",
-			zap.Int64("id", id),
+			zap.Int64("communityID", communityID),
 			zap.Any("params", p),
 			zap.Error(err))
 		if err.Error() == "社区名称已存在" {
@@ -238,17 +238,17 @@ func DeleteCommunityHandler(c *gin.Context) {
 	}
 
 	// 获取社区ID
-	idStr := c.Param("id")
-	id, err := strconv.ParseInt(idStr, 10, 64)
+	communityIDStr := c.Param("id")
+	communityID, err := strconv.ParseInt(communityIDStr, 10, 64)
 	if err != nil {
 		ResponseErrorWithMsg(c, CodeInvalidParams, "无效的社区ID")
 		return
 	}
 
 	// 2. 删除社区
-	if err := logic.DeleteCommunity(userID, id); err != nil {
+	if err := logic.DeleteCommunity(userID, communityID); err != nil {
 		zap.L().Error("logic.DeleteCommunity failed",
-			zap.Int64("id", id),
+			zap.Int64("communityID", communityID),
 			zap.Error(err))
 		if err == mysql.ErrorInvalidID {
 			ResponseError(c, CodeCommunityNotExist)

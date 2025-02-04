@@ -6,14 +6,14 @@ import (
 
 // Community 社区列表模型
 type Community struct {
-	CommunityId   int64  `json:"community_id" db:"community_id"`
+	CommunityID   int64  `json:"community_id" db:"community_id"`
 	CommunityName string `json:"community_name" db:"community_name"`
 	Status        int8   `json:"status" db:"status"`
 }
 
 // CommunityDetail 社区详情模型
 type CommunityDetail struct {
-	CommunityId   int64     `json:"community_id" db:"community_id"`
+	CommunityID   int64     `json:"community_id" db:"community_id"`
 	CommunityName string    `json:"community_name" db:"community_name"`
 	Introduction  string    `json:"introduction,omitempty" db:"introduction"`
 	Status        int8      `json:"status" db:"status"`

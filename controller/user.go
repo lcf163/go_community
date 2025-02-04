@@ -161,18 +161,18 @@ func RefreshTokenHandler(c *gin.Context) {
 // @Router /user/{id} [get]
 func GetUserInfoHandler(c *gin.Context) {
 	// 获取用户ID参数
-	userIdStr := c.Param("id")
-	UserID, err := strconv.ParseInt(userIdStr, 10, 64)
+	userIDStr := c.Param("id")
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
 	if err != nil {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
 
 	// 获取用户信息
-	user, err := logic.GetUserInfo(UserID)
+	user, err := logic.GetUserInfo(userID)
 	if err != nil {
 		zap.L().Error("logic.GetUserInfo failed",
-			zap.Int64("user_id", UserID),
+			zap.Int64("user_id", userID),
 			zap.Error(err))
 		if err == mysql.ErrorUserNotExist {
 			ResponseError(c, CodeUserNotExist)

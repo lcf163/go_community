@@ -18,11 +18,11 @@ func CreateComment(comment *models.Comment) (err error) {
 	) values(?,?,?,?,?,?,?)`
 
 	_, err = db.Exec(sqlStr,
-		comment.CommentId,
-		comment.ParentId,
-		comment.PostId,
-		comment.AuthorId,
-		comment.ReplyToUid,
+		comment.CommentID,
+		comment.ParentID,
+		comment.PostID,
+		comment.AuthorID,
+		comment.ReplyToUID,
 		comment.Content,
 		comment.Status)
 

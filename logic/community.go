@@ -20,14 +20,14 @@ func GetCommunityList2(p *models.ParamPage) (*models.ApiCommunityDetailRes, erro
 	// 获取总数
 	total, err := mysql.GetCommunityTotalCount()
 	if err != nil {
-		zap.L().Error("mysql.GetCommunityTotalCount failed", zap.Error(err))
+		zap.L().Error("mysql.GetCommunityTotalCount() failed", zap.Error(err))
 		return nil, err
 	}
 
 	// 获取分页数据
 	communities, err := mysql.GetCommunityList2(p)
 	if err != nil {
-		zap.L().Error("mysql.GetCommunityList failed",
+		zap.L().Error("mysql.GetCommunityList2(p) failed",
 			zap.Error(err),
 			zap.Any("params", p))
 		return nil, err
@@ -47,8 +47,8 @@ func GetCommunityList2(p *models.ParamPage) (*models.ApiCommunityDetailRes, erro
 }
 
 // GetCommunityDetailById 根据ID查询社区详情
-func GetCommunityDetailById(id int64) (*models.CommunityDetail, error) {
-	return mysql.GetCommunityDetailById(id)
+func GetCommunityDetailById(communityID int64) (*models.CommunityDetail, error) {
+	return mysql.GetCommunityDetailById(communityID)
 }
 
 // CreateCommunity 创建社区
@@ -56,7 +56,7 @@ func CreateCommunity(userID int64, community *models.CommunityDetail) error {
 	// 检查社区名称是否已存在
 	exists, err := mysql.GetCommunityDetailByName(community.CommunityName)
 	if err != nil && err != mysql.ErrorInvalidID {
-		zap.L().Error("mysql.GetCommunityDetailByName failed",
+		zap.L().Error("mysql.GetCommunityDetailByName(community.CommunityName) failed",
 			zap.String("name", community.CommunityName),
 			zap.Error(err))
 		return err
@@ -66,11 +66,11 @@ func CreateCommunity(userID int64, community *models.CommunityDetail) error {
 	}
 
 	// 生成社区ID
-	community.CommunityId = snowflake.GetID()
+	community.CommunityID = snowflake.GetID()
 
 	// 创建社区
 	if err := mysql.CreateCommunity(community); err != nil {
-		zap.L().Error("mysql.CreateCommunity failed",
+		zap.L().Error("mysql.CreateCommunity(community) failed",
 			zap.Any("community", community),
 			zap.Error(err))
 		return err
@@ -79,24 +79,24 @@ func CreateCommunity(userID int64, community *models.CommunityDetail) error {
 }
 
 // UpdateCommunity 更新社区信息
-func UpdateCommunity(userID int64, id int64, name, introduction string) error {
+func UpdateCommunity(userID, communityID int64, communityName, introduction string) error {
 	// 检查参数
-	if name == "" && introduction == "" {
+	if communityName == "" && introduction == "" {
 		return errors.New("更新的内容不能为空")
 	}
 
 	// 检查社区是否存在
-	existingCommunity, err := mysql.GetCommunityDetailById(id)
+	existingCommunity, err := mysql.GetCommunityDetailById(communityID)
 	if err != nil {
-		zap.L().Error("mysql.GetCommunityDetailById failed",
-			zap.Int64("id", id),
+		zap.L().Error("mysql.GetCommunityDetailById(communityID) failed",
+			zap.Int64("community_id", communityID),
 			zap.Error(err))
 		return err
 	}
 
 	// 如果不修改名称，使用原来的名称
-	if name == "" {
-		name = existingCommunity.CommunityName
+	if communityName == "" {
+		communityName = existingCommunity.CommunityName
 	}
 	// 如果不修改简介，使用原来的简介
 	if introduction == "" {
@@ -104,25 +104,25 @@ func UpdateCommunity(userID int64, id int64, name, introduction string) error {
 	}
 
 	// 如果要修改名称，检查新名称是否已存在
-	if name != existingCommunity.CommunityName {
-		existingCommunity, err := mysql.GetCommunityDetailByName(name)
+	if communityName != existingCommunity.CommunityName {
+		existingCommunity, err := mysql.GetCommunityDetailByName(communityName)
 		if err != nil && err != mysql.ErrorInvalidID {
 			zap.L().Error("mysql.GetCommunityDetailByName failed",
-				zap.String("name", name),
+				zap.String("community_name", communityName),
 				zap.Error(err))
 			return err
 		}
 		// 如果找到同名社区，且不是当前社区
-		if existingCommunity != nil && existingCommunity.CommunityId != id {
+		if existingCommunity != nil && existingCommunity.CommunityID != communityID {
 			return errors.New("社区名称已存在")
 		}
 	}
 
 	// 更新社区信息
-	if err := mysql.UpdateCommunity(id, name, introduction); err != nil {
+	if err := mysql.UpdateCommunity(userID, communityID, communityName, introduction); err != nil {
 		zap.L().Error("mysql.UpdateCommunity failed",
-			zap.Int64("id", id),
-			zap.String("name", name),
+			zap.Int64("community_id", communityID),
+			zap.String("community_name", communityName),
 			zap.String("introduction", introduction),
 			zap.Error(err))
 		return err
@@ -131,21 +131,21 @@ func UpdateCommunity(userID int64, id int64, name, introduction string) error {
 }
 
 // DeleteCommunity 删除社区
-func DeleteCommunity(userID int64, id int64) error {
+func DeleteCommunity(userID int64, communityID int64) error {
 	// 检查社区是否存在
-	_, err := mysql.GetCommunityDetailById(id)
+	_, err := mysql.GetCommunityDetailById(communityID)
 	if err != nil {
-		zap.L().Error("mysql.GetCommunityDetailById failed",
-			zap.Int64("id", id),
+		zap.L().Error("mysql.GetCommunityDetailById(communityID) failed",
+			zap.Int64("community_id", communityID),
 			zap.Error(err))
 		return err
 	}
 
 	// 检查社区下是否有帖子
-	count, err := mysql.GetCommunityPostTotalCount(id)
+	count, err := mysql.GetCommunityPostTotalCount(communityID)
 	if err != nil {
-		zap.L().Error("mysql.GetCommunityPostTotalCount failed",
-			zap.Int64("community_id", id),
+		zap.L().Error("mysql.GetCommunityPostTotalCount(communityID) failed",
+			zap.Int64("community_id", communityID),
 			zap.Error(err))
 		return err
 	}
@@ -154,9 +154,9 @@ func DeleteCommunity(userID int64, id int64) error {
 	}
 
 	// 删除社区
-	if err := mysql.DeleteCommunity(id); err != nil {
-		zap.L().Error("mysql.DeleteCommunity failed",
-			zap.Int64("id", id),
+	if err := mysql.DeleteCommunity(communityID); err != nil {
+		zap.L().Error("mysql.DeleteCommunity(communityID) failed",
+			zap.Int64("community_id", communityID),
 			zap.Error(err))
 		return err
 	}

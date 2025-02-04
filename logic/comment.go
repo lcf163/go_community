@@ -11,11 +11,11 @@ import (
 )
 
 // CreateComment 创建评论/回复
-func CreateComment(userId int64, p *models.ParamComment) error {
+func CreateComment(userID int64, p *models.ParamComment) error {
 	// 检查帖子是否存在
 	post, err := mysql.GetPostById(p.PostID)
 	if err != nil || post == nil {
-		zap.L().Error("mysql.GetPostById failed",
+		zap.L().Error("mysql.GetPostById(p.PostID) failed",
 			zap.Int64("post_id", p.PostID),
 			zap.Error(err))
 		return mysql.ErrorInvalidID
@@ -26,13 +26,13 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 		// 检查父评论是否存在
 		parentComment, err := mysql.GetCommentById(p.ParentID)
 		if err != nil || parentComment == nil {
-			zap.L().Error("mysql.GetCommentById failed",
+			zap.L().Error("mysql.GetCommentById(p.ParentID) failed",
 				zap.Int64("parent_id", p.ParentID),
 				zap.Error(err))
 			return mysql.ErrorInvalidID
 		}
 		// 检查父评论是否属于指定的帖子
-		if parentComment.PostId != p.PostID {
+		if parentComment.PostID != p.PostID {
 			zap.L().Error("parent comment does not belong to the specified post",
 				zap.Int64("comment_id", p.ParentID),
 				zap.Int64("post_id", p.PostID))
@@ -41,15 +41,15 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 	}
 
 	// 生成评论ID
-	commentId := snowflake.GetID()
+	commentID := snowflake.GetID()
 
 	// 创建评论
 	comment := &models.Comment{
-		CommentId:  commentId,
-		ParentId:   p.ParentID,
-		PostId:     p.PostID,
-		AuthorId:   userId,
-		ReplyToUid: p.ReplyToUID,
+		CommentID:  commentID,
+		ParentID:   p.ParentID,
+		PostID:     p.PostID,
+		AuthorID:   userID,
+		ReplyToUID: p.ReplyToUID,
 		Content:    p.Content,
 		Status:     1,
 	}
@@ -60,19 +60,19 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 	}
 
 	// 保存到Redis
-	return redis.CreateComment(commentId)
+	return redis.CreateComment(commentID)
 }
 
 // GetCommentList 获取评论列表
-func GetCommentList(postId int64, page, size int64) (*models.ApiCommentListRes, error) {
+func GetCommentList(postID int64, page, size int64) (*models.ApiCommentListRes, error) {
 	// 获取评论总数
-	total, err := mysql.GetCommentCount(postId)
+	total, err := mysql.GetCommentCount(postID)
 	if err != nil {
 		return nil, err
 	}
 
 	// 获取分页数据
-	comments, err := mysql.GetCommentList(postId, page, size)
+	comments, err := mysql.GetCommentList(postID, page, size)
 	if err != nil {
 		return nil, err
 	}
@@ -81,37 +81,37 @@ func GetCommentList(postId int64, page, size int64) (*models.ApiCommentListRes, 
 	data := make([]*models.ApiCommentDetail, 0, len(comments))
 	for _, comment := range comments {
 		// 获取评论作者信息
-		user, err := mysql.GetUserById(comment.AuthorId)
+		user, err := mysql.GetUserById(comment.AuthorID)
 		if err != nil {
-			zap.L().Error("mysql.GetUserById failed",
-				zap.Int64("author_id", comment.AuthorId),
+			zap.L().Error("mysql.GetUserById(comment.AuthorID) failed",
+				zap.Int64("author_id", comment.AuthorID),
 				zap.Error(err))
 			continue
 		}
 
 		// 获取回复数量
-		replyCount, err := mysql.GetCommentReplyCount(comment.CommentId)
+		replyCount, err := mysql.GetCommentReplyCount(comment.CommentID)
 		if err != nil {
-			zap.L().Error("mysql.GetCommentReplyCount failed",
-				zap.Int64("comment_id", comment.CommentId),
+			zap.L().Error("mysql.GetCommentReplyCount(comment.CommentID) failed",
+				zap.Int64("comment_id", comment.CommentID),
 				zap.Error(err))
 			replyCount = 0
 		}
 
 		// 获取评论点赞数
-		voteNum, err := redis.GetCommentVoteNum(strconv.FormatInt(comment.CommentId, 10))
+		voteNum, err := redis.GetCommentVoteNum(strconv.FormatInt(comment.CommentID, 10))
 		if err != nil {
-			zap.L().Error("redis.GetCommentVoteNum failed",
-				zap.Int64("comment_id", comment.CommentId),
+			zap.L().Error("redis.GetCommentVoteNum(comment.CommentID) failed",
+				zap.Int64("comment_id", comment.CommentID),
 				zap.Error(err))
 			voteNum = 0
 		}
 
 		commentDetail := &models.ApiCommentDetail{
-			CommentId:    comment.CommentId,
-			ParentId:     comment.ParentId,
-			PostId:       comment.PostId,
-			AuthorId:     comment.AuthorId,
+			CommentID:    comment.CommentID,
+			ParentID:     comment.ParentID,
+			PostID:       comment.PostID,
+			AuthorID:     comment.AuthorID,
 			Content:      comment.Content,
 			AuthorName:   user.UserName,
 			AuthorAvatar: user.Avatar,
@@ -134,9 +134,9 @@ func GetCommentList(postId int64, page, size int64) (*models.ApiCommentListRes, 
 }
 
 // GetCommentReplyList 获取评论的回复列表
-func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
+func GetCommentReplyList(commentID int64) ([]*models.ApiCommentDetail, error) {
 	// 查询回复列表
-	comments, err := mysql.GetCommentReplyList(commentId)
+	comments, err := mysql.GetCommentReplyList(commentID)
 	if err != nil {
 		return nil, err
 	}
@@ -145,50 +145,50 @@ func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
 	data := make([]*models.ApiCommentDetail, 0, len(comments))
 	for _, comment := range comments {
 		// 查询评论作者信息
-		author, err := mysql.GetUserById(comment.AuthorId)
+		author, err := mysql.GetUserById(comment.AuthorID)
 		if err != nil {
-			zap.L().Error("mysql.GetUserById failed",
-				zap.Int64("author_id", comment.AuthorId),
+			zap.L().Error("mysql.GetUserById(comment.AuthorID) failed",
+				zap.Int64("author_id", comment.AuthorID),
 				zap.Error(err))
 			continue
 		}
 
 		// 查询被回复人信息（仅当 ReplyToUid 不为 0 时）
 		var replyToUser *models.User
-		if comment.ReplyToUid != 0 {
-			replyToUser, err = mysql.GetUserById(comment.ReplyToUid)
+		if comment.ReplyToUID != 0 {
+			replyToUser, err = mysql.GetUserById(comment.ReplyToUID)
 			if err != nil {
-				zap.L().Error("mysql.GetUserById failed",
-					zap.Int64("reply_to_uid", comment.ReplyToUid),
+				zap.L().Error("mysql.GetUserById(comment.ReplyToUID) failed",
+					zap.Int64("reply_to_uid", comment.ReplyToUID),
 					zap.Error(err))
 				continue
 			}
 		}
 
 		// 获取回复数量
-		replyCount, err := mysql.GetCommentReplyCount(comment.CommentId)
+		replyCount, err := mysql.GetCommentReplyCount(comment.CommentID)
 		if err != nil {
-			zap.L().Error("mysql.GetCommentReplyCount failed",
-				zap.Int64("comment_id", comment.CommentId),
+			zap.L().Error("mysql.GetCommentReplyCount(comment.CommentID) failed",
+				zap.Int64("comment_id", comment.CommentID),
 				zap.Error(err))
 			replyCount = 0
 		}
 
 		// 获取点赞数量
-		voteNum, err := redis.GetCommentVoteNum(strconv.FormatInt(comment.CommentId, 10))
+		voteNum, err := redis.GetCommentVoteNum(strconv.FormatInt(comment.CommentID, 10))
 		if err != nil {
-			zap.L().Error("redis.GetCommentVoteNum failed",
-				zap.Int64("comment_id", comment.CommentId),
+			zap.L().Error("redis.GetCommentVoteNum(comment.CommentID), failed",
+				zap.Int64("comment_id", comment.CommentID),
 				zap.Error(err))
 			voteNum = 0
 		}
 
 		// 组装评论详情
 		commentDetail := &models.ApiCommentDetail{
-			CommentId:    comment.CommentId,
-			ParentId:     comment.ParentId,
-			PostId:       comment.PostId,
-			AuthorId:     comment.AuthorId,
+			CommentID:    comment.CommentID,
+			ParentID:     comment.ParentID,
+			PostID:       comment.PostID,
+			AuthorID:     comment.AuthorID,
 			Content:      comment.Content,
 			AuthorName:   author.UserName,
 			AuthorAvatar: author.GetAvatarURL(),
@@ -199,7 +199,7 @@ func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
 
 		// 只有在有被回复用户时才设置被回复人信息
 		if replyToUser != nil {
-			commentDetail.ReplyToUid = comment.ReplyToUid
+			commentDetail.ReplyToUID = comment.ReplyToUID
 			commentDetail.ReplyToUserName = replyToUser.UserName
 			commentDetail.ReplyToUserAvatar = replyToUser.GetAvatarURL()
 		}
@@ -211,9 +211,9 @@ func GetCommentReplyList(commentId int64) ([]*models.ApiCommentDetail, error) {
 }
 
 // GetCommentById 根据ID获取评论详情
-func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
+func GetCommentById(commentID int64) (*models.ApiCommentDetail, error) {
 	// 查询评论
-	comment, err := mysql.GetCommentById(commentId)
+	comment, err := mysql.GetCommentById(commentID)
 	if err != nil {
 		return nil, err
 	}
@@ -222,38 +222,38 @@ func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
 	}
 
 	// 查询评论作者信息
-	user, err := mysql.GetUserById(comment.AuthorId)
+	user, err := mysql.GetUserById(comment.AuthorID)
 	if err != nil {
-		zap.L().Error("mysql.GetUserById failed",
-			zap.Int64("author_id", comment.AuthorId),
+		zap.L().Error("mysql.GetUserById(comment.AuthorID) failed",
+			zap.Int64("author_id", comment.AuthorID),
 			zap.Error(err))
 		return nil, err
 	}
 
 	// 获取回复数量
-	replyCount, err := mysql.GetCommentReplyCount(comment.CommentId)
+	replyCount, err := mysql.GetCommentReplyCount(comment.CommentID)
 	if err != nil {
-		zap.L().Error("mysql.GetCommentReplyCount failed",
-			zap.Int64("comment_id", comment.CommentId),
+		zap.L().Error("mysql.GetCommentReplyCount(comment.CommentID) failed",
+			zap.Int64("comment_id", comment.CommentID),
 			zap.Error(err))
 		replyCount = 0
 	}
 
 	// 获取点赞数量
-	voteNum, err := redis.GetCommentVoteNum(strconv.FormatInt(comment.CommentId, 10))
+	voteNum, err := redis.GetCommentVoteNum(strconv.FormatInt(comment.CommentID, 10))
 	if err != nil {
-		zap.L().Error("redis.GetCommentVoteNum failed",
-			zap.Int64("comment_id", comment.CommentId),
+		zap.L().Error("redis.GetCommentVoteNum(comment.CommentID) failed",
+			zap.Int64("comment_id", comment.CommentID),
 			zap.Error(err))
 		voteNum = 0
 	}
 
 	// 组装评论详情
 	commentDetail := &models.ApiCommentDetail{
-		CommentId:  comment.CommentId,
-		ParentId:   comment.ParentId,
-		PostId:     comment.PostId,
-		AuthorId:   comment.AuthorId,
+		CommentID:  comment.CommentID,
+		ParentID:   comment.ParentID,
+		PostID:     comment.PostID,
+		AuthorID:   comment.AuthorID,
 		Content:    comment.Content,
 		AuthorName: user.UserName,
 		ReplyCount: replyCount,
@@ -265,22 +265,22 @@ func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
 }
 
 // UpdateComment 更新评论
-func UpdateComment(userId int64, p *models.ParamUpdateComment) error {
+func UpdateComment(userID int64, p *models.ParamUpdateComment) error {
 	// 检查评论是否存在
 	comment, err := mysql.GetCommentById(p.CommentID)
 	if err != nil || comment == nil {
-		zap.L().Error("mysql.GetCommentById failed",
+		zap.L().Error("mysql.GetCommentById(p.CommentID) failed",
 			zap.Int64("comment_id", p.CommentID),
 			zap.Error(err))
 		return mysql.ErrorInvalidID
 	}
 
 	// 检查是否是评论作者
-	if comment.AuthorId != userId {
+	if comment.AuthorID != userID {
 		zap.L().Error("no permission to update comment",
 			zap.Int64("comment_id", p.CommentID),
-			zap.Int64("user_id", userId),
-			zap.Int64("author_id", comment.AuthorId))
+			zap.Int64("user_id", userID),
+			zap.Int64("author_id", comment.AuthorID))
 		return mysql.ErrorNoPermission
 	}
 
@@ -300,11 +300,11 @@ func DeleteComment(userID, commentID int64) error {
 	}
 
 	// 2. 检查是否是评论作者
-	if comment.AuthorId != userID {
+	if comment.AuthorID != userID {
 		zap.L().Error("no permission to delete comment",
 			zap.Int64("comment_id", commentID),
 			zap.Int64("user_id", userID),
-			zap.Int64("author_id", comment.AuthorId))
+			zap.Int64("author_id", comment.AuthorID))
 		return mysql.ErrorNoPermission
 	}
 
@@ -354,11 +354,11 @@ func DeleteCommentWithReplies(userID, commentID int64) error {
 	}
 
 	// 2. 检查是否有权限删除（是否是评论作者）
-	if comment.AuthorId != userID {
+	if comment.AuthorID != userID {
 		zap.L().Error("no permission to delete comment",
 			zap.Int64("comment_id", commentID),
 			zap.Int64("user_id", userID),
-			zap.Int64("author_id", comment.AuthorId))
+			zap.Int64("author_id", comment.AuthorID))
 		return mysql.ErrorNoPermission
 	}
 

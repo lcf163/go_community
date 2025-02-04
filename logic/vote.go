@@ -15,10 +15,10 @@ const (
 )
 
 // VoteForTarget 为帖子或评论投票
-func VoteForTarget(userId int64, p *models.ParamVoteData) (voteNum int64, err error) {
+func VoteForTarget(userID int64, p *models.ParamVoteData) (voteNum int64, err error) {
 	zap.L().Debug("VoteForTarget",
-		zap.Int64("userId", userId),
-		zap.Int64("targetId", p.TargetID),
+		zap.Int64("userID", userID),
+		zap.Int64("targetID", p.TargetID),
 		zap.Int8("targetType", p.TargetType),
 		zap.Int8("direction", p.Direction))
 
@@ -26,12 +26,12 @@ func VoteForTarget(userId int64, p *models.ParamVoteData) (voteNum int64, err er
 	switch p.TargetType {
 	case TypePost:
 		return redis.VoteForPost(
-			strconv.FormatInt(userId, 10),
+			strconv.FormatInt(userID, 10),
 			strconv.FormatInt(p.TargetID, 10),
 			float64(p.Direction))
 	case TypeComment:
 		return redis.VoteForComment(
-			strconv.FormatInt(userId, 10),
+			strconv.FormatInt(userID, 10),
 			strconv.FormatInt(p.TargetID, 10),
 			float64(p.Direction))
 	default:

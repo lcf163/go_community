@@ -44,12 +44,12 @@ func GetCommunityTotalCount() (count int64, err error) {
 }
 
 // GetCommunityDetailById 根据ID查询社区详情
-func GetCommunityDetailById(id int64) (*models.CommunityDetail, error) {
+func GetCommunityDetailById(communityID int64) (*models.CommunityDetail, error) {
 	community := new(models.CommunityDetail)
 	sqlStr := `select community_id, community_name, introduction, create_time 
 	from community 
 	where community_id = ? and status = 1`
-	err := db.Get(community, sqlStr, id)
+	err := db.Get(community, sqlStr, communityID)
 	if err != nil {
 		zap.L().Error("query community failed",
 			zap.String("sql", sqlStr),
@@ -64,19 +64,19 @@ func GetCommunityDetailById(id int64) (*models.CommunityDetail, error) {
 }
 
 // GetCommunityDetailByName 根据名称查询社区详情
-func GetCommunityDetailByName(name string) (community *models.CommunityDetail, err error) {
+func GetCommunityDetailByName(communityName string) (community *models.CommunityDetail, err error) {
 	community = new(models.CommunityDetail)
 	sqlStr := `select community_id, community_name, introduction, create_time, status
 	from community
 	where community_name = ? and status = 1`
-	err = db.Get(community, sqlStr, name)
+	err = db.Get(community, sqlStr, communityName)
 	if err == sql.ErrNoRows {
 		return nil, ErrorInvalidID
 	}
 	if err != nil {
 		zap.L().Error("query community by name failed",
 			zap.String("sql", sqlStr),
-			zap.String("name", name),
+			zap.String("community_name", communityName),
 			zap.Error(err))
 		return nil, ErrorQueryFailed
 	}
@@ -90,7 +90,7 @@ func CreateCommunity(community *models.CommunityDetail) (err error) {
 	sqlStr := `insert into community(
 	community_id, community_name, introduction, status)
 	values(?,?,?,?)`
-	_, err = db.Exec(sqlStr, community.CommunityId,
+	_, err = db.Exec(sqlStr, community.CommunityID,
 		community.CommunityName, community.Introduction, community.Status)
 	if err != nil {
 		zap.L().Error("CreateCommunity failed",
@@ -104,11 +104,11 @@ func CreateCommunity(community *models.CommunityDetail) (err error) {
 }
 
 // UpdateCommunity 更新社区信息
-func UpdateCommunity(id int64, name, introduction string) error {
+func UpdateCommunity(userID, communityID int64, communityName, introduction string) error {
 	sqlStr := `update community 
 	set community_name = ?, introduction = ? 
 	where community_id = ? and status = 1`
-	result, err := db.Exec(sqlStr, name, introduction, id)
+	result, err := db.Exec(sqlStr, communityName, introduction, communityID)
 	if err != nil {
 		return err
 	}
@@ -123,9 +123,9 @@ func UpdateCommunity(id int64, name, introduction string) error {
 }
 
 // DeleteCommunity 删除社区（软删除）
-func DeleteCommunity(id int64) error {
+func DeleteCommunity(communityID int64) error {
 	sqlStr := `update community set status = 0 where community_id = ? and status = 1`
-	result, err := db.Exec(sqlStr, id)
+	result, err := db.Exec(sqlStr, communityID)
 	if err != nil {
 		return err
 	}

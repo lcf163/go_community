@@ -116,7 +116,7 @@ type ParamPostListQueryWithSearch struct {
 
 // ParamPostList 获取帖子列表的请求参数
 type ParamPostList struct {
-	CommunityId int64  `json:"community_id" form:"community_id"`   // 可以为空
+	CommunityID int64  `json:"community_id" form:"community_id"`   // 可以为空
 	Page        int64  `json:"page" form:"page"`                   // 页码
 	Size        int64  `json:"size" form:"size"`                   // 每页数量
 	Order       string `json:"order" form:"order" example:"score"` // 排序依据
@@ -209,21 +209,6 @@ func (p *ParamComment) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-//// ParamComment 创建评论请求参数
-//type ParamComment struct {
-//	PostId   int64  `json:"post_id" binding:"required"` // 帖子id
-//	ParentId int64  `json:"parent_id"`                  // 父评论id，可选
-//	Content  string `json:"content" binding:"required"` // 评论内容
-//}
-//
-//// ParamCommentReply 创建评论回复的请求参数
-//type ParamCommentReply struct {
-//	ParentId   int64  `json:"parent_id" binding:"required"`              // 父评论id
-//	PostId     int64  `json:"post_id" binding:"required"`                // 帖子id
-//	ReplyToUid int64  `json:"reply_to_uid" binding:"required"`           // 被回复人的用户id
-//	Content    string `json:"content" binding:"required,min=1,max=1000"` // 修改最大长度限制
-//}
-
 // ParamUpdateComment 更新评论请求参数
 type ParamUpdateComment struct {
 	CommentID int64  `json:"comment_id" binding:"required"` // 评论id
@@ -253,12 +238,6 @@ func (p *ParamUpdateComment) UnmarshalJSON(data []byte) error {
 	p.Content = tmp.Content
 	return nil
 }
-
-//// ParamUpdateCommentReply 更新评论回复请求参数
-//type ParamUpdateCommentReply struct {
-//	CommentId int64  `json:"comment_id" binding:"required"` // 评论id
-//	Content   string `json:"content" binding:"required"`    // 回复内容
-//}
 
 // ParamCommentList 获取评论列表的请求参数
 type ParamCommentList struct {
