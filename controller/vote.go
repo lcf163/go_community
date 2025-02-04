@@ -33,14 +33,16 @@ func VoteHandler(c *gin.Context) {
 	vote := new(models.ParamVoteData)
 	if err := c.ShouldBindJSON(vote); err != nil {
 		zap.L().Error("VoteHandler with invalid param", zap.Error(err))
-		errs, ok := err.(validator.ValidationErrors) // 类型断言
-		if !ok {
-			ResponseError(c, CodeInvalidParams)
+
+		// 处理 validator.ValidationErrors 类型的错误
+		if errs, ok := err.(validator.ValidationErrors); ok {
+			errData := removeTopStruct(errs.Translate(trans))
+			ResponseErrorWithMsg(c, CodeInvalidParams, errData)
 			return
 		}
-		// 翻译并去除错误提示中的结构体标识
-		errData := removeTopStruct(errs.Translate(trans))
-		ResponseErrorWithMsg(c, CodeInvalidParams, errData)
+
+		// 处理 UnmarshalJSON 返回的错误
+		ResponseErrorWithMsg(c, CodeInvalidParams, err.Error())
 		return
 	}
 

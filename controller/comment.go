@@ -34,7 +34,7 @@ func CreateCommentHandler(c *gin.Context) {
 	}
 
 	// 如果是回复,检查必填字段
-	if p.ParentId != 0 && p.ReplyToUid == 0 {
+	if p.ParentID != 0 && p.ReplyToUID == 0 {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
@@ -137,7 +137,7 @@ func GetCommentListHandler(c *gin.Context) {
 	}
 
 	// 参数校验
-	if p.PostId == 0 && p.CommentId == 0 {
+	if p.PostID == 0 && p.CommentID == 0 {
 		ResponseError(c, CodeInvalidParams)
 		return
 	}
@@ -145,12 +145,12 @@ func GetCommentListHandler(c *gin.Context) {
 	// 根据参数判断获取类型
 	var data interface{}
 	var err error
-	if p.PostId != 0 {
+	if p.PostID != 0 {
 		// 获取帖子评论列表
-		data, err = logic.GetCommentList(p.PostId, p.Page, p.Size)
+		data, err = logic.GetCommentList(p.PostID, p.Page, p.Size)
 	} else {
 		// 获取评论回复列表
-		data, err = logic.GetCommentReplyList(p.CommentId)
+		data, err = logic.GetCommentReplyList(p.CommentID)
 	}
 
 	if err != nil {

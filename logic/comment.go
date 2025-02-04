@@ -13,29 +13,29 @@ import (
 // CreateComment 创建评论/回复
 func CreateComment(userId int64, p *models.ParamComment) error {
 	// 检查帖子是否存在
-	post, err := mysql.GetPostById(p.PostId)
+	post, err := mysql.GetPostById(p.PostID)
 	if err != nil || post == nil {
 		zap.L().Error("mysql.GetPostById failed",
-			zap.Int64("post_id", p.PostId),
+			zap.Int64("post_id", p.PostID),
 			zap.Error(err))
 		return mysql.ErrorInvalidID
 	}
 
 	// 如果是回复,需要额外检查
-	if p.ParentId != 0 {
+	if p.ParentID != 0 {
 		// 检查父评论是否存在
-		parentComment, err := mysql.GetCommentById(p.ParentId)
+		parentComment, err := mysql.GetCommentById(p.ParentID)
 		if err != nil || parentComment == nil {
 			zap.L().Error("mysql.GetCommentById failed",
-				zap.Int64("parent_id", p.ParentId),
+				zap.Int64("parent_id", p.ParentID),
 				zap.Error(err))
 			return mysql.ErrorInvalidID
 		}
 		// 检查父评论是否属于指定的帖子
-		if parentComment.PostId != p.PostId {
+		if parentComment.PostId != p.PostID {
 			zap.L().Error("parent comment does not belong to the specified post",
-				zap.Int64("comment_id", p.ParentId),
-				zap.Int64("post_id", p.PostId))
+				zap.Int64("comment_id", p.ParentID),
+				zap.Int64("post_id", p.PostID))
 			return mysql.ErrorInvalidID
 		}
 	}
@@ -46,10 +46,10 @@ func CreateComment(userId int64, p *models.ParamComment) error {
 	// 创建评论
 	comment := &models.Comment{
 		CommentId:  commentId,
-		ParentId:   p.ParentId,
-		PostId:     p.PostId,
+		ParentId:   p.ParentID,
+		PostId:     p.PostID,
 		AuthorId:   userId,
-		ReplyToUid: p.ReplyToUid,
+		ReplyToUid: p.ReplyToUID,
 		Content:    p.Content,
 		Status:     1,
 	}
@@ -267,10 +267,10 @@ func GetCommentById(commentId int64) (*models.ApiCommentDetail, error) {
 // UpdateComment 更新评论
 func UpdateComment(userId int64, p *models.ParamUpdateComment) error {
 	// 检查评论是否存在
-	comment, err := mysql.GetCommentById(p.CommentId)
+	comment, err := mysql.GetCommentById(p.CommentID)
 	if err != nil || comment == nil {
 		zap.L().Error("mysql.GetCommentById failed",
-			zap.Int64("comment_id", p.CommentId),
+			zap.Int64("comment_id", p.CommentID),
 			zap.Error(err))
 		return mysql.ErrorInvalidID
 	}
@@ -278,14 +278,14 @@ func UpdateComment(userId int64, p *models.ParamUpdateComment) error {
 	// 检查是否是评论作者
 	if comment.AuthorId != userId {
 		zap.L().Error("no permission to update comment",
-			zap.Int64("comment_id", p.CommentId),
+			zap.Int64("comment_id", p.CommentID),
 			zap.Int64("user_id", userId),
 			zap.Int64("author_id", comment.AuthorId))
 		return mysql.ErrorNoPermission
 	}
 
 	// 更新评论内容
-	return mysql.UpdateComment(p.CommentId, p.Content)
+	return mysql.UpdateComment(p.CommentID, p.Content)
 }
 
 // DeleteComment 删除评论

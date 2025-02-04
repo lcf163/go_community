@@ -160,39 +160,39 @@ func GetPostList2(p *models.ParamPostList) (data *models.ApiPostDetailRes, err e
 	}
 
 	// 添加数据一致性检查
-	// if len(posts) != len(ids) {
-	// 	zap.L().Warn("data inconsistency between Redis and MySQL",
-	// 		zap.Int("redis_count", len(ids)),
-	// 		zap.Int("mysql_count", len(posts)),
-	// 		zap.Strings("redis_ids", ids))
+	if len(posts) != len(ids) {
+		zap.L().Warn("data inconsistency between Redis and MySQL",
+			zap.Int("redis_count", len(ids)),
+			zap.Int("mysql_count", len(posts)),
+			zap.Strings("redis_ids", ids))
 
-	// 	// 找出在 MySQL 中不存在的 ID
-	// 	existingIds := make(map[string]bool)
-	// 	for _, post := range posts {
-	// 		existingIds[strconv.FormatInt(post.PostId, 10)] = true
-	// 	}
+		// 找出在 MySQL 中不存在的 ID
+		existingIds := make(map[string]bool)
+		for _, post := range posts {
+			existingIds[strconv.FormatInt(post.PostId, 10)] = true
+		}
 
-	// 	var invalidIds []string
-	// 	for _, id := range ids {
-	// 		if !existingIds[id] {
-	// 			invalidIds = append(invalidIds, id)
-	// 		}
-	// 	}
+		var invalidIds []string
+		for _, id := range ids {
+			if !existingIds[id] {
+				invalidIds = append(invalidIds, id)
+			}
+		}
 
-	// 	// 异步清理 Redis 中的无效数据
-	// 	if len(invalidIds) > 0 {
-	// 		go func() {
-	// 			if err := redis.RemoveInvalidPostIds(invalidIds); err != nil {
-	// 				zap.L().Error("failed to remove invalid post ids from redis",
-	// 					zap.Error(err),
-	// 					zap.Strings("invalid_ids", invalidIds))
-	// 			} else {
-	// 				zap.L().Info("successfully removed invalid post ids from redis",
-	// 					zap.Strings("invalid_ids", invalidIds))
-	// 			}
-	// 		}()
-	// 	}
-	// }
+		// 异步清理 Redis 中的无效数据
+		if len(invalidIds) > 0 {
+			go func() {
+				if err := redis.RemoveInvalidPostIds(invalidIds); err != nil {
+					zap.L().Error("failed to remove invalid post ids from redis",
+						zap.Error(err),
+						zap.Strings("invalid_ids", invalidIds))
+				} else {
+					zap.L().Info("successfully removed invalid post ids from redis",
+						zap.Strings("invalid_ids", invalidIds))
+				}
+			}()
+		}
+	}
 
 	// 提前查询好每篇帖子的投票数
 	voteData, err := redis.GetPostVoteData(ids)
@@ -425,7 +425,7 @@ func PostSearch(p *models.ParamPostList) (data *models.ApiPostDetailRes, err err
 // UpdatePost 编辑帖子
 func UpdatePost(userId int64, p *models.ParamUpdatePost) (err error) {
 	// 判断帖子是否存在
-	post, err := mysql.GetPostById(p.PostId)
+	post, err := mysql.GetPostById(p.PostID)
 	if err != nil {
 		return err
 	}
@@ -436,7 +436,7 @@ func UpdatePost(userId int64, p *models.ParamUpdatePost) (err error) {
 	}
 
 	// 更新帖子
-	return mysql.UpdatePost(p.PostId, p.Title, p.Content)
+	return mysql.UpdatePost(p.PostID, p.Title, p.Content)
 }
 
 // GetUserPostList 获取用户的帖子列表
