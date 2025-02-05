@@ -114,7 +114,7 @@ func GetCommentList(postID int64, page, size int64) (*models.ApiCommentListRes, 
 			AuthorID:     comment.AuthorID,
 			Content:      comment.Content,
 			AuthorName:   user.UserName,
-			AuthorAvatar: user.Avatar,
+			AuthorAvatar: user.GetAvatarURL(),
 			ReplyCount:   replyCount,
 			VoteNum:      voteNum,
 			CreateTime:   comment.CreateTime.Format("2006-01-02 15:04:05"),
@@ -145,7 +145,7 @@ func GetCommentReplyList(commentID int64) ([]*models.ApiCommentDetail, error) {
 	data := make([]*models.ApiCommentDetail, 0, len(comments))
 	for _, comment := range comments {
 		// 查询评论作者信息
-		author, err := mysql.GetUserById(comment.AuthorID)
+		user, err := mysql.GetUserById(comment.AuthorID)
 		if err != nil {
 			zap.L().Error("mysql.GetUserById(comment.AuthorID) failed",
 				zap.Int64("author_id", comment.AuthorID),
@@ -190,8 +190,8 @@ func GetCommentReplyList(commentID int64) ([]*models.ApiCommentDetail, error) {
 			PostID:       comment.PostID,
 			AuthorID:     comment.AuthorID,
 			Content:      comment.Content,
-			AuthorName:   author.UserName,
-			AuthorAvatar: author.GetAvatarURL(),
+			AuthorName:   user.UserName,
+			AuthorAvatar: user.GetAvatarURL(),
 			ReplyCount:   replyCount,
 			VoteNum:      voteNum,
 			CreateTime:   comment.CreateTime.Format("2006-01-02 15:04:05"),
