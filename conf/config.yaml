@@ -12,9 +12,9 @@ log:
   max_backups: 7
 mysql:
   host: "127.0.0.1"
+  port: 3307
   # host: mysql8
   # port: 3306
-  port: 3307
   user: "root"
   password: "root"
   dbname: "go_community"
@@ -29,5 +29,11 @@ redis:
   pool_size: 100
 avatar:
   base_url: "static/img/avatar/"    # 头像存储的基础路径
-  max_size: 2097152                    # 最大文件大小 (2MB = 2 * 1024 * 1024)
-  domain: "http://localhost:8081/"     # API服务器域名
+  max_size: 2097152                 # 最大文件大小 (2MB = 2 * 1024 * 1024)
+  domain:
+    dev: "http://localhost:8081/"        # 开发环境域名
+    prod: "http://192.168.163.132:8081/" # 生产环境域名
+swagger:
+  domain:
+    dev: "localhost:8081"         # 开发环境域名
+    prod: "192.168.163.132:8081"  # 生产环境域名

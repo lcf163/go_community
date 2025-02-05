@@ -10,9 +10,15 @@ import (
 // Conf 全局变量，用来保存程序的所有配置信息
 var Conf = new(AppConfig)
 
+// 定义环境常量
+const (
+	ModeDev  = "dev"
+	ModeProd = "prod"
+)
+
 type AppConfig struct {
 	Name      string `mapstructure:"name"`
-	Mode      string `mapstructure:"mode"`
+	Mode      string `mapstructure:"mode"` // dev/prod
 	Version   string `mapstructure:"version"`
 	StartTime string `mapstructure:"start_time"`
 	MachineID int64  `mapstructure:"machine_id"`
@@ -21,7 +27,8 @@ type AppConfig struct {
 	*LogConfig   `mapstructure:"log"`
 	*MySQLConfig `mapstructure:"mysql"`
 	*RedisConfig `mapstructure:"redis"`
-	Avatar       AvatarConfig `mapstructure:"avatar"`
+	Avatar       AvatarConfig  `mapstructure:"avatar"`
+	Swagger      SwaggerConfig `mapstructure:"swagger"`
 }
 
 type LogConfig struct {
@@ -50,10 +57,47 @@ type RedisConfig struct {
 	PoolSize int    `mapstructure:"pool_size"`
 }
 
+// AvatarConfig 头像配置
 type AvatarConfig struct {
-	BaseURL  string `mapstructure:"base_url"`
-	MaxSize  int64  `mapstructure:"max_size"`
-	Domain   string `mapstructure:"domain"`
+	BaseURL string `mapstructure:"base_url"`
+	MaxSize int64  `mapstructure:"max_size"`
+	Domain  struct {
+		Dev  string `mapstructure:"dev"`
+		Prod string `mapstructure:"prod"`
+	} `mapstructure:"domain"`
+}
+
+type SwaggerConfig struct {
+	Domain struct {
+		Dev  string `mapstructure:"dev"`
+		Prod string `mapstructure:"prod"`
+	} `mapstructure:"domain"`
+}
+
+// IsDevMode 判断是否为开发环境
+func (c *AppConfig) IsDevMode() bool {
+	return c.Mode == ModeDev
+}
+
+// IsProdMode 判断是否为生产环境
+func (c *AppConfig) IsProdMode() bool {
+	return c.Mode == ModeProd
+}
+
+// GetDomain 根据运行模式获取对应的域名
+func (a *AvatarConfig) GetDomain() string {
+	if Conf.IsProdMode() {
+		return a.Domain.Prod
+	}
+	return a.Domain.Dev
+}
+
+// GetSwaggerHost 根据运行模式获取 Swagger Host
+func (c *AppConfig) GetSwaggerHost() string {
+	if c.IsProdMode() {
+		return c.Swagger.Domain.Prod
+	}
+	return c.Swagger.Domain.Dev
 }
 
 // Init 初始化读取配置文件

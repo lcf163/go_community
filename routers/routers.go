@@ -2,6 +2,7 @@ package routers
 
 import (
 	controller "go_community/controller"
+	"go_community/docs"
 	_ "go_community/docs" // 千万不要忘了导入把你上一步生成的docs
 	"go_community/logger"
 	"go_community/middlewares"
@@ -10,6 +11,8 @@ import (
 	"github.com/gin-contrib/cors"
 	swaggerFiles "github.com/swaggo/files"
 	gs "github.com/swaggo/gin-swagger"
+
+	"go_community/settings"
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
@@ -21,6 +24,10 @@ func SetupRouter(mode string) *gin.Engine {
 	if mode == gin.ReleaseMode {
 		gin.SetMode(gin.ReleaseMode)
 	}
+
+	// 设置 Swagger Host
+	docs.SwaggerInfo.Host = settings.Conf.GetSwaggerHost()
+
 	// 初始化路由（没有默认中间件）
 	r := gin.New()
 	// 设置中间件

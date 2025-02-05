@@ -36,14 +36,14 @@ func GetRandomDefaultAvatar() string {
 // GetAvatarPath 获取头像的完整URL路径
 func GetAvatarPath(filename string) string {
 	if filename == "" {
-		return settings.Conf.Avatar.Domain + settings.Conf.Avatar.BaseURL + GetRandomDefaultAvatar()
+		return settings.Conf.Avatar.GetDomain() + settings.Conf.Avatar.BaseURL + GetRandomDefaultAvatar()
 	}
 	// 如果已经是完整URL，直接返回
 	if strings.HasPrefix(filename, "http") {
 		return filename
 	}
 	// 返回完整的URL路径，filename 只包含文件名
-	return settings.Conf.Avatar.Domain + settings.Conf.Avatar.BaseURL + filename
+	return settings.Conf.Avatar.GetDomain() + settings.Conf.Avatar.BaseURL + filename
 }
 
 // GenerateAvatarFilename 生成头像文件名
