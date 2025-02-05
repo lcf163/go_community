@@ -45,9 +45,9 @@ COPY --from=builder /go_community/go_community_app /
 # chmod 755 wait-for.sh
 
 # 设置镜像的源列表为阿里云的镜像源
-RUN echo "deb http://mirrors.aliyun.com/debian/ stretch main non-free contrib" > /etc/apt/sources.list \
-    echo "deb-src http://mirrors.aliyun.com/debian/ stretch main non-free contrib" >> /etc/apt/sources.list \
-    echo "deb http://mirrors.aliyun.com/debian-security stretch/updates main" >> /etc/apt/sources.list \
+#RUN echo "deb http://mirrors.aliyun.com/debian/ stretch main non-free contrib" > /etc/apt/sources.list \
+#    echo "deb-src http://mirrors.aliyun.com/debian/ stretch main non-free contrib" >> /etc/apt/sources.list \
+#    echo "deb http://mirrors.aliyun.com/debian-security stretch/updates main" >> /etc/apt/sources.list \
 # 更新镜像源并安装 netcat
 RUN set -eux; \
     apt-get update; \
@@ -55,7 +55,8 @@ RUN set -eux; \
     chmod 755 wait-for.sh
 
 # 声明服务端口
-EXPOSE 8088
+#EXPOSE 8088
+EXPOSE 8081
 
 # 需要运行的命令（注释掉这一句，因为需要等 MySQL 启动之后再启动我们的Web程序）
 # ENTRYPOINT ["/go_community_app", "conf/config.yaml"]
