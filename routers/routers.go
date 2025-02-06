@@ -38,7 +38,7 @@ func SetupRouter(mode string) *gin.Engine {
 	r.Use(cors.Default())                               // 默认允许所有跨域请求
 	// 自定义跨域请求 CORS 相关配置项
 	//r.Use(cors.New(cors.Config{
-	//	AllowOrigins:     []string{"*"},                                       // 允许所有来源
+	//	AllowOrigins:     []string{"https://foo.com"},                         // 允许所有来源
 	//	AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},            // 允许的 HTTP 方法
 	//	AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"}, // 允许的请求头
 	//	ExposeHeaders:    []string{"Content-Length"},

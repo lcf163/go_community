@@ -43,4 +43,4 @@ services:
       - mysql8
       - redis507
     ports:
-      - "8088:8082"
+      - "8088:8081"

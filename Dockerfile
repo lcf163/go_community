@@ -55,8 +55,7 @@ RUN set -eux; \
     chmod 755 wait-for.sh
 
 # 声明服务端口
-#EXPOSE 8088
-EXPOSE 8081
+EXPOSE 8088
 
 # 需要运行的命令（注释掉这一句，因为需要等 MySQL 启动之后再启动我们的Web程序）
 # ENTRYPOINT ["/go_community_app", "conf/config.yaml"]
