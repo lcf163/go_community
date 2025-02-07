@@ -16,35 +16,35 @@ __debug_bin
 *.test
 *.prof
 ## Air热重载配置
-.air.conf
-.air_win.conf
-.air_linux.conf
+#.air.conf
+#.air_win.conf
+#.air_linux.conf
 
 # 部署相关
 ## Nginx
-nginx.conf
-nginx/*.conf
+#nginx.conf
+#nginx/*.conf
 ## Docker
-Dockerfile
-docker-compose.yml
-*.dockerfile
-.dockerignore
+#Dockerfile
+#docker-compose.yml
+#*.dockerfile
+#.dockerignore
 ## 部署脚本
-scripts/
-*.sh
-wait-for.sh
-wait-for.sh.bak
-Makefile
-Makefile_linux
+#scripts/
+#*.sh
+#wait-for.sh
+#wait-for.sh.bak
+#Makefile
+#Makefile_linux
 
 # 数据库
-*.sql
-init.sql
+#*.sql
+#init.sql
 
 # 配置文件
-config.yaml
-config.yaml.bak
-*.env
+#config.yaml
+#config.yaml.bak
+#*.env
 
 # 日志文件
 *.log
