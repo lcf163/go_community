@@ -8,7 +8,7 @@
 - 采用前后端分离架构
 - RESTful API 设计
 - 分层架构：controller -> logic -> dao
-- 缓存设计：Redis + MySQL 双写一致性
+- 缓存设计：Redis + MySQL
 
 ### 目录结构
 ```bash
@@ -20,73 +20,83 @@ go_community/
 │ └── redis/ # Redis操作
 ├── logger/ # 日志模块
 ├── logic/ # 业务逻辑层
+├── middlewares/ # 中间件
 ├── models/ # 数据模型
 ├── pkg/ # 公共工具包
 ├── routers/ # 路由配置
+├── settings/ # 全局配置
 ├── static/ # 静态资源
 └── templates/ # 模板文件
 ```
 
-## 项目亮点
-
-
 ## 功能
 
 ### 用户功能
-- 用户注册/登录
-  - JWT 认证
-  - Token 刷新
-  - 参数校验
+- 用户认证
+  - 注册账号 POST `/api/v1/signup`
+  - 用户登录 POST `/api/v1/login`
+  - 刷新Token GET `/api/v1/refresh_token`
 - 用户信息
-  - 获取用户信息
-  - 用户信息展示
-  - 修改用户信息（用户头像、用户名、用户密码）
+  - 获取用户信息 GET `/api/v1/user/:id`
+  - 修改用户名 PUT `/api/v1/user/name`
+  - 修改密码 PUT `/api/v1/user/password`
+  - 更新头像 POST `/api/v1/user/avatar`
 
 ### 社区功能
-- 社区列表展示
-  - 获取社区列表
-  - 获取社区详情
-  - 分页查询
-- 权限控制
-  - 用户权限校验
-  - 操作权限管理
+- 社区管理
+  - 创建社区 POST `/api/v1/community`
+  - 更新社区 PUT `/api/v1/community/:id`
+  - 删除社区 DELETE `/api/v1/community/:id`
+- 社区查询
+  - 获取社区列表 GET `/api/v1/community`
+  - 分页获取社区 GET `/api/v1/community2`
+  - 获取社区详情 GET `/api/v1/community/:id`
 
 ### 帖子功能
 - 帖子管理
-  - 发布帖子
-  - 编辑帖子
-  - 删除帖子
-  - 帖子详情查询
-- 帖子列表
-  - 分页展示
-  - 按时间排序
-  - 按分数排序
-  - 社区内帖子查询
-  - 关键词搜索
-  - 点赞数统计
-- 投票功能
-  - 帖子投票
-  - 分数权重算法
+  - 发布帖子 POST `/api/v1/post`
+  - 编辑帖子 PUT `/api/v1/post`
+  - 删除帖子 DELETE `/api/v1/post/:id`
+- 帖子查询
+  - 获取帖子列表(分页) GET `/api/v1/posts`
+  - 获取帖子列表(分页+排序) GET `/api/v1/posts2`
+  - 获取用户帖子列表 GET `/api/v1/posts/user/:id`
+  - 获取帖子详情 GET `/api/v1/post/:id`
+  - 搜索帖子 GET `/api/v1/search`
 
 ### 评论功能
 - 评论管理
-  - 发表评论
-  - 编辑评论
-  - 刪除评论
-  - 评论列表查询
-  - 评论回复功能
-  - 评论投票
-- 评论展示
-  - 按时间排序
-  - 点赞数统计
-  - 评论数统计
+  - 发表评论/回复 POST `/api/v1/comment`
+  - 编辑评论 PUT `/api/v1/comment`
+  - 删除评论 DELETE `/api/v1/comment/:id`
+  - 删除评论及回复 DELETE `/api/v1/comments/:id`
+- 评论查询
+  - 获取评论列表 GET `/api/v1/comments`
+  - 获取评论详情 GET `/api/v1/comment/:id`
+
+### 投票功能
+- 投票操作
+  - 投票(帖子/评论) POST `/api/v1/vote`
+  - 支持点赞和踩
+  - 记录投票历史
+  - 实时更新分数
+
+### 其他特性
+- 跨域支持 (CORS)
+- API 文档 (Swagger)
+- 性能分析 (pprof)
+- 404 处理
 
 ### 缓存设计
 - Redis 缓存
-  - 帖子时间/分数排序
-  - 投票记录存储
-  - 社区帖子集合
-  - 评论时间/投票数据
+  - 帖子
+  	- 时间/分数排序
+  	- 投票数据
+  - 评论
+  	- 时间排序
+  	- 投票数据
+  - 社区
+  	- id查询帖子集合
 - 双写一致性
   - MySQL 持久化存储
   - Redis 实时计数
@@ -119,12 +129,12 @@ go_community/
 - 日志: [Zap](https://github.com/uber-go/zap)
   - 结构化日志
   - 性能优化
-- 文档: [Swagger](https://github.com/swaggo/gin-swagger)
-  - API文档自动生成
-  - 在线调试
 - 认证: [jwt-go](https://github.com/dgrijalva/jwt-go)
   - Token生成与验证
   - 过期处理
+- 文档: [Swagger](https://github.com/swaggo/gin-swagger)
+  - API文档自动生成
+  - 在线调试
 
 ### 开发工具
 - 热重载: [Air](https://github.com/cosmtrek/air)
@@ -135,7 +145,6 @@ go_community/
   - Swagger: 文档测试
 - 监控调试:
   - pprof: 性能分析
-  - Prometheus: 指标收集
 
 ### 部署
 - 反向代理: Nginx
@@ -152,14 +161,14 @@ go_community/
 ### 环境要求
 - Go 1.23+
 - MySQL 8.0+
-- Redis 6.0+
+- Redis 5.0+
 - Docker & Docker Compose
 
 ### 安装
 
 1. 克隆项目
 ```bash
-git clone https://github.com/yourusername/go_community.git
+git clone https://github.com/xxx/go_community.git
 cd go_community
 ```
 
@@ -176,22 +185,26 @@ mysql -u root -p < models/create_tables.sql
 
 4. 修改配置
 ```bash
-# 复制配置文件模板
-cp config.yaml.example config.yaml
 # 修改配置文件
-vim config.yaml
+vim conf/config.yaml
 ```
 
 ### 运行
 
 1. 开发模式
 ```bash
+# 修改配置文件 conf/config.yaml
+mode: "dev"
+
 # 使用 Air 热重载
 air -c .air.conf
 ```
 
 2. 生产模式
 ```bash
+# 修改配置文件 conf/config.yaml
+mode: "prod"
+
 # 使用 Docker
 ```
 
@@ -200,10 +213,20 @@ air -c .air.conf
 1. 使用 Docker
 ```bash
 # 构建镜像
-docker build -t go_community .
+docker build . -t go_community_app
+
+# 拉取 MySQL8.0 镜像
+docker pull mysql:8.0      
+# 运行 MySQL 容器
+docker run --name mysql8 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=your_password -d mysql:8.0
+
+# 拉取 Redis 镜像
+docker pull redis:5.0.7
+# 运行 Redis 容器
+docker run --name redis507 -p 6379:6379 -d redis:5.0.7 redis-server --appendonly yes
 
 # 运行容器
-docker run -p 8081:8081 go_community
+docker run --link=mysql8:mysql8 --link=redis507:redis507 -p 8088:8081 go_community_app
 ```
 
 2. 使用 Docker Compose
@@ -214,14 +237,6 @@ docker-compose up -d
 ## API 文档
 
 启动服务后访问: http://localhost:8081/swagger/index.html
-
-主要接口:
-- POST /api/v1/signup - 用户注册
-- POST /api/v1/login - 用户登录
-- GET /api/v1/community - 社区列表
-- POST /api/v1/post - 发布帖子
-- GET /api/v1/posts - 帖子列表
-- POST /api/v1/vote - 帖子投票
 
 ## 开发规范
 
