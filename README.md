@@ -27,7 +27,7 @@ go_community/
 │   └── service/     # 业务逻辑层
 ├── pkg/         # 模块包
 ├── scripts/     # 脚本文件
-├── storage/     # 生成的临时文件
+└── storage/     # 生成的临时文件
 ```
 
 ## 功能
