@@ -53,7 +53,7 @@ logs/
 web_app.log
 
 # Swagger
-/docs/swagger.*
+#/docs/swagger.*
 
 # 静态资源和模板
 /static/*

@@ -14,19 +14,20 @@
 ```bash
 go_community/
 ├── config/      # 配置文件
-├── controller/  # 控制器层
-├── dao/         # 数据访问层
-│ ├── mysql/     # MySQL操作
-│ └── redis/     # Redis操作
-├── logger/      # 日志模块
-├── logic/       # 业务逻辑层
-├── middlewares/ # 中间件
-├── models/      # 数据模型
-├── pkg/         # 公共工具包
-├── routers/     # 路由配置
-├── settings/    # 全局配置
-├── static/      # 静态资源
-└── templates/   # 模板文件
+├── docs/        # 文档
+├── global/      # 全局变量
+├── internal/    # 内部模块
+│   ├── controller/  # 控制器层
+│   ├── dao/         # 数据访问层
+│   │  ├── mysql/      # MySQL操作
+│   │  └── redis/      # Redis操作
+│   ├── middlewares/ # 中间件
+│   ├── models/      # 数据模型
+│   ├── routers/     # 路由配置
+│   └── service/     # 业务逻辑层
+├── pkg/         # 模块包
+├── scripts/     # 脚本文件
+├── storage/     # 生成的临时文件
 ```
 
 ## 功能

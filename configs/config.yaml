@@ -1,0 +1,41 @@
+name: "web_app"
+mode: "dev"
+version: "v0.0.1"
+start_time: "2024-12-15"
+machine_id: 1
+port: 8081
+log:
+  level: "debug"
+  filename: "storage/logs/web_app.log"
+  max_size: 200
+  max_age: 30
+  max_backups: 7
+mysql:
+  host: "127.0.0.1"
+  port: 3307
+  # host: mysql8
+  # port: 3306
+  user: "root"
+  password: "root"
+  dbname: "go_community"
+  max_open_conns: 200
+  max_idle_conns: 50
+redis:
+  host: "127.0.0.1"
+  # host: redis507
+  port: 6379
+  password: ""
+  db: 0
+  pool_size: 100
+avatar:
+  base_url: "static/img/avatar/"   # 头像存储的基础路径
+  max_size: 2097152                # 最大文件大小 (2MB = 2 * 1024 * 1024)
+  domain:
+    dev: "http://localhost:8081/"        # 开发环境域名
+    # prod: "http://192.168.163.132:8081/" # 生产环境域名
+    prod: "http://192.168.163.132:8088/" # docker环境域名，改为8088端口
+swagger:
+  domain:
+    dev: "localhost:8081"         # 开发环境域名
+    # prod: "192.168.163.132:8081"  # 生产环境域名
+    prod: "192.168.163.132:8088"  # docker环境域名，改为8088端口
