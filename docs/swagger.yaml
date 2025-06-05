@@ -1211,7 +1211,7 @@ paths:
       tags:
       - 帖子相关接口
   /refresh_token:
-    post:
+    get:
       consumes:
       - application/json
       description: 使用refresh_token刷新access_token

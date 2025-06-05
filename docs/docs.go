@@ -1290,7 +1290,7 @@ const docTemplate = `{
             }
         },
         "/refresh_token": {
-            "post": {
+            "get": {
                 "description": "使用refresh_token刷新access_token",
                 "consumes": [
                     "application/json"
