@@ -8,7 +8,7 @@ import (
 
 var (
 	client *redis.Client
-	Nil    = redis.Nil
+	//Nil    = redis.Nil
 )
 
 // Init 初始化连接

@@ -120,7 +120,7 @@ func LoginHandler(c *gin.Context) {
 // @Param refresh_token query string true "刷新令牌"
 // @Success 200 {object} map[string]string{access_token=string,refresh_token=string}
 // @Failure 1006 {object} ResponseData "无效的Token"
-// @Router /refresh_token [post]
+// @Router /refresh_token [get]
 func RefreshTokenHandler(c *gin.Context) {
 	rt := c.Query("refresh_token")
 	// 客户端携带 Token 有三种方式 1.放在请求头 2.放在请求体 3.放在 URI

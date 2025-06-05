@@ -77,9 +77,20 @@ func RefreshToken(aToken, rToken string) (newAToken, newRToken string, err error
 	// 从旧 access token 中解析出 claims 数据
 	var claims MyClaims
 	_, err = jwt.ParseWithClaims(aToken, &claims, keyFunc)
-	v, _ := err.(*jwt.ValidationError)
+	// 如果 err 为 nil，表示 token 仍然有效，不需要刷新
+	if err == nil {
+		err = errors.New("token 仍然有效，不需要刷新")
+		return
+	}
 
-	// 当 access token 是过期错误并且 refresh token 没有过期时，就创建一个新的 access token
+	// 检查是否是验证错误
+	v, ok := err.(*jwt.ValidationError)
+	if !ok {
+		// 不是验证错误，可能是其他类型的错误
+		return "", "", errors.New("token 解析失败")
+	}
+
+	// access token 是过期错误并且 refresh token 没有过期时，就创建一个新的 access token
 	if v.Errors == jwt.ValidationErrorExpired {
 		return GenToken(claims.UserID)
 	}
